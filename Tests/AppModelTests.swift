@@ -55,7 +55,7 @@ final class AppModelTests: XCTestCase {
         let first = Task { await model.refresh(source.id) }
         await fulfillment(of: [started], timeout: 5)
         let secondFinished = expectation(description: "duplicate call returned without another fetch")
-        let second = Task {
+        Task {
             await model.refresh(source.id)
             secondFinished.fulfill()
         }
@@ -63,7 +63,6 @@ final class AppModelTests: XCTestCase {
         let fetched = GitHubFetch(changes: [change(), UpstreamChange(identifier: "old", title: "Old", body: "", url: "https://github.com/acme/tool", publishedAt: nil, content: nil)], etag: nil, unchanged: false)
         await gate.resume(fetched)
         await first.value
-        await second.value
         XCTAssertEqual(model.findings.count, 1)
         XCTAssertEqual(model.source(for: source.id)?.baselineIdentifier, "new")
     }

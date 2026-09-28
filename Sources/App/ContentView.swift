@@ -42,35 +42,7 @@ struct ContentView: View {
                     }
                 }
 
-                Section("待处理变化") {
-                    let pending = FindingQueue.pending(model.findings, importantOnly: importantOnly)
-                    if !FindingQueue.pending(model.findings).isEmpty {
-                        Picker("筛选变化", selection: $importantOnly) {
-                            Text("全部").tag(false)
-                            Text("值得关注").tag(true)
-                        }
-                        .pickerStyle(.segmented)
-                    }
-                    if pending.isEmpty {
-                        if importantOnly && !FindingQueue.pending(model.findings).isEmpty {
-                            Label("暂无重点变化；可切回“全部”查看", systemImage: "line.3.horizontal.decrease.circle")
-                                .foregroundStyle(.secondary)
-                        } else {
-                            Label(model.sources.isEmpty ? "添加来源后，新变化会显示在这里" : "目前没有待处理变化",
-                                  systemImage: "checkmark.circle")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    ForEach(pending) { finding in
-                        PendingFindingRowView(model: model, finding: finding)
-                    }
-                    let completedCount = FindingQueue.completed(model.findings).count
-                    if completedCount > 0 {
-                        NavigationLink("查看已处理记录（\(completedCount)）") {
-                            CompletedFindingsView(model: model)
-                        }
-                    }
-                }
+                PendingSectionView(model: model, importantOnly: $importantOnly)
 
                 SourcesSectionView(model: model, editorSource: $editorSource)
 
@@ -127,6 +99,43 @@ struct ContentView: View {
                 Button("确定", role: .cancel) { dialogError = nil }
             } message: { Text(dialogError ?? "") }
             .task { await model.refreshAll() }
+        }
+    }
+}
+
+private struct PendingSectionView: View {
+    @ObservedObject var model: AppModel
+    @Binding var importantOnly: Bool
+
+    var body: some View {
+        Section("待处理变化") {
+            let pending = FindingQueue.pending(model.findings, importantOnly: importantOnly)
+            if !FindingQueue.pending(model.findings).isEmpty {
+                Picker("筛选变化", selection: $importantOnly) {
+                    Text("全部").tag(false)
+                    Text("值得关注").tag(true)
+                }
+                .pickerStyle(.segmented)
+            }
+            if pending.isEmpty {
+                if importantOnly && !FindingQueue.pending(model.findings).isEmpty {
+                    Label("暂无重点变化；可切回“全部”查看", systemImage: "line.3.horizontal.decrease.circle")
+                        .foregroundStyle(.secondary)
+                } else {
+                    Label(model.sources.isEmpty ? "添加来源后，新变化会显示在这里" : "目前没有待处理变化",
+                          systemImage: "checkmark.circle")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            ForEach(pending) { finding in
+                PendingFindingRowView(model: model, finding: finding)
+            }
+            let completedCount = FindingQueue.completed(model.findings).count
+            if completedCount > 0 {
+                NavigationLink("查看已处理记录（\(completedCount)）") {
+                    CompletedFindingsView(model: model)
+                }
+            }
         }
     }
 }
