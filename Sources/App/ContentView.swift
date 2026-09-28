@@ -62,10 +62,21 @@ struct ContentView: View {
                         }
                     }
                     ForEach(pending) { finding in
-                        NavigationLink {
-                            FindingDetailView(model: model, id: finding.id)
-                        } label: {
-                            FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
+                        HStack(spacing: 8) {
+                            NavigationLink {
+                                FindingDetailView(model: model, id: finding.id)
+                            } label: {
+                                FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
+                            }
+                            Button {
+                                model.setStatus(.handled, for: finding.id)
+                            } label: {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.title3)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel("标为已处理")
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button {
