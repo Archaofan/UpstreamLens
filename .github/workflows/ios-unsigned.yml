@@ -51,6 +51,17 @@ jobs:
       - name: Archive unsigned app and widget
         run: |
           xcodebuild archive -project UpstreamLens.xcodeproj -scheme UpstreamLens -configuration Release -destination 'generic/platform=iOS' -archivePath build/UpstreamLens.xcarchive CURRENT_PROJECT_VERSION="${{ github.run_number }}" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=''
+      - name: Embed entitlements with adhoc codesign
+        run: |
+          set -euo pipefail
+          APP='build/UpstreamLens.xcarchive/Products/Applications/UpstreamLens.app'
+          WIDGET="$APP/PlugIns/UpstreamLensWidget.appex"
+          # Codesigning was disabled during archiving, so the binaries carry no
+          # entitlements; the re-signing tools on the device read entitlements from
+          # the Mach-O. Adhoc-sign with entitlements so SideStore registers the
+          # App Group during re-sign. (ldid's brew bottle proved unreliable here.)
+          codesign --force --sign - --entitlements "$PWD/Sources/App/UpstreamLens.entitlements" "$APP/UpstreamLens"
+          codesign --force --sign - --entitlements "$PWD/Sources/Widget/UpstreamLensWidget.entitlements" "$WIDGET/UpstreamLensWidget"
       - name: Verify archive and package IPA
         run: |
           set -euo pipefail
@@ -66,8 +77,13 @@ jobs:
           lipo "$WIDGET/UpstreamLensWidget" -verify_arch arm64
           test ! -e "$APP/embedded.mobileprovision"
           test ! -e "$WIDGET/embedded.mobileprovision"
-          if codesign --verify "$APP" 2>/dev/null; then echo 'App unexpectedly signed'; exit 1; fi
-          if codesign --verify "$WIDGET" 2>/dev/null; then echo 'Widget unexpectedly signed'; exit 1; fi
+          for BIN in "$APP/UpstreamLens" "$WIDGET/UpstreamLensWidget"; do
+            # 只校验代码签名本身：二进制是裸签（无 bundle 资源密封），设备侧重签工具会重建整包签名。
+            codesign --verify --ignore-resources "$BIN"
+            test "$(codesign -dv "$BIN" 2>&1 | grep -c 'Signature=adhoc')" = '1'
+          done
+          codesign -d --entitlements - "$APP/UpstreamLens" 2>/dev/null | grep -q 'group.com.upstreamlens.ios'
+          codesign -d --entitlements - "$WIDGET/UpstreamLensWidget" 2>/dev/null | grep -q 'group.com.upstreamlens.ios'
           mkdir -p build/package/Payload
           ditto "$APP" build/package/Payload/UpstreamLens.app
           (cd build/package && zip -qry ../UpstreamLens-unsigned.ipa Payload)

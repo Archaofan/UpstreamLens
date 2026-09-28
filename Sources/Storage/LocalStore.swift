@@ -49,7 +49,7 @@ enum WidgetSnapshotWriter {
         guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) else {
             throw StorageError.appGroupUnavailable
         }
-        let pending = data.findings.filter { $0.status == .unread && $0.relevance != .routine }
+        let pending = data.findings.filter(\.isUnreadRelevant)
         let top = pending.sorted {
             if $0.relevance != $1.relevance { return $0.relevance == .important }
             return $0.foundAt > $1.foundAt

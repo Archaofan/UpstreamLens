@@ -203,4 +203,130 @@ final class AppModelTests: XCTestCase {
         model.delete(first)
         XCTAssertNil(model.lastSuccessfulCheck)
     }
+
+    // MARK: - 批量操作
+
+    @MainActor private func modelWithFindings() -> AppModel {
+        let source = WatchSource(repository: "acme/tool")
+        var data = LocalData(sources: [source])
+        func make(_ status: FindingStatus, _ relevance: Relevance) -> Finding {
+            Finding(sourceID: source.id, upstreamID: UUID().uuidString, title: status.rawValue,
+                    body: "", url: "https://github.com/acme/tool", foundAt: .now,
+                    relevance: relevance, reason: "r", status: status)
+        }
+        data.findings = [make(.unread, .important), make(.unread, .routine), make(.viewed, .important)]
+        return AppModel(initialData: data, saveData: { _ in }, publishSnapshot: { _ in })
+    }
+
+    @MainActor func testMarkAllReadKeepsQueueMembership() {
+        let model = modelWithFindings()
+        model.markAllRead()
+        XCTAssertTrue(model.findings.allSatisfy { $0.status != .unread })
+        XCTAssertEqual(FindingQueue.pending(model.findings).count, 3)
+    }
+
+    @MainActor func testMarkAllHandledMovesEverythingToHistory() {
+        let model = modelWithFindings()
+        model.markAllHandled()
+        XCTAssertTrue(model.findings.allSatisfy { $0.status == .handled })
+        XCTAssertTrue(FindingQueue.pending(model.findings).isEmpty)
+        XCTAssertEqual(FindingQueue.completed(model.findings).count, 3)
+    }
+
+    @MainActor func testClearHandledRecordsRemovesOnlyHistory() {
+        let model = modelWithFindings()
+        model.markAllHandled()
+        model.clearHandledRecords()
+        XCTAssertTrue(model.findings.isEmpty)
+    }
+
+    // MARK: - 保留策略
+
+    @MainActor func testRefreshAllPrunesExpiredHandledRecords() async {
+        let source = WatchSource(repository: "acme/tool")
+        var data = LocalData(sources: [source], retentionDays: 90)
+        let old = Finding(sourceID: source.id, upstreamID: "old", title: "old", body: "",
+                          url: "u", foundAt: Date().addingTimeInterval(-100 * 86_400),
+                          relevance: .routine, reason: "r", status: .handled)
+        let recent = Finding(sourceID: source.id, upstreamID: "recent", title: "recent", body: "",
+                             url: "u", foundAt: Date(), relevance: .routine, reason: "r", status: .handled)
+        data.findings = [old, recent]
+        let model = AppModel(initialData: data, saveData: { _ in }, publishSnapshot: { _ in })
+        await model.refreshAll()
+        XCTAssertEqual(model.findings.count, 1)
+        XCTAssertEqual(model.findings.first?.upstreamID, "recent")
+    }
+
+    @MainActor func testRetentionZeroKeepsOldRecords() async {
+        let source = WatchSource(repository: "acme/tool")
+        var data = LocalData(sources: [source], retentionDays: 0)
+        data.findings = [Finding(sourceID: source.id, upstreamID: "old", title: "old", body: "",
+                                 url: "u", foundAt: Date().addingTimeInterval(-1000 * 86_400),
+                                 relevance: .routine, reason: "r", status: .handled)]
+        let model = AppModel(initialData: data, saveData: { _ in }, publishSnapshot: { _ in })
+        await model.refreshAll()
+        XCTAssertEqual(model.findings.count, 1)
+    }
+
+    @MainActor func testSetRetentionDaysPrunesImmediately() {
+        var data = LocalData()
+        let source = WatchSource(repository: "acme/tool")
+        data.sources = [source]
+        data.findings = [Finding(sourceID: source.id, upstreamID: "old", title: "old", body: "",
+                                 url: "u", foundAt: Date().addingTimeInterval(-1000 * 86_400),
+                                 relevance: .routine, reason: "r", status: .handled)]
+        let model = AppModel(initialData: data, saveData: { _ in }, publishSnapshot: { _ in })
+        model.setRetentionDays(90)
+        XCTAssertTrue(model.findings.isEmpty)
+        model.setRetentionDays(0)
+        XCTAssertEqual(model.retentionDays, 0)
+    }
+
+    // MARK: - 角标与限流状态
+
+    @MainActor func testBadgeTracksUnreadRelevantCount() {
+        let source = WatchSource(repository: "acme/tool")
+        var data = LocalData(sources: [source])
+        func make(_ status: FindingStatus, _ relevance: Relevance, _ id: String) -> Finding {
+            Finding(sourceID: source.id, upstreamID: id, title: id, body: "", url: "u",
+                    foundAt: .now, relevance: relevance, reason: "r", status: status)
+        }
+        data.findings = [make(.unread, .important, "a"), make(.unread, .routine, "b"), make(.viewed, .important, "c")]
+        var badgeValues: [Int] = []
+        let model = AppModel(initialData: data, saveData: { _ in }, publishSnapshot: { _ in },
+                             updateBadge: { badgeValues.append($0) })
+        XCTAssertEqual(model.unreadRelevantCount, 1)
+        model.setStatus(.viewed, for: model.findings.first { $0.upstreamID == "a" }!.id)
+        XCTAssertEqual(model.unreadRelevantCount, 0)
+        XCTAssertEqual(badgeValues.last, 0)
+    }
+
+    @MainActor func testRateLimitInfoStoredAfterSuccessfulRefresh() async {
+        let source = WatchSource(repository: "acme/tool", baselineIdentifier: "old")
+        let info = RateLimitInfo(remaining: 41, total: 60, reset: Date().addingTimeInterval(600))
+        let model = AppModel(initialData: LocalData(sources: [source]),
+                             fetchChanges: { _ in GitHubFetch(changes: [], etag: nil, unchanged: true, rateLimit: info) },
+                             saveData: { _ in }, publishSnapshot: { _ in })
+        await model.refresh(source.id)
+        XCTAssertEqual(model.rateLimit, info)
+    }
+
+    // MARK: - 探测闭包
+
+    @MainActor func testProbePassesThroughInjectedClosure() async throws {
+        let expected = RepoProbe(source: WatchSource(repository: "acme/probed"), metadata: nil,
+                                 latest: nil, warnings: ["warning"])
+        let model = AppModel(initialData: LocalData(),
+                             saveData: { _ in }, publishSnapshot: { _ in },
+                             probeRepo: { input in
+                                 XCTAssertEqual(input, "acme/probed")
+                                 return expected
+                             },
+                             probePaths: { _, _ in TreeScan(paths: ["skills/a/SKILL.md"], truncated: false) })
+        let probe = try await model.probe("acme/probed")
+        XCTAssertEqual(probe.source.repository, "acme/probed")
+        XCTAssertEqual(probe.warnings, ["warning"])
+        let scan = try await model.probePaths(repository: "acme/probed", branch: "main")
+        XCTAssertEqual(scan.paths, ["skills/a/SKILL.md"])
+    }
 }

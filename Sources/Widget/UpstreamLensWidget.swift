@@ -34,9 +34,16 @@ private struct SnapshotView: View {
 
     var body: some View {
         Group {
-            if family == .systemMedium {
+            switch family {
+            case .systemMedium:
                 mediumLayout
-            } else {
+            case .accessoryCircular:
+                circularAccessory
+            case .accessoryInline:
+                inlineAccessory
+            case .accessoryRectangular:
+                rectangularAccessory
+            default:
                 smallLayout
             }
         }
@@ -90,6 +97,67 @@ private struct SnapshotView: View {
         }
     }
 
+    private var circularAccessory: some View {
+        VStack(spacing: 2) {
+            Image(systemName: pendingCount == 0 ? "checkmark.circle.fill" : "dot.radiowaves.left.and.right")
+                .font(.caption2)
+            Text("\(pendingCount)")
+                .font(.system(.headline, design: .rounded, weight: .bold))
+                .minimumScaleFactor(0.6)
+            Text("待查看")
+                .font(.system(size: 9))
+        }
+    }
+
+    private var inlineAccessory: some View {
+        Label(pendingCount == 0 ? "UpstreamLens：暂无待查看" : "UpstreamLens：\(pendingCount) 条待查看",
+              systemImage: "dot.radiowaves.left.and.right")
+            .font(.caption)
+    }
+
+    private var rectangularAccessory: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack {
+                Image(systemName: "dot.radiowaves.left.and.right")
+                    .font(.caption2)
+                Text("UpstreamLens")
+                    .font(.caption.weight(.semibold))
+                Spacer(minLength: 0)
+                if pendingCount > 0 {
+                    Text("\(pendingCount)")
+                        .font(.system(.headline, design: .rounded, weight: .bold))
+                        .contentTransition(.numericText())
+                }
+            }
+            if let snapshot {
+                if let headline = snapshot.headline, pendingCount > 0 {
+                    Text(headline)
+                        .font(.caption2)
+                        .lineLimit(2)
+                } else {
+                    Text("暂无需要关注的新变化")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Text(checkedLine(for: snapshot))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("共享数据暂不可用")
+                    .font(.caption2)
+            }
+        }
+    }
+
+    private var pendingCount: Int { snapshot?.pendingCount ?? 0 }
+
+    private func checkedLine(for snapshot: WidgetSnapshot) -> String {
+        guard let checked = snapshot.lastSuccessfulCheck else { return "尚未完成检查" }
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return "检查于 " + formatter.localizedString(for: checked, relativeTo: entry.date)
+    }
+
     private var header: some View {
         Label("UpstreamLens", systemImage: "dot.radiowaves.left.and.right")
             .font(.caption.weight(.semibold))
@@ -98,7 +166,7 @@ private struct SnapshotView: View {
 
     private var countLine: some View {
         HStack(alignment: .firstTextBaseline, spacing: 5) {
-            Text("\(snapshot?.pendingCount ?? 0)")
+            Text("\(pendingCount)")
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
                 .contentTransition(.numericText())
             Text("条待查看")
@@ -149,6 +217,6 @@ private struct SnapshotView: View {
         }
         .configurationDisplayName("技术变化")
         .description("显示待查看的相关变化与上次检查时间。")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

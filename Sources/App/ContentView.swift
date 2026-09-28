@@ -10,31 +10,40 @@ struct BackupDocument: FileDocument {
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper { FileWrapper(regularFileWithContents: data) }
 }
 
+struct FindingRoute: Hashable {
+    let id: UUID
+}
+
 struct ContentView: View {
     @ObservedObject var model: AppModel
+    @Environment(\.scenePhase) private var scenePhase
     @State private var editorSource: WatchSource?
-    @State private var showImporter = false
-    @State private var showExporter = false
-    @State private var backup: BackupDocument?
+    @State private var showAddFlow = false
+    @State private var showSettings = false
+    @State private var navigationPath = NavigationPath()
+    @State private var showClipboardBanner = false
+    @State private var showMarkAllHandled = false
     @State private var dialogError: String?
     @State private var importantOnly = false
-    @State private var pendingImport: PendingImport?
+    @State private var pendingClipboardAdd: ClipboardAdd?
+    @AppStorage("clipboardChangeCountSeen") private var clipboardChangeCountSeen = 0
 
-    private struct PendingImport: Identifiable {
-        let data: Data
-        let sourceCount: Int
-        let findingCount: Int
-        var id: String { "\(sourceCount)-\(findingCount)" }
+    private struct ClipboardAdd: Identifiable {
+        let text: String
+        var id: String { text }
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             List {
+                if showClipboardBanner {
+                    clipboardBannerSection
+                }
                 SummarySectionView(model: model)
-
                 StorageErrorSectionView(error: model.storageError)
                 PendingSectionView(model: model, importantOnly: $importantOnly)
-                SourcesSectionView(model: model, editorSource: $editorSource)
+                SourcesSectionView(model: model, editorSource: $editorSource,
+                                   addTapped: { showAddFlow = true })
                 WidgetStatusSectionView(error: model.widgetError)
             }
             .listStyle(.insetGrouped)
@@ -42,19 +51,34 @@ struct ContentView: View {
             .background(Color(uiColor: .systemGroupedBackground))
             .refreshable { await model.refreshAll() }
             .navigationTitle("UpstreamLens")
+            .navigationDestination(for: FindingRoute.self) { route in
+                FindingDetailView(model: model, id: route.id)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { editorSource = WatchSource() } label: { Image(systemName: "plus") }
+                    Button { showAddFlow = true } label: { Image(systemName: "plus") }
                         .accessibilityLabel("添加来源")
                         .disabled(!model.canEditData)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("导出 JSON") {
-                            do { backup = BackupDocument(data: try model.exportData()); showExporter = true }
-                            catch { dialogError = error.localizedDescription }
+                        Button {
+                            model.markAllRead()
+                        } label: {
+                            Label("全部标为已读", systemImage: "envelope.open")
                         }
-                        Button("导入 JSON") { showImporter = true }
+                        .disabled(!model.findings.contains { $0.status == .unread })
+                        Button {
+                            showMarkAllHandled = true
+                        } label: {
+                            Label("全部标为已处理", systemImage: "checkmark.circle")
+                        }
+                        .disabled(FindingQueue.pending(model.findings).isEmpty)
+                        Button {
+                            showSettings = true
+                        } label: {
+                            Label("设置", systemImage: "gearshape")
+                        }
                     } label: { Image(systemName: "ellipsis.circle") }
                         .accessibilityLabel("更多操作")
                 }
@@ -65,39 +89,103 @@ struct ContentView: View {
                     Task { await model.refresh(saved.id) }
                 }
             }
-            .fileExporter(isPresented: $showExporter, document: backup, contentType: .json, defaultFilename: "UpstreamLens-backup") { result in
-                if case .failure(let error) = result { dialogError = error.localizedDescription }
+            .sheet(isPresented: $showAddFlow) {
+                AddSourceView(model: model, onSaved: {})
             }
-            .fileImporter(isPresented: $showImporter, allowedContentTypes: [.json]) { result in
-                do {
-                    let url = try result.get()
-                    let access = url.startAccessingSecurityScopedResource()
-                    defer { if access { url.stopAccessingSecurityScopedResource() } }
-                    let bytes = try Data(contentsOf: url)
-                    let imported = try LocalStore.importData(bytes)
-                    pendingImport = PendingImport(data: bytes, sourceCount: imported.sources.count,
-                                                  findingCount: imported.findings.count)
-                } catch { dialogError = "导入失败：\(error.localizedDescription)" }
+            .sheet(item: $pendingClipboardAdd) { payload in
+                NavigationStack {
+                    RepoConfirmView(model: model, input: payload.text) {}
+                }
             }
-            .confirmationDialog("替换现有数据？", isPresented: Binding(
-                get: { pendingImport != nil },
-                set: { if !$0 { pendingImport = nil } })) {
-                Button("替换现有数据", role: .destructive) {
-                    guard let pendingImport else { return }
-                    do { try model.importData(pendingImport.data) }
-                    catch { dialogError = "导入失败：\(error.localizedDescription)" }
-                    self.pendingImport = nil
-                }
-                Button("取消", role: .cancel) { pendingImport = nil }
-            } message: {
-                if let pendingImport {
-                    Text("备份中包含 \(pendingImport.sourceCount) 个来源、\(pendingImport.findingCount) 条记录，导入后将替换现有的 \(model.sources.count) 个来源。")
-                }
+            .sheet(isPresented: $showSettings) {
+                SettingsView(model: model)
             }
             .alert("操作失败", isPresented: Binding(get: { dialogError != nil }, set: { if !$0 { dialogError = nil } })) {
                 Button("确定", role: .cancel) { dialogError = nil }
             } message: { Text(dialogError ?? "") }
+            .confirmationDialog("把待处理变化全部标为已处理？", isPresented: $showMarkAllHandled) {
+                Button("全部标为已处理", role: .destructive) { model.markAllHandled() }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("共 \(FindingQueue.pending(model.findings).count) 条将进入已处理记录；这表示你已完成本地核查。")
+            }
+            .onOpenURL { url in handleDeepLink(url) }
             .task { await model.refreshAll() }
+            .onChange(of: scenePhase) { _, phase in
+                guard phase == .active else { return }
+                detectClipboardGitHubLink()
+            }
+        }
+    }
+
+    // MARK: - 剪贴板检测（只检测模式，不自动读取内容）
+
+    private var clipboardBannerSection: some View {
+        Section {
+            HStack(spacing: 10) {
+                Image(systemName: "doc.on.clipboard")
+                    .foregroundStyle(.tint)
+                Text("剪贴板里可能有 GitHub 链接")
+                    .font(.subheadline)
+                Spacer()
+                Button("添加") {
+                    let changeCount = UIPasteboard.general.changeCount
+                    clipboardChangeCountSeen = changeCount
+                    showClipboardBanner = false
+                    guard let text = UIPasteboard.general.string,
+                          ParsedGitHubURL.parse(text) != nil else {
+                        dialogError = "剪贴板内容无法识别为 GitHub 仓库链接。"
+                        return
+                    }
+                    pendingClipboardAdd = ClipboardAdd(text: text)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                Button {
+                    clipboardChangeCountSeen = UIPasteboard.general.changeCount
+                    showClipboardBanner = false
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.caption)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("忽略")
+            }
+            .font(.subheadline)
+        }
+    }
+
+
+    /// iOS 会把“读剪贴板”变成系统弹窗；这里先用 detectPatterns 只判断模式，不触发弹窗。
+    private func detectClipboardGitHubLink() {
+        let changeCount = UIPasteboard.general.changeCount
+        guard changeCount != clipboardChangeCountSeen else { return }
+        UIPasteboard.general.detectPatterns(for: [.probableWebURL]) { result in
+            guard UIPasteboard.general.changeCount == changeCount else { return }
+            Task { @MainActor in
+                if case .success(let patterns) = result, patterns.contains(.probableWebURL) {
+                    showClipboardBanner = true
+                }
+            }
+        }
+    }
+
+    // MARK: - 深链接
+
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "upstreamlens" else { return }
+        switch url.host {
+        case "findings":
+            navigationPath = NavigationPath()
+            let pending = FindingQueue.pending(model.findings, importantOnly: true)
+            let top = pending.first ?? FindingQueue.pending(model.findings).first
+            if let top {
+                navigationPath.append(FindingRoute(id: top.id))
+            }
+        case "add":
+            showAddFlow = true
+        default:
+            break
         }
     }
 }
@@ -127,7 +215,7 @@ private struct WidgetStatusSectionView: View {
             } header: {
                 Text("小组件")
             } footer: {
-                Text(error)
+                Text("可在“设置 → 诊断”生成详细信息并发给开发者。")
             }
         }
     }
@@ -190,6 +278,7 @@ private struct PendingSectionView: View {
 private struct SourcesSectionView: View {
     @ObservedObject var model: AppModel
     @Binding var editorSource: WatchSource?
+    let addTapped: () -> Void
 
     var body: some View {
         Section("来源") {
@@ -198,15 +287,15 @@ private struct SourcesSectionView: View {
                     if model.canEditData {
                         Label("添加第一个监控来源", systemImage: "plus.circle.fill")
                             .font(.headline)
-                        Text("选择公开 GitHub 仓库或 Skill 路径。首次成功检查会建立当前基线。")
+                        Text("搜索仓库名或粘贴 GitHub 链接即可；首次成功检查会建立当前基线。")
                             .font(.subheadline).foregroundStyle(.secondary)
-                        Button("添加来源") { editorSource = WatchSource() }
+                        Button("添加来源", action: addTapped)
                             .buttonStyle(.borderedProminent)
                             .controlSize(.large)
                     } else {
                         Label("请先恢复本地数据", systemImage: "externaldrive.badge.exclamationmark")
                             .font(.headline)
-                        Text("从右上角菜单导入有效的 JSON 备份，再添加来源。")
+                        Text("请在“设置 → 数据”中导入有效的 JSON 备份，再添加来源。")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                 }
@@ -253,6 +342,23 @@ private struct PendingFindingRowView: View {
                 Label("已处理", systemImage: "checkmark")
             }
             .tint(.green)
+        }
+        .swipeActions(edge: .leading) {
+            if finding.status == .unread {
+                Button {
+                    withAnimation(.snappy) { model.setStatus(.viewed, for: finding.id) }
+                } label: {
+                    Label("已读", systemImage: "envelope.open")
+                }
+                .tint(.blue)
+            } else {
+                Button {
+                    withAnimation(.snappy) { model.setStatus(.unread, for: finding.id) }
+                } label: {
+                    Label("未读", systemImage: "envelope.badge")
+                }
+                .tint(.indigo)
+            }
         }
     }
 }
@@ -404,15 +510,28 @@ private struct FindingRowView: View {
 
 private struct CompletedFindingsView: View {
     @ObservedObject var model: AppModel
+    @State private var searchText = ""
+
+    private var filtered: [Finding] {
+        let completed = FindingQueue.completed(model.findings)
+        guard !searchText.isEmpty else { return completed }
+        let query = searchText.lowercased()
+        return completed.filter { finding in
+            finding.title.lowercased().contains(query)
+                || finding.body.lowercased().contains(query)
+                || (model.source(for: finding.sourceID)?.title.lowercased().contains(query) ?? false)
+        }
+    }
 
     var body: some View {
-        List(FindingQueue.completed(model.findings)) { finding in
+        List(filtered) { finding in
             NavigationLink {
                 FindingDetailView(model: model, id: finding.id)
             } label: {
                 FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
             }
         }
+        .searchable(text: $searchText, prompt: "搜索标题、内容或来源")
         .navigationTitle("已处理记录")
     }
 }
@@ -424,8 +543,12 @@ struct SourceEditorView: View {
     @State private var error: String?
     @State private var showMoreContext: Bool
 
-    init(source: WatchSource, onSave: @escaping (WatchSource) -> Void) {
-        _source = State(initialValue: source)
+    init(source: WatchSource, prefillRepository: String? = nil, onSave: @escaping (WatchSource) -> Void) {
+        var initial = source
+        if initial.repository.isEmpty, let prefillRepository {
+            initial.repository = prefillRepository
+        }
+        _source = State(initialValue: initial)
         _showMoreContext = State(initialValue: !source.installedVersion.isEmpty || !source.keywords.isEmpty || !source.rationale.isEmpty)
         self.onSave = onSave
     }
@@ -481,11 +604,54 @@ struct SourceEditorView: View {
     }
 }
 
+/// 编辑来源的个人使用情况（不动监控目标，不会重置基线）。
+struct PersonalContextEditorView: View {
+    @ObservedObject var model: AppModel
+    let sourceID: UUID
+    @Environment(\.dismiss) private var dismiss
+    @State private var source: WatchSource
+    @State private var loaded = false
+
+    init(model: AppModel, sourceID: UUID) {
+        self.model = model
+        self.sourceID = sourceID
+        _source = State(initialValue: model.source(for: sourceID) ?? WatchSource())
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("使用情况（仅保存在本机）") {
+                    TextField("显示名称", text: $source.displayName)
+                    TextField("用途，例如 NAS 远程连接", text: $source.purpose)
+                    TextField("正在使用的版本／Tag／提交", text: $source.installedVersion)
+                        .textInputAutocapitalization(.never)
+                    TextField("关注关键词，逗号分隔", text: $source.keywords)
+                        .textInputAutocapitalization(.never)
+                    TextField("采用理由", text: $source.rationale, axis: .vertical)
+                }
+                Toggle("暂停监控", isOn: $source.isPaused)
+            }
+            .navigationTitle("使用情况")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("保存") {
+                        model.upsertPersonalContext(source)
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
 struct SourceDetailView: View {
     @ObservedObject var model: AppModel
     let id: UUID
     let edit: (WatchSource) -> Void
     @Environment(\.dismiss) private var dismiss
+    @State private var showPersonalEditor = false
 
     var body: some View {
         List {
@@ -494,10 +660,28 @@ struct SourceDetailView: View {
                     LabeledContent("仓库", value: source.repository)
                     LabeledContent("模式", value: source.kind.rawValue)
                     if source.kind == .path { LabeledContent("路径", value: source.path) }
-                    if !source.purpose.isEmpty { LabeledContent("用途", value: source.purpose) }
-                    if !source.installedVersion.isEmpty { LabeledContent("使用版本", value: source.installedVersion) }
+                    if source.kind == .path && !source.branch.isEmpty { LabeledContent("分支", value: source.branch) }
+                    if let description = source.repoDescription, !description.isEmpty {
+                        Text(description).font(.subheadline).foregroundStyle(.secondary)
+                    }
                     if let date = source.lastCheckedAt { LabeledContent("上次检查") { Text(date, style: .relative) } }
                     if let error = source.lastError { Text(error).foregroundStyle(.red) }
+                }
+                Section("我的使用情况") {
+                    if source.purpose.isEmpty && source.installedVersion.isEmpty && source.keywords.isEmpty && source.rationale.isEmpty {
+                        Text("补充用途、关键词和使用版本后，判断会更准。")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                    } else {
+                        if !source.purpose.isEmpty { LabeledContent("用途", value: source.purpose) }
+                        if !source.installedVersion.isEmpty { LabeledContent("使用版本", value: source.installedVersion) }
+                        if !source.keywords.isEmpty { LabeledContent("关键词", value: source.keywords) }
+                        if !source.rationale.isEmpty { Text(source.rationale).font(.subheadline).foregroundStyle(.secondary) }
+                    }
+                    Button("编辑使用情况") { showPersonalEditor = true }
+                    if source.isPaused {
+                        Label("监控已暂停", systemImage: "pause.circle")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                    }
                 }
                 Section("变化") {
                     let findings = model.findings.filter { $0.sourceID == id }
@@ -507,19 +691,32 @@ struct SourceDetailView: View {
                     }
                 }
                 Section {
-                    Button("检查此来源") { Task { await model.refresh(id) } }
+                    Button {
+                        Task { await model.refresh(id) }
+                    } label: {
+                        HStack {
+                            Text("检查此来源")
+                            if model.refreshingSourceIDs.contains(id) {
+                                Spacer()
+                                ProgressView().controlSize(.small)
+                            }
+                        }
+                    }
                     if source.lastError == ChangeDetector.missingBaselineMessage {
                         Button("重建当前基线") {
                             model.resetBaseline(for: id)
                             Task { await model.refresh(id) }
                         }
                     }
-                    Button("编辑") { edit(source) }
+                    Button("编辑监控目标") { edit(source) }
                     Button("删除来源", role: .destructive) { model.delete(source); dismiss() }
                 }
             }
         }
         .navigationTitle(model.source(for: id)?.title ?? "来源")
+        .sheet(isPresented: $showPersonalEditor) {
+            PersonalContextEditorView(model: model, sourceID: id)
+        }
     }
 }
 
@@ -527,9 +724,18 @@ struct FindingDetailView: View {
     @ObservedObject var model: AppModel
     let id: UUID
 
+    private var finding: Finding? { model.findings.first { $0.id == id } }
+
+    private var markdownBody: AttributedString? {
+        guard let body = finding?.body, !body.isEmpty else { return nil }
+        return try? AttributedString(
+            markdown: body,
+            options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))
+    }
+
     var body: some View {
         List {
-            if let finding = model.findings.first(where: { $0.id == id }) {
+            if let finding {
                 Section("判断") {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: finding.relevance == .important ? "sparkles" : "info.circle.fill")
@@ -538,8 +744,18 @@ struct FindingDetailView: View {
                             .frame(width: 36, height: 36)
                             .accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 5) {
-                            Text(finding.relevance.rawValue)
-                                .font(.title3.weight(.semibold))
+                            HStack(spacing: 6) {
+                                Text(finding.relevance.rawValue)
+                                    .font(.title3.weight(.semibold))
+                                if finding.showsPrereleaseBadge {
+                                    Text("预发布")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.orange)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.orange.opacity(0.12), in: Capsule())
+                                }
+                            }
                             Text(finding.reason)
                                 .font(.subheadline).foregroundStyle(.secondary)
                         }
@@ -552,7 +768,18 @@ struct FindingDetailView: View {
                     LabeledContent("上游标识", value: finding.upstreamID)
                     LabeledContent("发现时间") { Text(finding.foundAt, style: .date) }
                 }
-                Section("变化内容") { Text(finding.body.isEmpty ? "上游未提供说明。" : finding.body).textSelection(.enabled) }
+                if finding.oldContent != nil || finding.newContent != nil {
+                    Section("文件对照") {
+                        DiffView(old: finding.oldContent, new: finding.newContent)
+                    }
+                }
+                Section("变化内容") {
+                    if let markdownBody {
+                        Text(markdownBody).textSelection(.enabled)
+                    } else {
+                        Text(finding.body.isEmpty ? "上游未提供说明。" : finding.body).textSelection(.enabled)
+                    }
+                }
                 Section("操作") {
                     if let url = URL(string: finding.url) { Link("查看 GitHub 原文", destination: url) }
                     if finding.status == .handled {
@@ -573,6 +800,6 @@ struct FindingDetailView: View {
             }
         }
         .navigationTitle("变化详情")
-        .onAppear { if model.findings.first(where: { $0.id == id })?.status == .unread { model.setStatus(.viewed, for: id) } }
+        .onAppear { if finding?.status == .unread { model.setStatus(.viewed, for: id) } }
     }
 }
