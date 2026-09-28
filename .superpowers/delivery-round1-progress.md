@@ -35,3 +35,12 @@ Beautify round (2026-09-29, branch beautify-round1):
 - Icon v2: bold round-capped arcs (SDF, 6.2% stroke vs 3.7%), richer cyan→deep-teal gradient + glow + vignette; three variants (light/dark/grayscale-from-dark for tinting). Visual check via local render at 200/80/60px.
 - Launch screen background color (LaunchBackground, light #F2F2F7 / dark #000) to kill white flash.
 - App: summary card soft shadow + symbolEffect(.pulse) while refreshing; filled SF Symbols for source rows. Widget: faint accent gradient over .fill.tertiary.
+Beautify merge: main (run 36474760675 SUCCESS, IPA 1.05MB id=10993187458 — size grew from three-appearance icon set). branch beautify-round1 deleted. Home light/dark screenshots re-verified: card shadow visible, layout unchanged, dark mode clean.
+Round 3 (2026-09-29, branch productionize-round1): notifications + background refresh + stability + presets.
+Research: iOS notif conventions (threadIdentifier per source, interruptionLevel active for important / passive else, provisional auth option, respect Focus/Scheduled Summary — no custom quiet hours); changedetection.io pattern = many channels + per-watch rules; Releases.app digest scheduling.
+Presets verified unauthenticated: swiftlang/swift (release, renamed from apple/swift), swiftlang/swift-evolution (path proposals), XcodesOrg/xcodes (release), obra/superpowers (path skills).
+Productionize round (branch productionize-round1, 5 CI loops):
+- R1: registerCategory instance-member error; SwiftUI .backgroundTask(.appTask) type-inference broken on SDK → direct BGTaskScheduler.register in App.init (equivalent behavior, no SDK fight)
+- R2: injected notification closures not assigned in init
+- R3: test let-source mutability; R4: backup URL naming (save rotates as <file>.bak) — test now derives via appendingPathExtension
+- R5 GREEN. Features: NotificationPlanner (master+per-source, 5-cap+fold, important=active/uncertain=passive, threadIdentifier per source), NotificationScheduler (provisional auth option, category summary), NotificationRouter (tap→finding deep link), BGAppRefreshTask w/ 30min cadence + budget guard (skip when remaining<5), LocalStore rotation+loadWithRecovery, LocalData.capped() 1000, presets (swiftlang/swift, swiftlang/swift-evolution proposals, XcodesOrg/xcodes, obra/superpowers skills) verified public unauth.

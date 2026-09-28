@@ -19,6 +19,8 @@ struct WatchSource: Codable, Identifiable, Equatable {
     var keywords = ""
     var rationale = ""
     var isPaused = false
+    /// 通知开关；nil 视为开启（总开关独立于来源级开关）。
+    var notifyEnabled: Bool?
     var baselineIdentifier: String?
     var baselineContent: String?
     var etag: String?
@@ -88,6 +90,27 @@ struct LocalData: Codable {
         let cutoff = now.addingTimeInterval(-Double(days) * 86_400)
         var copy = self
         copy.findings = findings.filter { !($0.status == .handled && $0.foundAt < cutoff) }
+        return copy
+    }
+
+    /// 记录总量上限：超过时优先丢弃最旧的已处理，其次已查看，最后未读，防止 JSON 无限膨胀。
+    static let maxFindings = 1000
+
+    func capped() -> LocalData {
+        guard findings.count > Self.maxFindings else { return self }
+        var remaining = findings
+        for status in [FindingStatus.handled, .viewed, .unread] {
+            guard remaining.count > Self.maxFindings else { break }
+            let excess = remaining.count - Self.maxFindings
+            let drop = Set(remaining
+                .filter { $0.status == status }
+                .sorted { $0.foundAt < $1.foundAt }
+                .prefix(excess)
+                .map(\.id))
+            remaining.removeAll { drop.contains($0.id) }
+        }
+        var copy = self
+        copy.findings = remaining
         return copy
     }
 }

@@ -19,6 +19,7 @@ struct AddSourceView: View {
                 inputSection
                 directSection
                 statusSections
+                presetSection
                 otherSection
             }
             .navigationTitle("添加来源")
@@ -33,17 +34,22 @@ struct AddSourceView: View {
                 await search()
             }
             .sheet(item: Binding(
-                get: { showConfirmFor.map { ConfirmTarget(repository: $0) } },
-                set: { showConfirmFor = $0?.repository })) { target in
-                RepoConfirmView(model: model, input: target.repository) {
+                get: { showConfirmFor.map { ConfirmTarget(repository: $0, preset: selectedPreset) } },
+                set: {
+                    showConfirmFor = $0?.repository
+                    if $0 == nil { selectedPreset = nil }
+                })) { target in
+                RepoConfirmView(model: model, input: target.repository,
+                                preset: target.preset) {
                     dismiss()
                     onSaved()
                 } onRequestManual: {
                     // 探测失败的兜底：关掉确认页后弹出手动表单（预填已识别的仓库名）。
                     manualPrefill = target.repository
+                    selectedPreset = nil
                     Task { @MainActor in
                         try? await Task.sleep(nanoseconds: 400_000_000)
-                        manualSource = WatchSource(repository: target.repository)
+                        manualSource = target.preset?.watchSource ?? WatchSource(repository: target.repository)
                     }
                 }
             }
@@ -60,8 +66,11 @@ struct AddSourceView: View {
 
     private struct ConfirmTarget: Identifiable {
         let repository: String
+        var preset: SourcePreset?
         var id: String { repository }
     }
+
+    @State private var selectedPreset: SourcePreset?
 
     // MARK: - 分区视图（拆小以缩短类型检查时间）
 
@@ -135,6 +144,36 @@ struct AddSourceView: View {
             if let description = result.description, !description.isEmpty {
                 Text(description).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
             }
+        }
+    }
+
+    private var presetSection: some View {
+        Section {
+            ForEach(PresetLibrary.validated()) { preset in
+                Button {
+                    selectedPreset = preset
+                    showConfirmFor = preset.repository
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: preset.symbol)
+                            .font(.headline)
+                            .foregroundStyle(.tint)
+                            .frame(width: 30, height: 30)
+                            .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 9))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(preset.displayName).font(.headline).foregroundStyle(.primary)
+                            Text(preset.note).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "plus.circle")
+                            .foregroundStyle(.tint)
+                    }
+                }
+            }
+        } header: {
+            Text("常用预设")
+        } footer: {
+            Text("面向 iOS 应用开发与 Agent 技能场景的特化来源，点选即预填。")
         }
     }
 

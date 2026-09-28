@@ -13,6 +13,8 @@ struct SettingsView: View {
     @State private var dialogError: String?
     @State private var diagnosticsText: String?
     @State private var confirmClearHandled = false
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
+    @State private var notificationAuthStatus = "未查询"
 
     private struct PendingImport: Identifiable {
         let data: Data
@@ -24,6 +26,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                notificationSection
                 rateLimitSection
                 dataSection
                 diagnosticsSection
@@ -75,6 +78,39 @@ struct SettingsView: View {
     private struct DiagnosticsPayload: Identifiable {
         let text: String
         var id: String { text }
+    }
+
+    private var notificationSection: some View {
+        Section {
+            Toggle(isOn: $notificationsEnabled) {
+                Label("新变化通知", systemImage: "bell.badge")
+            }
+            .onChange(of: notificationsEnabled) { _, enabled in
+                if enabled {
+                    Task {
+                        let scheduler = NotificationScheduler()
+                        _ = await scheduler.requestAuthorization()
+                        notificationAuthStatus = await authText(scheduler)
+                    }
+                }
+            }
+            if notificationsEnabled {
+                LabeledContent("系统授权状态", value: notificationAuthStatus)
+            }
+        } header: {
+            Text("通知")
+        } footer: {
+            Text("只通知“值得关注”与“影响不确定”的相关变化（每个来源可单独关闭）。“值得关注”会横幅提醒，其余静默进入通知中心；是否打断由系统的专注模式决定。后台检查由 iOS 调度，约每 30 分钟起，不能保证实时。")
+        }
+    }
+
+    private func authText(_ scheduler: NotificationScheduler) async -> String {
+        switch await scheduler.authorizationStatus() {
+        case .authorized, .provisional: return "已授权"
+        case .denied: return "已被拒绝（请到系统设置开启）"
+        case .notDetermined: return "待确认"
+        @unknown default: return "未知"
+        }
     }
 
     private var rateLimitSection: some View {
