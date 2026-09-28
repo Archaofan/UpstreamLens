@@ -74,8 +74,8 @@ struct ParsedGitHubURL: Equatable {
         var cameFromGitHubLink = false
         let lowered = value.lowercased()
         if lowered.hasPrefix("http://") || lowered.hasPrefix("https://") {
-            guard let schemeEnd = value.firstIndex(of: "://") else { return nil }
-            let hostAndPath = value[value.index(schemeEnd, offsetBy: 3)...]
+            guard let schemeRange = value.range(of: "://") else { return nil }
+            let hostAndPath = value[schemeRange.upperBound...]
             guard hostAndPath.lowercased().hasPrefix("github.com/") else { return nil }
             value = String(hostAndPath.dropFirst("github.com/".count))
             cameFromGitHubLink = true
