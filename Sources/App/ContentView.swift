@@ -389,6 +389,7 @@ private struct StatusSummaryView: View {
                 Image(systemName: pendingCount == 0 ? "checkmark.circle.fill" : "dot.radiowaves.left.and.right")
                     .font(.title2)
                     .foregroundStyle(.tint)
+                    .symbolEffect(.pulse, options: .repeating, isActive: isRefreshing)
                     .frame(width: 48, height: 48)
                     .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 15))
                     .accessibilityHidden(true)
@@ -423,6 +424,7 @@ private struct StatusSummaryView: View {
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.07), radius: 14, x: 0, y: 6)
         .accessibilityElement(children: .contain)
     }
 }
@@ -433,7 +435,7 @@ private struct SourceRowView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: source.kind == .path ? "doc.text" : source.kind == .tag ? "tag" : "shippingbox")
+            Image(systemName: source.kind == .path ? "doc.text.fill" : source.kind == .tag ? "tag.fill" : "shippingbox.fill")
                 .font(.headline)
                 .foregroundStyle(.tint)
                 .frame(width: 32, height: 32)

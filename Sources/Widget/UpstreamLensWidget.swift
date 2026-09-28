@@ -48,7 +48,14 @@ private struct SnapshotView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .containerBackground(.fill.tertiary, for: .widget)
+        .containerBackground(for: .widget) {
+            ZStack {
+                Rectangle().fill(.fill.tertiary)
+                // 极淡的品牌色渐变，与 App 图标同一青色系；纯语义色叠加。
+                LinearGradient(colors: [Color.accentColor.opacity(0.12), Color.accentColor.opacity(0.02)],
+                               startPoint: .top, endPoint: .bottom)
+            }
+        }
         .widgetURL(URL(string: "upstreamlens://findings"))
     }
 
