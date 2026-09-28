@@ -47,7 +47,7 @@ final class RetentionTests: XCTestCase {
     }
 
     func testPruneRemovesOnlyOldHandledRecords() {
-        var data = LocalData()
+        var data = LocalData(retentionDays: 90)
         data.findings = [
             finding(status: .handled, daysAgo: 100),
             finding(status: .handled, daysAgo: 10),
@@ -97,7 +97,7 @@ final class RetentionTests: XCTestCase {
                         "sourceID": "AABBCCDD-1122-3344-5566-77889900AABB",
                         "upstreamID": "v2", "title": "Update", "body": "notes",
                         "url": "https://github.com/acme/tool", "foundAt": 720000000.0,
-                        "relevance": "值得关注", "reason": "config", "status": "unread",
+                        "relevance": "值得关注", "reason": "config", "status": "未读",
                         "oldContent": null, "newContent": null}],
           "lastSuccessfulCheck": null
         }
