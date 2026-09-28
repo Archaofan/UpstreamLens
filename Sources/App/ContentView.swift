@@ -161,7 +161,7 @@ struct ContentView: View {
         guard url.scheme == "upstreamlens" else { return }
         switch url.host {
         case "findings":
-            navigationPath = []
+            navigationPath = NavigationPath()
             let pending = FindingQueue.pending(model.findings, importantOnly: true)
             let top = pending.first ?? FindingQueue.pending(model.findings).first
             if let top {

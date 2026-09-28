@@ -51,10 +51,9 @@ struct AddSourceView: View {
                             } label: {
                                 VStack(alignment: .leading, spacing: 3) {
                                     HStack {
-                                        Text(result.fullName).font(.headline).foregroundStyle(.primary)
+                                        titleText(result)
                                         Spacer()
-                                        Label("\(result.stargazersCount)", systemImage: "star")
-                                            .font(.caption).foregroundStyle(.secondary)
+                                        starLabel(result)
                                     }
                                     if let description = result.description, !description.isEmpty {
                                         Text(description).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
@@ -122,6 +121,15 @@ struct AddSourceView: View {
             return (try? GitHubClient.normalizedRepository(trimmed)) ?? trimmed
         }
         return nil
+    }
+
+    private func titleText(_ result: RepoSearchResult) -> some View {
+        Text(result.fullName).font(.headline).foregroundStyle(.primary)
+    }
+
+    private func starLabel(_ result: RepoSearchResult) -> some View {
+        Label("\(result.stargazersCount)", systemImage: "star")
+            .font(.caption).foregroundStyle(.secondary)
     }
 
     private var isLinkLike: Bool { directRepository != nil }
