@@ -4,3 +4,16 @@ Pre-flight: T2→T5 (models consumed by AppModel), T3/T4→T6 (engine+client con
 
 Ruling (process): 本机无 Xcode，无法本地跑测试 — TDD 红绿循环改为"同批提交代码+测试，推送分支后以 Actions 单测为红绿门"；每批 commit 对应一个任务，Actions 红则修复回归。
 Task T1-T8, T9: code+tests+README committed in one batch — Ruling: 无本地 Xcode，无法逐任务本地跑测试，红绿门统一由 Actions 承担（见计划 Global constraints）。
+CI loop record (delivery-round1, run 36453939764 → 36459336316):
+- R1 dup @State pendingClipboardAdd (ContentView) → removed; R2-3: diff ternary type, search tuple destructure, keypath \isEmpty, hashValue; R5 try export; R6 slow type-check AddSourceView body → split builders, NavigationPath() reset
+- R7 first full test run: 89 tests / 13 assertion failures → root causes fixed in impl:
+  * LocalData.effectiveRetentionDays treated 0 (永久保留) as 90 → rewritten; pruned() no-ops on 0
+  * DiffEngine.counts subtracted from mutated set → subtracting() on immutable sets
+  * DiffEngine.lines trimmed common prefix/suffix unconditionally (context lines lost) → trim only when >400 lines
+  * RelevanceEngine.terms: no space splitting (mixed CJK+ASCII terms unusable) → split on spaces/全角空格; minASCIILength default 2, no max()
+  * ParsedVersion.parse: split dropped empty segments → "1..3"/"1.2.3.4" accepted → omittingEmptySubsequences: false
+  * ParsedGitHubURL: host never validated (example.com accepted), plain-text >2 segments accepted → github.com host check + plain==2 segments
+  * watchSource tree-no-path didn't prefill installedVersion
+  * Diagnostics.contains empty-needle semantics settled: false (test updated)
+- R9: String.firstIndex(of:) type error → range(of:)
+- R10: terms test still used 1-char words → test updated to 2-char (implementation rule stands)
