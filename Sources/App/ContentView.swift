@@ -93,6 +93,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { editorSource = WatchSource() } label: { Image(systemName: "plus") }
                         .accessibilityLabel("添加来源")
+                        .disabled(!model.canEditData)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -138,13 +139,20 @@ private struct SourcesSectionView: View {
         Section("来源") {
             if model.sources.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
-                    Label("添加第一个监控来源", systemImage: "plus.circle.fill")
-                        .font(.headline)
-                    Text("选择公开 GitHub 仓库或 Skill 路径。首次成功检查会建立当前基线。")
-                        .font(.subheadline).foregroundStyle(.secondary)
-                    Button("添加来源") { editorSource = WatchSource() }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
+                    if model.canEditData {
+                        Label("添加第一个监控来源", systemImage: "plus.circle.fill")
+                            .font(.headline)
+                        Text("选择公开 GitHub 仓库或 Skill 路径。首次成功检查会建立当前基线。")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                        Button("添加来源") { editorSource = WatchSource() }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                    } else {
+                        Label("请先恢复本地数据", systemImage: "externaldrive.badge.exclamationmark")
+                            .font(.headline)
+                        Text("从右上角菜单导入有效的 JSON 备份，再添加来源。")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                    }
                 }
                 .padding(.vertical, 10)
             }

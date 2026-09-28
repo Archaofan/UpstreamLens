@@ -53,8 +53,13 @@ final class AppModelTests: XCTestCase {
                              fetchChanges: { _ in try await gate.fetch() },
                              saveData: { _ in }, publishSnapshot: { _ in })
         let first = Task { await model.refresh(source.id) }
-        let second = Task { await model.refresh(source.id) }
         await fulfillment(of: [started], timeout: 5)
+        let secondFinished = expectation(description: "duplicate call returned without another fetch")
+        let second = Task {
+            await model.refresh(source.id)
+            secondFinished.fulfill()
+        }
+        await fulfillment(of: [secondFinished], timeout: 5)
         let fetched = GitHubFetch(changes: [change(), UpstreamChange(identifier: "old", title: "Old", body: "", url: "https://github.com/acme/tool", publishedAt: nil, content: nil)], etag: nil, unchanged: false)
         await gate.resume(fetched)
         await first.value
@@ -85,11 +90,31 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(model.source(for: source.id)?.repository, "acme/new")
     }
 
+    @MainActor func testEditingAnotherSourceDoesNotDiscardInFlightCheck() async {
+        let firstSource = WatchSource(repository: "acme/first", baselineIdentifier: "old")
+        let secondSource = WatchSource(repository: "acme/second")
+        let started = expectation(description: "first source requested")
+        let gate = FetchGate(started: started)
+        let model = AppModel(initialData: LocalData(sources: [firstSource, secondSource]),
+                             fetchChanges: { _ in try await gate.fetch() },
+                             saveData: { _ in }, publishSnapshot: { _ in })
+        let check = Task { await model.refresh(firstSource.id) }
+        await fulfillment(of: [started], timeout: 5)
+        var edited = secondSource
+        edited.repository = "acme/changed"
+        model.upsert(edited)
+        await gate.resume(GitHubFetch(changes: [], etag: nil, unchanged: true))
+        await check.value
+        XCTAssertNotNil(model.source(for: firstSource.id)?.lastCheckedAt)
+        XCTAssertEqual(model.source(for: secondSource.id)?.repository, "acme/changed")
+    }
+
     @MainActor func testFailedLoadBlocksSaveUntilValidImport() throws {
         var saves = 0
         let model = AppModel(loadData: { throw CocoaError(.fileReadCorruptFile) },
                              saveData: { _ in saves += 1 }, publishSnapshot: { _ in })
         XCTAssertNotNil(model.storageError)
+        XCTAssertFalse(model.canEditData)
         model.upsert(WatchSource(repository: "acme/tool"))
         XCTAssertEqual(saves, 0)
         let backup = try LocalStore.export(LocalData(sources: [WatchSource(repository: "acme/recovered")]))
@@ -97,6 +122,7 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(saves, 1)
         XCTAssertEqual(model.sources.first?.repository, "acme/recovered")
         XCTAssertNil(model.storageError)
+        XCTAssertTrue(model.canEditData)
     }
 
     @MainActor func testFailedSaveRestoresLastSavedDataAndKeepsWidgetInSync() {

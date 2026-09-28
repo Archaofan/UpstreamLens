@@ -2,6 +2,11 @@ import Foundation
 import Combine
 
 @MainActor final class AppModel: ObservableObject {
+    private struct RequestVersion: Equatable {
+        let data: Int
+        let source: Int
+    }
+
     @Published private(set) var data: LocalData
     @Published var isRefreshing = false
     @Published private(set) var refreshingSourceIDs: Set<UUID> = []
@@ -10,8 +15,9 @@ import Combine
     private let fetchChanges: (WatchSource) async throws -> GitHubFetch
     private let saveData: (LocalData) throws -> Void
     private let publishSnapshot: (LocalData) throws -> Void
-    private var storageEpoch = 0
-    private var inFlightEpochs: [UUID: Int] = [:]
+    private var dataEpoch = 0
+    private var sourceEpochs: [UUID: Int] = [:]
+    private var inFlightVersions: [UUID: RequestVersion] = [:]
     private var storageReady = true
     private var lastSavedData = LocalData()
 
@@ -40,6 +46,7 @@ import Combine
     var sources: [WatchSource] { data.sources }
     var findings: [Finding] { data.findings.sorted { $0.foundAt > $1.foundAt } }
     var lastSuccessfulCheck: Date? { data.lastSuccessfulCheck }
+    var canEditData: Bool { storageReady }
 
     func source(for id: UUID) -> WatchSource? { data.sources.first { $0.id == id } }
 
@@ -51,7 +58,7 @@ import Combine
             let trackingChanged = previous.repository != source.repository || previous.kind != source.kind ||
                 previous.path != source.path || previous.branch != source.branch
             if trackingChanged {
-                storageEpoch += 1
+                sourceEpochs[source.id, default: 0] += 1
                 updated.baselineIdentifier = nil
                 updated.baselineContent = nil
                 updated.etag = nil
@@ -75,7 +82,7 @@ import Combine
 
     func delete(_ source: WatchSource) {
         guard storageReady else { return }
-        storageEpoch += 1
+        sourceEpochs[source.id, default: 0] += 1
         data.sources.removeAll { $0.id == source.id }
         data.findings.removeAll { $0.sourceID == source.id }
         data.lastSuccessfulCheck = data.sources.compactMap(\.lastCheckedAt).max()
@@ -100,19 +107,19 @@ import Combine
 
     func refresh(_ id: UUID) async {
         guard storageReady, let requested = source(for: id), !requested.isPaused else { return }
-        let requestEpoch = storageEpoch
-        guard inFlightEpochs[id] != requestEpoch else { return }
-        inFlightEpochs[id] = requestEpoch
+        let requestVersion = version(for: id)
+        guard inFlightVersions[id] != requestVersion else { return }
+        inFlightVersions[id] = requestVersion
         refreshingSourceIDs.insert(id)
         defer {
-            if inFlightEpochs[id] == requestEpoch {
-                inFlightEpochs[id] = nil
+            if inFlightVersions[id] == requestVersion {
+                inFlightVersions[id] = nil
                 refreshingSourceIDs.remove(id)
             }
         }
         do {
             let fetched = try await fetchChanges(requested)
-            guard requestEpoch == storageEpoch,
+            guard requestVersion == version(for: id),
                   let index = data.sources.firstIndex(where: { $0.id == id }),
                   Self.sameTracking(data.sources[index], requested) else { return }
             var source = data.sources[index]
@@ -131,7 +138,7 @@ import Combine
             }
             data.sources[index] = source
         } catch {
-            guard requestEpoch == storageEpoch,
+            guard requestVersion == version(for: id),
                   let index = data.sources.firstIndex(where: { $0.id == id }),
                   Self.sameTracking(data.sources[index], requested) else { return }
             data.sources[index].lastError = error.localizedDescription
@@ -142,7 +149,7 @@ import Combine
     func resetBaseline(for id: UUID) {
         guard storageReady else { return }
         guard let index = data.sources.firstIndex(where: { $0.id == id }) else { return }
-        storageEpoch += 1
+        sourceEpochs[id, default: 0] += 1
         data.sources[index].baselineIdentifier = nil
         data.sources[index].baselineContent = nil
         data.sources[index].etag = nil
@@ -157,7 +164,7 @@ import Combine
 
     func importData(_ bytes: Data) throws {
         let imported = try LocalStore.importData(bytes)
-        storageEpoch += 1
+        dataEpoch += 1
         data = imported
         let wasReady = storageReady
         storageReady = true
@@ -170,6 +177,10 @@ import Combine
     private static func sameTracking(_ left: WatchSource, _ right: WatchSource) -> Bool {
         left.repository == right.repository && left.kind == right.kind &&
         left.path == right.path && left.branch == right.branch
+    }
+
+    private func version(for id: UUID) -> RequestVersion {
+        RequestVersion(data: dataEpoch, source: sourceEpochs[id, default: 0])
     }
 
     @discardableResult private func persist() -> Error? {
