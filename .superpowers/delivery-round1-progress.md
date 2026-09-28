@@ -27,3 +27,11 @@ Fix pass (one pass, TDD where applicable):
 - Final: fixed Imp#5 retention nil = keep-forever (no silent deletion) — testDefaultRetentionIsOffUntilUserOptsIn + legacy test updated
 - Minors fixed opportunistically: dead PendingNavigation removed; markAllHandled UI entry added (plan T6 scope); rateLimited info captured in refresh catch; detectPatterns completion dispatched to MainActor; README ldid wording corrected
 Deferred minors: widget headline comparator inconsistency; circular accessory shows 0 when snapshot nil; AddSourceView onSubmit+debounce double-search risk; RepoConfirmView footer request-count wording; refreshAll rate budget; snapshot read duplication & hardcoded ids in widget; perform retry untested; testProfileDataIsOptionalAndSafe no assertions
+Merge: main d124752 (delivery-round1 merged --no-ff); final main run 36470282984 SUCCESS (IPA artifact UpstreamLens-unsigned 0.65MB, id 10992111087).
+Deliverable JSON: deliverables/UpstreamLens-import-2026-09-29.json (gitignored, 7 public sources; chaofanhermes is private/unauthenticated-404, excluded).
+Post-merge validation: screenshots artifact visually checked (home light mode renders correctly, new copy present).
+Beautify round (2026-09-29, branch beautify-round1):
+- Research: iOS 26 Icon Composer .icon needs macOS tool — not producible on Windows; asset-catalog appearances (Light/Dark/Tinted) is the documented path and required for iOS 17 target anyway.
+- Icon v2: bold round-capped arcs (SDF, 6.2% stroke vs 3.7%), richer cyan→deep-teal gradient + glow + vignette; three variants (light/dark/grayscale-from-dark for tinting). Visual check via local render at 200/80/60px.
+- Launch screen background color (LaunchBackground, light #F2F2F7 / dark #000) to kill white flash.
+- App: summary card soft shadow + symbolEffect(.pulse) while refreshing; filled SF Symbols for source rows. Widget: faint accent gradient over .fill.tertiary.

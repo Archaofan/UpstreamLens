@@ -23,7 +23,8 @@ targets:
       path: Sources/App/Info.plist
       properties:
         CFBundleDisplayName: UpstreamLens
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
         CFBundleURLTypes:
           - CFBundleURLSchemes: [upstreamlens]
     entitlements:
