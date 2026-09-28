@@ -142,7 +142,6 @@ struct ContentView: View {
         }
     }
 
-    @State private var pendingClipboardAdd: String?
 
     /// iOS 会把“读剪贴板”变成系统弹窗；这里先用 detectPatterns 只判断模式，不触发弹窗。
     private func detectClipboardGitHubLink() {
