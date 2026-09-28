@@ -109,9 +109,10 @@ final class RelevanceEngineTests: XCTestCase {
     }
 
     func testTermsParsingSplitsBothCommaStyles() {
-        XCTAssertEqual(RelevanceEngine.terms(from: "B，C、D; E\nF"), ["b", "c", "d", "e", "f"])
+        XCTAssertEqual(RelevanceEngine.terms(from: "BB，CC、DD; EE\nFF"), ["bb", "cc", "dd", "ee", "ff"])
         XCTAssertEqual(RelevanceEngine.terms(from: "远程连接 NAS"), ["远程连接", "nas"])
         XCTAssertEqual(RelevanceEngine.terms(from: "remote, api, a", minASCIILength: 4), ["remote"])
         XCTAssertEqual(RelevanceEngine.terms(from: "api, ok"), ["api", "ok"])
+        XCTAssertEqual(RelevanceEngine.terms(from: "a, b"), [])
     }
 }
