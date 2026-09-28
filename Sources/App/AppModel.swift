@@ -13,6 +13,7 @@ import Combine
     private var storageEpoch = 0
     private var inFlightEpochs: [UUID: Int] = [:]
     private var storageReady = true
+    private var lastSavedData = LocalData()
 
     init(initialData: LocalData? = nil,
          loadData: @escaping () throws -> LocalData = { try LocalStore.load() },
@@ -32,6 +33,7 @@ import Combine
                 storageError = "无法读取本地数据，已暂停保存以保护原文件。请导入有效备份：\(error.localizedDescription)"
             }
         }
+        lastSavedData = data
         if storageReady { writeWidget() }
     }
 
@@ -157,8 +159,12 @@ import Combine
         let imported = try LocalStore.importData(bytes)
         storageEpoch += 1
         data = imported
+        let wasReady = storageReady
         storageReady = true
-        persist()
+        if let error = persist() {
+            storageReady = wasReady
+            throw error
+        }
     }
 
     private static func sameTracking(_ left: WatchSource, _ right: WatchSource) -> Bool {
@@ -166,11 +172,19 @@ import Combine
         left.path == right.path && left.branch == right.branch
     }
 
-    private func persist() {
-        guard storageReady else { return }
-        do { try saveData(data); storageError = nil }
-        catch { storageError = "保存失败：\(error.localizedDescription)" }
-        writeWidget()
+    @discardableResult private func persist() -> Error? {
+        guard storageReady else { return StorageError.localDataUnavailable }
+        do {
+            try saveData(data)
+            lastSavedData = data
+            storageError = nil
+            writeWidget()
+            return nil
+        } catch {
+            data = lastSavedData
+            storageError = "保存失败，已恢复上次保存的数据：\(error.localizedDescription)"
+            return error
+        }
     }
 
     private func writeWidget() {

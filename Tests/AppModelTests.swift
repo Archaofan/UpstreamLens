@@ -99,6 +99,19 @@ final class AppModelTests: XCTestCase {
         XCTAssertNil(model.storageError)
     }
 
+    @MainActor func testFailedSaveRestoresLastSavedDataAndKeepsWidgetInSync() {
+        let original = WatchSource(repository: "acme/original")
+        var snapshotWrites = 0
+        let model = AppModel(initialData: LocalData(sources: [original]),
+                             saveData: { _ in throw CocoaError(.fileWriteNoPermission) },
+                             publishSnapshot: { _ in snapshotWrites += 1 })
+        XCTAssertEqual(snapshotWrites, 1)
+        model.upsert(WatchSource(repository: "acme/new"))
+        XCTAssertEqual(model.sources.map(\.repository), ["acme/original"])
+        XCTAssertNotNil(model.storageError)
+        XCTAssertEqual(snapshotWrites, 1)
+    }
+
     @MainActor func testMissingBaselineKeepsLastSuccessfulTime() async {
         let source = WatchSource(repository: "acme/tool", baselineIdentifier: "removed")
         let upstream = change()

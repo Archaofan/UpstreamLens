@@ -10,8 +10,8 @@ Use SwiftUI semantic fills and foreground styles, Dynamic Type text styles, and 
 
 ## Stability behavior
 
-For a given source and tracking revision, only one network refresh may be active. A source edit or baseline reset may start a new request while the old response is discarded. A failed local data load must block automatic saves so a corrupt file cannot be silently replaced by empty data. Importing a valid backup re-enables saving.
+For a given source and tracking revision, only one network refresh may be active. A source edit or baseline reset may start a new request while the old response is discarded. A failed local data load must block automatic saves so a corrupt file cannot be silently replaced by empty data. Importing a valid backup re-enables saving. A failed save restores the last saved in-memory state and does not publish an unsaved Widget snapshot.
 
 ## Checks
 
-Unit tests cover duplicate refreshes, refresh after revision change, failed load save protection, and import recovery. CI builds and runs tests on an iPhone simulator and produces an unsigned IPA. A simulator screenshot is reviewed for the empty home screen. Real-device installation and App Group behavior remain to be checked on a signed device build.
+Unit tests cover duplicate refreshes, refresh after revision change, failed load save protection, failed save rollback, and import recovery. CI builds and runs tests on an iPhone simulator and produces an unsigned IPA. A simulator screenshot is reviewed for the empty home screen. Real-device installation and App Group behavior remain to be checked on a signed device build.

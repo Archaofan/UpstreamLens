@@ -62,30 +62,7 @@ struct ContentView: View {
                         }
                     }
                     ForEach(pending) { finding in
-                        HStack(spacing: 8) {
-                            NavigationLink {
-                                FindingDetailView(model: model, id: finding.id)
-                            } label: {
-                                FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
-                            }
-                            Button {
-                                model.setStatus(.handled, for: finding.id)
-                            } label: {
-                                Image(systemName: "checkmark.circle")
-                                    .font(.title3)
-                                    .frame(width: 44, height: 44)
-                            }
-                            .buttonStyle(.borderless)
-                            .accessibilityLabel("标为已处理")
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button {
-                                model.setStatus(.handled, for: finding.id)
-                            } label: {
-                                Label("已处理", systemImage: "checkmark")
-                            }
-                            .tint(.green)
-                        }
+                        PendingFindingRowView(model: model, finding: finding)
                     }
                     let completedCount = FindingQueue.completed(model.findings).count
                     if completedCount > 0 {
@@ -169,6 +146,38 @@ struct ContentView: View {
                 Button("确定", role: .cancel) { dialogError = nil }
             } message: { Text(dialogError ?? "") }
             .task { await model.refreshAll() }
+        }
+    }
+}
+
+private struct PendingFindingRowView: View {
+    @ObservedObject var model: AppModel
+    let finding: Finding
+
+    var body: some View {
+        HStack(spacing: 8) {
+            NavigationLink {
+                FindingDetailView(model: model, id: finding.id)
+            } label: {
+                FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
+            }
+            Button {
+                model.setStatus(.handled, for: finding.id)
+            } label: {
+                Image(systemName: "checkmark.circle")
+                    .font(.title3)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel("标为已处理")
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button {
+                model.setStatus(.handled, for: finding.id)
+            } label: {
+                Label("已处理", systemImage: "checkmark")
+            }
+            .tint(.green)
         }
     }
 }
