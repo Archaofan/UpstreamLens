@@ -39,8 +39,8 @@ jobs:
           test "$(plutil -extract CFBundleIdentifier raw "$WIDGET/Info.plist")" = 'com.upstreamlens.ios.widget'
           test "$(plutil -extract NSExtension.NSExtensionPointIdentifier raw "$WIDGET/Info.plist")" = 'com.apple.widgetkit-extension'
           test "$(plutil -extract MinimumOSVersion raw "$APP/Info.plist")" = '17.0'
-          lipo -verify_arch arm64 "$APP/UpstreamLens"
-          lipo -verify_arch arm64 "$WIDGET/UpstreamLensWidget"
+          lipo "$APP/UpstreamLens" -verify_arch arm64
+          lipo "$WIDGET/UpstreamLensWidget" -verify_arch arm64
           test ! -e "$APP/embedded.mobileprovision"
           test ! -e "$WIDGET/embedded.mobileprovision"
           if codesign --verify "$APP" 2>/dev/null; then echo 'App unexpectedly signed'; exit 1; fi
