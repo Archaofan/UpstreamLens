@@ -1,0 +1,69 @@
+name: UpstreamLens
+options:
+  bundleIdPrefix: com.upstreamlens
+settings:
+  base:
+    SWIFT_VERSION: 5.10
+    IPHONEOS_DEPLOYMENT_TARGET: 17.0
+    TARGETED_DEVICE_FAMILY: 1
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+targets:
+  UpstreamLens:
+    type: application
+    platform: iOS
+    sources:
+      - Sources/App
+      - Sources/Shared
+      - Sources/GitHub
+      - Sources/Monitoring
+      - Sources/Storage
+    info:
+      path: Sources/App/Info.plist
+      properties:
+        CFBundleDisplayName: UpstreamLens
+        UILaunchScreen: {}
+        CFBundleURLTypes:
+          - CFBundleURLSchemes: [upstreamlens]
+    entitlements:
+      path: Sources/App/UpstreamLens.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.upstreamlens.ios]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.upstreamlens.ios
+    dependencies:
+      - target: UpstreamLensWidget
+    scheme:
+      testTargets:
+        - UpstreamLensTests
+  UpstreamLensWidget:
+    type: app-extension
+    subtype: widgetkit-extension
+    platform: iOS
+    sources:
+      - Sources/Widget
+      - Sources/Shared
+    info:
+      path: Sources/Widget/Info.plist
+      properties:
+        CFBundleDisplayName: UpstreamLens Widget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Sources/Widget/UpstreamLensWidget.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.upstreamlens.ios]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.upstreamlens.ios.widget
+        SKIP_INSTALL: YES
+  UpstreamLensTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: Tests
+    dependencies:
+      - target: UpstreamLens
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.upstreamlens.ios.tests
