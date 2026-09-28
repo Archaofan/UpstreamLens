@@ -78,7 +78,8 @@ jobs:
           test ! -e "$APP/embedded.mobileprovision"
           test ! -e "$WIDGET/embedded.mobileprovision"
           for BIN in "$APP/UpstreamLens" "$WIDGET/UpstreamLensWidget"; do
-            codesign --verify "$BIN"
+            # 只校验代码签名本身：二进制是裸签（无 bundle 资源密封），设备侧重签工具会重建整包签名。
+            codesign --verify --ignore-resources "$BIN"
             test "$(codesign -dv "$BIN" 2>&1 | grep -c 'Signature=adhoc')" = '1'
           done
           codesign -d --entitlements - "$APP/UpstreamLens" 2>/dev/null | grep -q 'group.com.upstreamlens.ios'
