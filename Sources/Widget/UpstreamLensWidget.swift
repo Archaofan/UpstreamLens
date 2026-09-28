@@ -32,19 +32,27 @@ private struct SnapshotView: View {
     let entry: SnapshotEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Label("UpstreamLens", systemImage: "waveform.path.ecg")
-                .font(.caption.bold())
+        VStack(alignment: .leading, spacing: 8) {
+            Label("UpstreamLens", systemImage: "dot.radiowaves.left.and.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tint)
             if let snapshot = entry.snapshot {
-                if snapshot.pendingCount == 0 {
-                    Text("暂无待查看变化").font(.headline)
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    Text("\(snapshot.pendingCount)")
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    Text("条待查看")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
+                if let headline = snapshot.headline {
+                    Text(headline).font(.subheadline.weight(.medium)).lineLimit(2)
                 } else {
-                    Text("\(snapshot.pendingCount) 条待查看").font(.headline)
-                    if let headline = snapshot.headline { Text(headline).font(.caption).lineLimit(2) }
+                    Text("暂无需要关注的新变化")
+                        .font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
                 }
                 Spacer(minLength: 0)
                 if let checked = snapshot.lastSuccessfulCheck {
-                    Text("上次更新：\(checked, style: .relative)")
+                    Text("检查于 \(checked, style: .relative)")
                         .font(.caption2).foregroundStyle(.secondary)
                 } else {
                     Text("尚未完成检查").font(.caption2).foregroundStyle(.secondary)

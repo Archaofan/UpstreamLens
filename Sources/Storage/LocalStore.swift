@@ -3,7 +3,13 @@ import WidgetKit
 
 enum StorageError: LocalizedError {
     case appGroupUnavailable
-    var errorDescription: String? { "共享容器不可用；请在设备上验证侧载签名后的 App Group 权限。" }
+    case localDataUnavailable
+    var errorDescription: String? {
+        switch self {
+        case .appGroupUnavailable: return "共享容器不可用；请在设备上验证侧载签名后的 App Group 权限。"
+        case .localDataUnavailable: return "本地数据无法读取，请先导入有效备份。"
+        }
+    }
 }
 
 enum LocalStore {

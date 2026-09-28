@@ -3,14 +3,19 @@ import XCTest
 
 private actor FetchGate {
     let started: XCTestExpectation
+    let nextStarted: XCTestExpectation?
     private var continuations: [CheckedContinuation<GitHubFetch, Error>] = []
 
-    init(started: XCTestExpectation) { self.started = started }
+    init(started: XCTestExpectation, nextStarted: XCTestExpectation? = nil) {
+        self.started = started
+        self.nextStarted = nextStarted
+    }
 
     func fetch() async throws -> GitHubFetch {
         try await withCheckedThrowingContinuation { continuation in
             continuations.append(continuation)
-            started.fulfill()
+            if continuations.count == 1 { started.fulfill() }
+            else { nextStarted?.fulfill() }
         }
     }
 
@@ -40,10 +45,9 @@ final class AppModelTests: XCTestCase {
         XCTAssertTrue(model.findings.isEmpty)
     }
 
-    @MainActor func testConcurrentRefreshesCreateOneFinding() async {
+    @MainActor func testConcurrentRefreshesUseOneRequest() async {
         let source = WatchSource(repository: "acme/tool", baselineIdentifier: "old")
-        let started = expectation(description: "two requests started")
-        started.expectedFulfillmentCount = 2
+        let started = expectation(description: "one request started")
         let gate = FetchGate(started: started)
         let model = AppModel(initialData: LocalData(sources: [source]),
                              fetchChanges: { _ in try await gate.fetch() },
@@ -53,11 +57,46 @@ final class AppModelTests: XCTestCase {
         await fulfillment(of: [started], timeout: 5)
         let fetched = GitHubFetch(changes: [change(), UpstreamChange(identifier: "old", title: "Old", body: "", url: "https://github.com/acme/tool", publishedAt: nil, content: nil)], etag: nil, unchanged: false)
         await gate.resume(fetched)
-        await gate.resume(fetched)
         await first.value
         await second.value
         XCTAssertEqual(model.findings.count, 1)
         XCTAssertEqual(model.source(for: source.id)?.baselineIdentifier, "new")
+    }
+
+    @MainActor func testEditedSourceCanRefreshWhileOldRequestIsInFlight() async {
+        let source = WatchSource(repository: "acme/old", baselineIdentifier: "old")
+        let firstStarted = expectation(description: "old revision requested")
+        let secondStarted = expectation(description: "new revision requested")
+        let gate = FetchGate(started: firstStarted, nextStarted: secondStarted)
+        let model = AppModel(initialData: LocalData(sources: [source]),
+                             fetchChanges: { _ in try await gate.fetch() },
+                             saveData: { _ in }, publishSnapshot: { _ in })
+        let first = Task { await model.refresh(source.id) }
+        await fulfillment(of: [firstStarted], timeout: 5)
+        var edited = source
+        edited.repository = "acme/new"
+        model.upsert(edited)
+        let second = Task { await model.refresh(source.id) }
+        await fulfillment(of: [secondStarted], timeout: 5)
+        await gate.resume(GitHubFetch(changes: [], etag: nil, unchanged: true))
+        await gate.resume(GitHubFetch(changes: [], etag: nil, unchanged: true))
+        await first.value
+        await second.value
+        XCTAssertEqual(model.source(for: source.id)?.repository, "acme/new")
+    }
+
+    @MainActor func testFailedLoadBlocksSaveUntilValidImport() throws {
+        var saves = 0
+        let model = AppModel(loadData: { throw CocoaError(.fileReadCorruptFile) },
+                             saveData: { _ in saves += 1 }, publishSnapshot: { _ in })
+        XCTAssertNotNil(model.storageError)
+        model.upsert(WatchSource(repository: "acme/tool"))
+        XCTAssertEqual(saves, 0)
+        let backup = try LocalStore.export(LocalData(sources: [WatchSource(repository: "acme/recovered")]))
+        try model.importData(backup)
+        XCTAssertEqual(saves, 1)
+        XCTAssertEqual(model.sources.first?.repository, "acme/recovered")
+        XCTAssertNil(model.storageError)
     }
 
     @MainActor func testMissingBaselineKeepsLastSuccessfulTime() async {
