@@ -81,6 +81,11 @@ struct GitHubClient {
             if source.baselineIdentifier == nil || pageCount < 100 || batch.contains(where: { $0.identifier == source.baselineIdentifier }) { break }
         }
 
+        if source.kind == .path, all.isEmpty {
+            _ = try await fileContent(repository: repository, path: source.path,
+                                      ref: source.branch.isEmpty ? nil : source.branch)
+        }
+
         if source.kind == .path, let first = all.first {
             let content: String?
             let deleted: Bool
@@ -111,10 +116,10 @@ struct GitHubClient {
         return parts.joined(separator: "/")
     }
 
-    private func fileContent(repository: String, path: String, ref: String) async throws -> String? {
+    private func fileContent(repository: String, path: String, ref: String?) async throws -> String? {
         let encoded = path.split(separator: "/").map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }.joined(separator: "/")
         let (data, _, _) = try await request(repository: repository, endpoint: "contents/\(encoded)",
-                                             query: [URLQueryItem(name: "ref", value: ref)], etag: nil)
+                                             query: ref.map { [URLQueryItem(name: "ref", value: $0)] } ?? [], etag: nil)
         guard let object = try? JSONDecoder().decode(ContentDTO.self, from: data), object.type == "file",
               object.encoding == "base64", let encodedContent = object.content,
               let decoded = Data(base64Encoded: encodedContent.filter { !$0.isWhitespace }) else { return nil }
