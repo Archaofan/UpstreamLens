@@ -33,15 +33,11 @@ struct ContentView: View {
                     .listRowBackground(Color.clear)
                 }
 
-                if model.storageError != nil || model.widgetError != nil {
+                if model.storageError != nil {
                     Section {
                         if let error = model.storageError {
                             Label(error, systemImage: "externaldrive.badge.exclamationmark")
                                 .foregroundStyle(.red)
-                        }
-                        if let error = model.widgetError {
-                            Label(error, systemImage: "square.on.square.dashed")
-                                .foregroundStyle(.orange)
                         }
                     }
                 }
@@ -57,11 +53,12 @@ struct ContentView: View {
                     }
                     if pending.isEmpty {
                         if importantOnly && !FindingQueue.pending(model.findings).isEmpty {
-                            ContentUnavailableView("暂无重点变化", systemImage: "checkmark.seal",
-                                                   description: Text("切回“全部”查看其他待处理变化。"))
+                            Label("暂无重点变化；可切回“全部”查看", systemImage: "line.3.horizontal.decrease.circle")
+                                .foregroundStyle(.secondary)
                         } else {
-                            ContentUnavailableView("一切已处理", systemImage: "checkmark.circle",
-                                                   description: Text("新变化会留在这里，直到你标为已处理。"))
+                            Label(model.sources.isEmpty ? "添加来源后，新变化会显示在这里" : "目前没有待处理变化",
+                                  systemImage: "checkmark.circle")
+                                .foregroundStyle(.secondary)
                         }
                     }
                     ForEach(pending) { finding in
@@ -117,6 +114,16 @@ struct ContentView: View {
                         } label: {
                             SourceRowView(source: source, isRefreshing: model.refreshingSourceIDs.contains(source.id))
                         }
+                    }
+                }
+
+                if let error = model.widgetError {
+                    Section("小组件") {
+                        Label("小组件暂不可用", systemImage: "square.on.square.dashed")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } footer: {
+                        Text(error)
                     }
                 }
             }
