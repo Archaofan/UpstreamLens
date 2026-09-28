@@ -23,7 +23,7 @@ final class StabilityTests: XCTestCase {
         try LocalStore.save(sampleData(name: "v1"), to: main)
         // 模拟“上一次成功写入后主文件被写坏”
         try LocalStore.save(sampleData(name: "v1"), to: main)
-        let bakURL = main.deletingLastPathComponent().appendingPathComponent("data.json.bak")
+        let bakURL = main.appendingPathExtension("bak")
         XCTAssertTrue(FileManager.default.fileExists(atPath: bakURL.path))
         try Data("corrupt{{".utf8).write(to: main)
         // 主文件损坏、备份完好 → 恢复
