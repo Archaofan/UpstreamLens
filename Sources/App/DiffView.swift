@@ -14,7 +14,7 @@ struct DiffView: View {
             Text("无法生成对照（内容相同或缺失）。").font(.footnote).foregroundStyle(.secondary)
         } else {
             VStack(alignment: .leading, spacing: 2) {
-                let visible = showAll ? lines : lines.prefix(Self.collapsedLineLimit)
+                let visible: [DiffLine] = showAll ? lines : Array(lines.prefix(Self.collapsedLineLimit))
                 ForEach(Array(visible.enumerated()), id: \.offset) { _, line in
                     HStack(alignment: .top, spacing: 6) {
                         Text(line.symbol.rawValue)

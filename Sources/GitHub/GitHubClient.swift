@@ -330,10 +330,10 @@ struct GitHubClient {
     func searchRepositories(_ query: String, perPage: Int = 10) async throws -> [RepoSearchResult] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
-        let (_, response) = try await searchRequest(path: "search/repositories",
-                                                    query: [URLQueryItem(name: "q", value: trimmed),
-                                                            URLQueryItem(name: "per_page", value: String(perPage))])
-        let payload = try JSONDecoder().decode(SearchResponseDTO.self, from: response.0)
+        let (data, _) = try await searchRequest(path: "search/repositories",
+                                                query: [URLQueryItem(name: "q", value: trimmed),
+                                                        URLQueryItem(name: "per_page", value: String(perPage))])
+        let payload = try JSONDecoder().decode(SearchResponseDTO.self, from: data)
         return payload.items
     }
 
