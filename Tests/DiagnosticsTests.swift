@@ -95,7 +95,7 @@ final class RetentionTests: XCTestCase {
         data.schemaVersion = 2
         data.retentionDays = 180
         data.sources = [source]
-        let bytes = LocalStore.export(data)
+        let bytes = try LocalStore.export(data)
         let decoded = try LocalStore.importData(bytes)
         XCTAssertEqual(decoded.retentionDays, 180)
         XCTAssertEqual(decoded.sources.first?.topics, ["swift", "ci"])
