@@ -39,3 +39,8 @@ Beautify merge: main (run 36474760675 SUCCESS, IPA 1.05MB id=10993187458 — siz
 Round 3 (2026-09-29, branch productionize-round1): notifications + background refresh + stability + presets.
 Research: iOS notif conventions (threadIdentifier per source, interruptionLevel active for important / passive else, provisional auth option, respect Focus/Scheduled Summary — no custom quiet hours); changedetection.io pattern = many channels + per-watch rules; Releases.app digest scheduling.
 Presets verified unauthenticated: swiftlang/swift (release, renamed from apple/swift), swiftlang/swift-evolution (path proposals), XcodesOrg/xcodes (release), obra/superpowers (path skills).
+Productionize round (branch productionize-round1, 5 CI loops):
+- R1: registerCategory instance-member error; SwiftUI .backgroundTask(.appTask) type-inference broken on SDK → direct BGTaskScheduler.register in App.init (equivalent behavior, no SDK fight)
+- R2: injected notification closures not assigned in init
+- R3: test let-source mutability; R4: backup URL naming (save rotates as <file>.bak) — test now derives via appendingPathExtension
+- R5 GREEN. Features: NotificationPlanner (master+per-source, 5-cap+fold, important=active/uncertain=passive, threadIdentifier per source), NotificationScheduler (provisional auth option, category summary), NotificationRouter (tap→finding deep link), BGAppRefreshTask w/ 30min cadence + budget guard (skip when remaining<5), LocalStore rotation+loadWithRecovery, LocalData.capped() 1000, presets (swiftlang/swift, swiftlang/swift-evolution proposals, XcodesOrg/xcodes, obra/superpowers skills) verified public unauth.
