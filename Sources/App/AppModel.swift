@@ -43,6 +43,8 @@ import UIKit
         self.probeRepository = probeRepo
         self.probePaths = probePaths
         self.updateBadge = updateBadge
+        self.notificationsEnabled = notificationsEnabled
+        self.deliverNotifications = deliverNotifications
         if let initialData {
             data = initialData
         } else {
