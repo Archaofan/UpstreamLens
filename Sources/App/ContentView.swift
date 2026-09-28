@@ -72,27 +72,7 @@ struct ContentView: View {
                     }
                 }
 
-                Section("来源") {
-                    if model.sources.isEmpty {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Label("添加第一个监控来源", systemImage: "plus.circle.fill")
-                                .font(.headline)
-                            Text("选择公开 GitHub 仓库或 Skill 路径。首次成功检查会建立当前基线。")
-                                .font(.subheadline).foregroundStyle(.secondary)
-                            Button("添加来源") { editorSource = WatchSource() }
-                                .buttonStyle(.borderedProminent)
-                                .controlSize(.large)
-                        }
-                        .padding(.vertical, 10)
-                    }
-                    ForEach(model.sources) { source in
-                        NavigationLink {
-                            SourceDetailView(model: model, id: source.id, edit: { editorSource = $0 })
-                        } label: {
-                            SourceRowView(source: source, isRefreshing: model.refreshingSourceIDs.contains(source.id))
-                        }
-                    }
-                }
+                SourcesSectionView(model: model, editorSource: $editorSource)
 
                 if let error = model.widgetError {
                     Section("小组件") {
@@ -146,6 +126,35 @@ struct ContentView: View {
                 Button("确定", role: .cancel) { dialogError = nil }
             } message: { Text(dialogError ?? "") }
             .task { await model.refreshAll() }
+        }
+    }
+}
+
+private struct SourcesSectionView: View {
+    @ObservedObject var model: AppModel
+    @Binding var editorSource: WatchSource?
+
+    var body: some View {
+        Section("来源") {
+            if model.sources.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("添加第一个监控来源", systemImage: "plus.circle.fill")
+                        .font(.headline)
+                    Text("选择公开 GitHub 仓库或 Skill 路径。首次成功检查会建立当前基线。")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    Button("添加来源") { editorSource = WatchSource() }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                }
+                .padding(.vertical, 10)
+            }
+            ForEach(model.sources) { source in
+                NavigationLink {
+                    SourceDetailView(model: model, id: source.id, edit: { editorSource = $0 })
+                } label: {
+                    SourceRowView(source: source, isRefreshing: model.refreshingSourceIDs.contains(source.id))
+                }
+            }
         }
     }
 }
