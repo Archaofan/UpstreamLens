@@ -19,6 +19,8 @@ import UIKit
     private let probeRepository: (String) async throws -> RepoProbe
     private let probePaths: (String, String) async throws -> TreeScan
     private let updateBadge: (Int) -> Void
+    private let notificationsEnabled: () -> Bool
+    private let deliverNotifications: ([PendingNotification]) async -> Void
     private var dataEpoch = 0
     private var sourceEpochs: [UUID: Int] = [:]
     private var inFlightVersions: [UUID: RequestVersion] = [:]
@@ -26,13 +28,15 @@ import UIKit
     private var lastSavedData = LocalData()
 
     init(initialData: LocalData? = nil,
-         loadData: @escaping () throws -> LocalData = { try LocalStore.load() },
+         loadData: @escaping () throws -> (data: LocalData, notice: String?) = { try LocalStore.loadWithRecovery() },
          fetchChanges: @escaping (WatchSource) async throws -> GitHubFetch = { try await GitHubClient().fetch(source: $0) },
          saveData: @escaping (LocalData) throws -> Void = { try LocalStore.save($0) },
          publishSnapshot: @escaping (LocalData) throws -> Void = { try WidgetSnapshotWriter.write(from: $0) },
          probeRepo: @escaping (String) async throws -> RepoProbe = { try await RepoProbing.probe($0) },
          probePaths: @escaping (String, String) async throws -> TreeScan = { try await RepoProbing.probePaths($0, branch: $1) },
-         updateBadge: @escaping (Int) -> Void = { count in UIApplication.shared.applicationIconBadgeNumber = count }) {
+         updateBadge: @escaping (Int) -> Void = { count in UIApplication.shared.applicationIconBadgeNumber = count },
+         notificationsEnabled: @escaping () -> Bool = { UserDefaults.standard.bool(forKey: "notificationsEnabled") },
+         deliverNotifications: @escaping ([PendingNotification]) async -> Void = { await NotificationScheduler().deliver($0) }) {
         self.fetchChanges = fetchChanges
         self.saveData = saveData
         self.publishSnapshot = publishSnapshot
@@ -42,7 +46,11 @@ import UIKit
         if let initialData {
             data = initialData
         } else {
-            do { data = try loadData() }
+            do {
+                let loaded = try loadData()
+                data = loaded.data
+                if let notice = loaded.notice { storageError = notice }
+            }
             catch {
                 data = LocalData()
                 storageReady = false
@@ -168,6 +176,13 @@ import UIKit
         pruneHandledRecords()
     }
 
+    /// 后台刷新用：剩余限额不足时直接跳过本轮，把额度留给前台。
+    func refreshAllRespectingBudget(minRemaining: Int) async {
+        guard storageReady, !isRefreshing else { return }
+        if let limit = rateLimit, limit.remaining < minRemaining { return }
+        await refreshAll()
+    }
+
     func refresh(_ id: UUID) async {
         guard storageReady, let requested = source(for: id), !requested.isPaused else { return }
         let requestVersion = version(for: id)
@@ -193,6 +208,13 @@ import UIKit
                 if source.lastError == nil {
                     source.etag = fetched.etag
                     data.lastSuccessfulCheck = now
+                    if !additions.isEmpty {
+                        let planned = NotificationPlanner.plan(additions: additions, source: source,
+                                                               masterEnabled: notificationsEnabled())
+                        if !planned.isEmpty {
+                            await deliverNotifications(planned)
+                        }
+                    }
                 }
             } else {
                 source.lastCheckedAt = now
@@ -318,6 +340,8 @@ import UIKit
 
     @discardableResult private func persist() -> Error? {
         guard storageReady else { return StorageError.localDataUnavailable }
+        let capped = data.capped()
+        if capped.findings.count != data.findings.count { data = capped }
         do {
             try saveData(data)
             lastSavedData = data

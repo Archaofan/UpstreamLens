@@ -4,6 +4,8 @@ import SwiftUI
 struct RepoConfirmView: View {
     @ObservedObject var model: AppModel
     let input: String
+    /// 从预设进入时预填的字段（监控方式、路径、用途、关键词），探测结果只补充元数据。
+    var preset: SourcePreset? = nil
     let onSaved: () -> Void
     /// 探测失败时的手动表单兜底入口；由调用方提供（如 AddSourceView）。
     var onRequestManual: (() -> Void)? = nil
@@ -167,11 +169,21 @@ struct RepoConfirmView: View {
             let result = try await model.probe(input)
             probe = result
             source = result.source
+            if let preset {
+                source.kind = preset.kind
+                source.path = preset.path
+                if !preset.branch.isEmpty { source.branch = preset.branch }
+                source.displayName = preset.displayName
+                source.purpose = preset.purpose
+                source.keywords = preset.keywords
+            }
             if source.displayName.isEmpty {
                 source.displayName = source.repository.split(separator: "/").last.map(String.init) ?? source.repository
             }
             if let topics = result.metadata?.topics, !topics.isEmpty, source.keywords.isEmpty {
                 keywordsText = topics.prefix(5).joined(separator: ", ")
+            } else if !source.keywords.isEmpty {
+                keywordsText = source.keywords
             }
             phase = .ready
         } catch {

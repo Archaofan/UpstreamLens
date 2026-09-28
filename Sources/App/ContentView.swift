@@ -110,6 +110,11 @@ struct ContentView: View {
                 Text("共 \(FindingQueue.pending(model.findings).count) 条将进入已处理记录；这表示你已完成本地核查。")
             }
             .onOpenURL { url in handleDeepLink(url) }
+            .onReceive(NotificationCenter.default.publisher(for: .openFindingFromNotification)) { note in
+                guard let id = note.object as? UUID,
+                      model.findings.contains(where: { $0.id == id }) else { return }
+                navigationPath.append(FindingRoute(id: id))
+            }
             .task { await model.refreshAll() }
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .active else { return }
@@ -631,6 +636,9 @@ struct PersonalContextEditorView: View {
                     TextField("关注关键词，逗号分隔", text: $source.keywords)
                         .textInputAutocapitalization(.never)
                     TextField("采用理由", text: $source.rationale, axis: .vertical)
+                    Toggle("新变化通知", isOn: Binding(
+                        get: { source.notifyEnabled ?? true },
+                        set: { source.notifyEnabled = $0 }))
                 }
                 Toggle("暂停监控", isOn: $source.isPaused)
             }
@@ -682,6 +690,10 @@ struct SourceDetailView: View {
                     Button("编辑使用情况") { showPersonalEditor = true }
                     if source.isPaused {
                         Label("监控已暂停", systemImage: "pause.circle")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    if source.notifyEnabled == false {
+                        Label("此来源的通知已关闭", systemImage: "bell.slash")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                 }

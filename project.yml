@@ -25,6 +25,8 @@ targets:
         CFBundleDisplayName: UpstreamLens
         UILaunchScreen:
           UIColorName: LaunchBackground
+        BGTaskSchedulerPermittedIdentifiers: [com.upstreamlens.ios.refresh]
+        UIBackgroundModes: [fetch]
         CFBundleURLTypes:
           - CFBundleURLSchemes: [upstreamlens]
     entitlements:
