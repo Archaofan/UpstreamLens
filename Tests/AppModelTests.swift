@@ -95,4 +95,18 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(model.source(for: source.id)?.lastError, GitHubError.notFound.localizedDescription)
         XCTAssertEqual(model.lastSuccessfulCheck, otherCheck)
     }
+
+    @MainActor func testDeletingCheckedSourceUsesRemainingCheckTime() {
+        let earlier = Date(timeIntervalSince1970: 1_600_000_000)
+        let later = Date(timeIntervalSince1970: 1_700_000_000)
+        let first = WatchSource(repository: "acme/first", lastCheckedAt: earlier)
+        let second = WatchSource(repository: "acme/second", lastCheckedAt: later)
+        let model = AppModel(initialData: LocalData(sources: [first, second], lastSuccessfulCheck: later),
+                             saveData: { _ in }, publishSnapshot: { _ in })
+
+        model.delete(second)
+        XCTAssertEqual(model.lastSuccessfulCheck, earlier)
+        model.delete(first)
+        XCTAssertNil(model.lastSuccessfulCheck)
+    }
 }
