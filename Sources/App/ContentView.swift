@@ -21,40 +21,12 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    let pendingCount = FindingQueue.pending(model.findings).count
-                    let unreadCount = model.findings.filter { $0.status == .unread }.count
-                    StatusSummaryView(pendingCount: pendingCount, unreadCount: unreadCount,
-                                      sourceCount: model.sources.count, lastCheck: model.lastSuccessfulCheck,
-                                      isRefreshing: model.isRefreshing) {
-                        Task { await model.refreshAll() }
-                    }
-                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                    .listRowBackground(Color.clear)
-                }
+                SummarySectionView(model: model)
 
-                if model.storageError != nil {
-                    Section {
-                        if let error = model.storageError {
-                            Label(error, systemImage: "externaldrive.badge.exclamationmark")
-                                .foregroundStyle(.red)
-                        }
-                    }
-                }
-
+                StorageErrorSectionView(error: model.storageError)
                 PendingSectionView(model: model, importantOnly: $importantOnly)
-
                 SourcesSectionView(model: model, editorSource: $editorSource)
-
-                if let error = model.widgetError {
-                    Section("小组件") {
-                        Label("小组件暂不可用", systemImage: "square.on.square.dashed")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } footer: {
-                        Text(error)
-                    }
-                }
+                WidgetStatusSectionView(error: model.widgetError)
             }
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
@@ -99,6 +71,52 @@ struct ContentView: View {
                 Button("确定", role: .cancel) { dialogError = nil }
             } message: { Text(dialogError ?? "") }
             .task { await model.refreshAll() }
+        }
+    }
+}
+
+private struct StorageErrorSectionView: View {
+    let error: String?
+
+    var body: some View {
+        if let error {
+            Section {
+                Label(error, systemImage: "externaldrive.badge.exclamationmark")
+                    .foregroundStyle(.red)
+            }
+        }
+    }
+}
+
+private struct WidgetStatusSectionView: View {
+    let error: String?
+
+    var body: some View {
+        if let error {
+            Section("小组件") {
+                Label("小组件暂不可用", systemImage: "square.on.square.dashed")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } footer: {
+                Text(error)
+            }
+        }
+    }
+}
+
+private struct SummarySectionView: View {
+    @ObservedObject var model: AppModel
+
+    var body: some View {
+        Section {
+            StatusSummaryView(pendingCount: FindingQueue.pending(model.findings).count,
+                              unreadCount: model.findings.filter { $0.status == .unread }.count,
+                              sourceCount: model.sources.count, lastCheck: model.lastSuccessfulCheck,
+                              isRefreshing: model.isRefreshing) {
+                Task { await model.refreshAll() }
+            }
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+            .listRowBackground(Color.clear)
         }
     }
 }
