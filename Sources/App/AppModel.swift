@@ -6,13 +6,26 @@ import Combine
     @Published var isRefreshing = false
     @Published var storageError: String?
     @Published var widgetError: String?
-    private let client = GitHubClient()
+    private let fetchChanges: (WatchSource) async throws -> GitHubFetch
+    private let saveData: (LocalData) throws -> Void
+    private let publishSnapshot: (LocalData) throws -> Void
+    private var storageEpoch = 0
 
-    init() {
-        do { data = try LocalStore.load() }
-        catch {
-            data = LocalData()
-            storageError = "无法读取本地数据：\(error.localizedDescription)"
+    init(initialData: LocalData? = nil,
+         fetchChanges: @escaping (WatchSource) async throws -> GitHubFetch = { try await GitHubClient().fetch(source: $0) },
+         saveData: @escaping (LocalData) throws -> Void = { try LocalStore.save($0) },
+         publishSnapshot: @escaping (LocalData) throws -> Void = { try WidgetSnapshotWriter.write(from: $0) }) {
+        self.fetchChanges = fetchChanges
+        self.saveData = saveData
+        self.publishSnapshot = publishSnapshot
+        if let initialData {
+            data = initialData
+        } else {
+            do { data = try LocalStore.load() }
+            catch {
+                data = LocalData()
+                storageError = "无法读取本地数据：\(error.localizedDescription)"
+            }
         }
         writeWidget()
     }
@@ -28,6 +41,7 @@ import Combine
             var updated = source
             let previous = data.sources[index]
             if previous.repository != source.repository || previous.kind != source.kind || previous.path != source.path || previous.branch != source.branch {
+                storageEpoch += 1
                 updated.baselineIdentifier = nil
                 updated.baselineContent = nil
                 updated.etag = nil
@@ -47,6 +61,7 @@ import Combine
     }
 
     func delete(_ source: WatchSource) {
+        storageEpoch += 1
         data.sources.removeAll { $0.id == source.id }
         data.findings.removeAll { $0.sourceID == source.id }
         persist()
@@ -68,24 +83,44 @@ import Combine
     }
 
     func refresh(_ id: UUID) async {
-        guard let index = data.sources.firstIndex(where: { $0.id == id }), !data.sources[index].isPaused else { return }
-        var source = data.sources[index]
+        guard let requested = source(for: id), !requested.isPaused else { return }
+        let requestEpoch = storageEpoch
         do {
-            let fetched = try await client.fetch(source: source)
+            let fetched = try await fetchChanges(requested)
+            guard requestEpoch == storageEpoch,
+                  let index = data.sources.firstIndex(where: { $0.id == id }),
+                  Self.sameTracking(data.sources[index], requested) else { return }
+            var source = data.sources[index]
             let now = Date()
             if !fetched.unchanged {
                 let additions = ChangeDetector.apply(fetched.changes, to: &source, existing: data.findings, now: now)
                 data.findings.append(contentsOf: additions)
-                source.etag = fetched.etag
+                if source.lastError == nil {
+                    source.etag = fetched.etag
+                    data.lastSuccessfulCheck = now
+                }
             } else {
                 source.lastCheckedAt = now
                 source.lastError = nil
+                data.lastSuccessfulCheck = now
             }
-            data.lastSuccessfulCheck = now
+            data.sources[index] = source
         } catch {
-            source.lastError = error.localizedDescription
+            guard requestEpoch == storageEpoch,
+                  let index = data.sources.firstIndex(where: { $0.id == id }),
+                  Self.sameTracking(data.sources[index], requested) else { return }
+            data.sources[index].lastError = error.localizedDescription
         }
-        data.sources[index] = source
+        persist()
+    }
+
+    func resetBaseline(for id: UUID) {
+        guard let index = data.sources.firstIndex(where: { $0.id == id }) else { return }
+        storageEpoch += 1
+        data.sources[index].baselineIdentifier = nil
+        data.sources[index].baselineContent = nil
+        data.sources[index].etag = nil
+        data.sources[index].lastError = nil
         persist()
     }
 
@@ -93,18 +128,24 @@ import Combine
 
     func importData(_ bytes: Data) throws {
         let imported = try LocalStore.importData(bytes)
+        storageEpoch += 1
         data = imported
         persist()
     }
 
+    private static func sameTracking(_ left: WatchSource, _ right: WatchSource) -> Bool {
+        left.repository == right.repository && left.kind == right.kind &&
+        left.path == right.path && left.branch == right.branch
+    }
+
     private func persist() {
-        do { try LocalStore.save(data); storageError = nil }
+        do { try saveData(data); storageError = nil }
         catch { storageError = "保存失败：\(error.localizedDescription)" }
         writeWidget()
     }
 
     private func writeWidget() {
-        do { try WidgetSnapshotWriter.write(from: data); widgetError = nil }
+        do { try publishSnapshot(data); widgetError = nil }
         catch { widgetError = error.localizedDescription }
     }
 }

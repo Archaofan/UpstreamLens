@@ -198,6 +198,12 @@ struct SourceDetailView: View {
                 }
                 Section {
                     Button("检查此来源") { Task { await model.refresh(id) } }
+                    if source.lastError == ChangeDetector.missingBaselineMessage {
+                        Button("重建当前基线") {
+                            model.resetBaseline(for: id)
+                            Task { await model.refresh(id) }
+                        }
+                    }
                     Button("编辑") { edit(source) }
                     Button("删除来源", role: .destructive) { model.delete(source); dismiss() }
                 }

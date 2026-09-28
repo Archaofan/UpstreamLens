@@ -36,15 +36,25 @@ enum RelevanceEngine {
 
 enum ChangeDetector {
     static let emptyBaseline = "<no-upstream-items>"
+    static let missingBaselineMessage = "上次已知标识未出现在上游结果中，无法安全判断新变化。请核对来源后重建当前基线。"
 
     static func apply(_ changes: [UpstreamChange], to source: inout WatchSource, existing: [Finding], now: Date) -> [Finding] {
         guard let newest = changes.first else {
+            if let previous = source.baselineIdentifier, previous != emptyBaseline {
+                source.lastError = missingBaselineMessage
+                return []
+            }
             if source.baselineIdentifier == nil { source.baselineIdentifier = emptyBaseline }
             source.lastCheckedAt = now
             source.lastError = nil
             return []
         }
         let previous = source.baselineIdentifier
+        if let previous, previous != emptyBaseline, previous != newest.identifier,
+           !changes.contains(where: { $0.identifier == previous }) {
+            source.lastError = missingBaselineMessage
+            return []
+        }
         source.baselineIdentifier = newest.identifier
         source.lastCheckedAt = now
         source.lastError = nil
