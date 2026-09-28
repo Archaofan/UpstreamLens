@@ -26,7 +26,13 @@ struct GitHubFetch {
 
 struct GitHubClient {
     private let session: URLSession
-    init(session: URLSession = .shared) { self.session = session }
+    static let defaultSession: URLSession = {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 20
+        configuration.timeoutIntervalForResource = 60
+        return URLSession(configuration: configuration)
+    }()
+    init(session: URLSession = GitHubClient.defaultSession) { self.session = session }
 
     func fetch(source: WatchSource) async throws -> GitHubFetch {
         let repository = try Self.normalizedRepository(source.repository)

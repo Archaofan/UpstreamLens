@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import UniformTypeIdentifiers
 
 struct BackupDocument: FileDocument {
@@ -17,6 +18,14 @@ struct ContentView: View {
     @State private var backup: BackupDocument?
     @State private var dialogError: String?
     @State private var importantOnly = false
+    @State private var pendingImport: PendingImport?
+
+    private struct PendingImport: Identifiable {
+        let data: Data
+        let sourceCount: Int
+        let findingCount: Int
+        var id: String { "\(sourceCount)-\(findingCount)" }
+    }
 
     var body: some View {
         NavigationStack {
@@ -64,8 +73,26 @@ struct ContentView: View {
                     let url = try result.get()
                     let access = url.startAccessingSecurityScopedResource()
                     defer { if access { url.stopAccessingSecurityScopedResource() } }
-                    try model.importData(Data(contentsOf: url))
+                    let bytes = try Data(contentsOf: url)
+                    let imported = try LocalStore.importData(bytes)
+                    pendingImport = PendingImport(data: bytes, sourceCount: imported.sources.count,
+                                                  findingCount: imported.findings.count)
                 } catch { dialogError = "导入失败：\(error.localizedDescription)" }
+            }
+            .confirmationDialog("替换现有数据？", isPresented: Binding(
+                get: { pendingImport != nil },
+                set: { if !$0 { pendingImport = nil } })) {
+                Button("替换现有数据", role: .destructive) {
+                    guard let pendingImport else { return }
+                    do { try model.importData(pendingImport.data) }
+                    catch { dialogError = "导入失败：\(error.localizedDescription)" }
+                    self.pendingImport = nil
+                }
+                Button("取消", role: .cancel) { pendingImport = nil }
+            } message: {
+                if let pendingImport {
+                    Text("备份中包含 \(pendingImport.sourceCount) 个来源、\(pendingImport.findingCount) 条记录，导入后将替换现有的 \(model.sources.count) 个来源。")
+                }
             }
             .alert("操作失败", isPresented: Binding(get: { dialogError != nil }, set: { if !$0 { dialogError = nil } })) {
                 Button("确定", role: .cancel) { dialogError = nil }
@@ -208,7 +235,8 @@ private struct PendingFindingRowView: View {
                 FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
             }
             Button {
-                model.setStatus(.handled, for: finding.id)
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                withAnimation(.snappy) { model.setStatus(.handled, for: finding.id) }
             } label: {
                 Image(systemName: "checkmark.circle")
                     .font(.title3)
@@ -219,7 +247,8 @@ private struct PendingFindingRowView: View {
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button {
-                model.setStatus(.handled, for: finding.id)
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                withAnimation(.snappy) { model.setStatus(.handled, for: finding.id) }
             } label: {
                 Label("已处理", systemImage: "checkmark")
             }
@@ -353,10 +382,19 @@ private struct FindingRowView: View {
                             .accessibilityLabel("未读")
                     }
                 }
-                Text(sourceTitle).font(.subheadline).foregroundStyle(.secondary)
-                Text("\(finding.relevance.rawValue) · \(finding.status.rawValue)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(finding.relevance == .important ? Color.orange : Color.secondary)
+                HStack(spacing: 4) {
+                    Text(sourceTitle).font(.subheadline).foregroundStyle(.secondary)
+                    Text("·").font(.subheadline).foregroundStyle(.tertiary)
+                    Text(finding.foundAt, style: .relative)
+                        .font(.subheadline).foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                    if finding.relevance == .important {
+                        Spacer(minLength: 4)
+                        Text(finding.relevance.rawValue)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.orange)
+                    }
+                }
                 Text(finding.reason).font(.caption).foregroundStyle(.secondary).lineLimit(2)
             }
         }
@@ -521,7 +559,8 @@ struct FindingDetailView: View {
                         Button("重新加入待处理") { model.setStatus(.viewed, for: id) }
                     } else {
                         Button {
-                            model.setStatus(.handled, for: id)
+                            UINotificationFeedbackGenerator().notificationOccurred(.success)
+                            withAnimation(.snappy) { model.setStatus(.handled, for: id) }
                         } label: {
                             Label("标为已处理", systemImage: "checkmark.circle.fill")
                         }

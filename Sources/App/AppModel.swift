@@ -163,7 +163,10 @@ import Combine
     }
 
     func importData(_ bytes: Data) throws {
-        let imported = try LocalStore.importData(bytes)
+        try applyImport(LocalStore.importData(bytes))
+    }
+
+    func applyImport(_ imported: LocalData) throws {
         dataEpoch += 1
         data = imported
         let wasReady = storageReady

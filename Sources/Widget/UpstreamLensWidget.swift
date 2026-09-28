@@ -29,43 +29,114 @@ private struct SnapshotProvider: TimelineProvider {
 }
 
 private struct SnapshotView: View {
+    @Environment(\.widgetFamily) private var family
     let entry: SnapshotEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("UpstreamLens", systemImage: "dot.radiowaves.left.and.right")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.tint)
-            if let snapshot = entry.snapshot {
-                HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    Text("\(snapshot.pendingCount)")
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    Text("条待查看")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.secondary)
-                }
-                if let headline = snapshot.headline {
-                    Text(headline).font(.subheadline.weight(.medium)).lineLimit(2)
-                } else {
-                    Text("暂无需要关注的新变化")
-                        .font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
-                }
-                Spacer(minLength: 0)
-                if let checked = snapshot.lastSuccessfulCheck {
-                    Text("检查于 \(checked, style: .relative)")
-                        .font(.caption2).foregroundStyle(.secondary)
-                } else {
-                    Text("尚未完成检查").font(.caption2).foregroundStyle(.secondary)
-                }
+        Group {
+            if family == .systemMedium {
+                mediumLayout
             } else {
-                Text("共享数据暂不可用").font(.headline)
-                Text("请打开 App 检查组件状态").font(.caption).foregroundStyle(.secondary)
-                Spacer(minLength: 0)
+                smallLayout
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .containerBackground(.fill.tertiary, for: .widget)
         .widgetURL(URL(string: "upstreamlens://findings"))
+    }
+
+    private var snapshot: WidgetSnapshot? { entry.snapshot }
+
+    private var smallLayout: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            header
+            if let snapshot {
+                countLine
+                    .padding(.top, 2)
+                headlineText(for: snapshot)
+                Spacer(minLength: 0)
+                checkedText(for: snapshot)
+            } else {
+                unavailableText
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private var mediumLayout: some View {
+        HStack(alignment: .top, spacing: 16) {
+            if let snapshot {
+                VStack(alignment: .leading, spacing: 8) {
+                    header
+                    countLine
+                        .padding(.top, 2)
+                    Spacer(minLength: 0)
+                    checkedText(for: snapshot)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("最新待查看")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    headlineText(for: snapshot)
+                        .padding(.top, 2)
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                unavailableText
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private var header: some View {
+        Label("UpstreamLens", systemImage: "dot.radiowaves.left.and.right")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.tint)
+    }
+
+    private var countLine: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 5) {
+            Text("\(snapshot?.pendingCount ?? 0)")
+                .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                .contentTransition(.numericText())
+            Text("条待查看")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func headlineText(for snapshot: WidgetSnapshot) -> some View {
+        Group {
+            if let headline = snapshot.headline {
+                Text(headline)
+            } else {
+                Text("暂无需要关注的新变化")
+            }
+        }
+        .font(.subheadline.weight(.medium))
+        .foregroundStyle(snapshot.headline == nil ? Color.secondary : Color.primary)
+        .lineLimit(3)
+    }
+
+    private func checkedText(for snapshot: WidgetSnapshot) -> some View {
+        Group {
+            if let checked = snapshot.lastSuccessfulCheck {
+                Text("检查于 \(checked, style: .relative)")
+            } else {
+                Text("尚未完成检查")
+            }
+        }
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+    }
+
+    private var unavailableText: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("共享数据暂不可用").font(.headline)
+            Text("请打开 App 检查组件状态").font(.caption).foregroundStyle(.secondary)
+        }
     }
 }
 
