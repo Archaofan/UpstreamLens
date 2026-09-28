@@ -27,6 +27,14 @@ final class MonitoringTests: XCTestCase {
         XCTAssertEqual(ChangeDetector.apply([first], to: &source, existing: [], now: .now).count, 1)
     }
 
+    func testMissingPreviousIdentifierDoesNotInventHistoricalFindings() {
+        var source = WatchSource(repository: "owner/repo", baselineIdentifier: "removed-tag")
+        let older = UpstreamChange(identifier: "old-tag", title: "Old tag", body: "", url: "https://github.com/owner/repo/tree/old-tag", publishedAt: nil, content: nil)
+        let findings = ChangeDetector.apply([older], to: &source, existing: [], now: .now)
+        XCTAssertTrue(findings.isEmpty)
+        XCTAssertEqual(source.baselineIdentifier, "removed-tag")
+    }
+
     func testKeywordExplainsImportance() {
         let source = WatchSource(repository: "owner/repo", keywords: "config, security")
         let result = RelevanceEngine.assess(source: source, text: "Config parameter renamed")
