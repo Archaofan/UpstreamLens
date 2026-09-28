@@ -72,4 +72,41 @@ final class AppModelTests: XCTestCase {
         XCTAssertNil(model.lastSuccessfulCheck)
         XCTAssertNil(model.source(for: source.id)?.etag)
     }
+
+    @MainActor func testChangingTrackedPathClearsOldTargetCheckStatus() async {
+        let oldCheck = Date(timeIntervalSince1970: 1_700_000_000)
+        let otherCheck = Date(timeIntervalSince1970: 1_600_000_000)
+        let source = WatchSource(kind: .path, repository: "acme/tool", path: "skills/old/SKILL.md",
+                                 baselineIdentifier: "old-sha", lastCheckedAt: oldCheck,
+                                 lastError: "旧路径请求失败")
+        let other = WatchSource(repository: "acme/other", lastCheckedAt: otherCheck)
+        let model = AppModel(initialData: LocalData(sources: [source, other], lastSuccessfulCheck: oldCheck),
+                             fetchChanges: { _ in throw GitHubError.notFound },
+                             saveData: { _ in }, publishSnapshot: { _ in })
+        var edited = source
+        edited.path = "skills/new/SKILL.md"
+
+        model.upsert(edited)
+        XCTAssertNil(model.source(for: source.id)?.lastCheckedAt)
+        XCTAssertNil(model.source(for: source.id)?.lastError)
+        XCTAssertEqual(model.lastSuccessfulCheck, otherCheck)
+        await model.refresh(source.id)
+        XCTAssertNil(model.source(for: source.id)?.lastCheckedAt)
+        XCTAssertEqual(model.source(for: source.id)?.lastError, GitHubError.notFound.localizedDescription)
+        XCTAssertEqual(model.lastSuccessfulCheck, otherCheck)
+    }
+
+    @MainActor func testDeletingCheckedSourceUsesRemainingCheckTime() {
+        let earlier = Date(timeIntervalSince1970: 1_600_000_000)
+        let later = Date(timeIntervalSince1970: 1_700_000_000)
+        let first = WatchSource(repository: "acme/first", lastCheckedAt: earlier)
+        let second = WatchSource(repository: "acme/second", lastCheckedAt: later)
+        let model = AppModel(initialData: LocalData(sources: [first, second], lastSuccessfulCheck: later),
+                             saveData: { _ in }, publishSnapshot: { _ in })
+
+        model.delete(second)
+        XCTAssertEqual(model.lastSuccessfulCheck, earlier)
+        model.delete(first)
+        XCTAssertNil(model.lastSuccessfulCheck)
+    }
 }

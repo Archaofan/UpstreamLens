@@ -16,11 +16,17 @@ struct ContentView: View {
     @State private var showExporter = false
     @State private var backup: BackupDocument?
     @State private var dialogError: String?
+    @State private var importantOnly = false
 
     var body: some View {
         NavigationStack {
             List {
                 Section("监控状态") {
+                    let pendingCount = FindingQueue.pending(model.findings).count
+                    let unreadCount = model.findings.filter { $0.status == .unread }.count
+                    if !model.sources.isEmpty {
+                        LabeledContent("待处理变化", value: "\(pendingCount) 条（\(unreadCount) 条未读）")
+                    }
                     if let date = model.lastSuccessfulCheck {
                         LabeledContent("上次成功检查") { Text(date, style: .relative) }
                     } else {
@@ -37,26 +43,68 @@ struct ContentView: View {
                     .disabled(model.isRefreshing || model.sources.isEmpty)
                 }
 
-                Section("待查看变化") {
-                    let pending = model.findings.filter { $0.status == .unread }
+                Section("待处理变化") {
+                    let pending = FindingQueue.pending(model.findings, importantOnly: importantOnly)
+                    if !FindingQueue.pending(model.findings).isEmpty {
+                        Picker("筛选变化", selection: $importantOnly) {
+                            Text("全部").tag(false)
+                            Text("值得关注").tag(true)
+                        }
+                        .pickerStyle(.segmented)
+                    }
                     if pending.isEmpty {
-                        Text("暂无待查看变化").foregroundStyle(.secondary)
+                        if importantOnly && !FindingQueue.pending(model.findings).isEmpty {
+                            Text("暂无值得关注的待处理变化。可切回“全部”查看其他更新。")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("暂无待处理变化。查看过的变化会留在这里，直到你标为已处理。")
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     ForEach(pending) { finding in
-                        NavigationLink {
-                            FindingDetailView(model: model, id: finding.id)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(finding.title).font(.headline)
-                                Text(finding.relevance.rawValue).font(.caption).foregroundStyle(finding.relevance == .important ? .orange : .secondary)
-                                Text(finding.reason).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                        HStack(spacing: 8) {
+                            NavigationLink {
+                                FindingDetailView(model: model, id: finding.id)
+                            } label: {
+                                FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
                             }
+                            Button {
+                                model.setStatus(.handled, for: finding.id)
+                            } label: {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.title3)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel("标为已处理")
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button {
+                                model.setStatus(.handled, for: finding.id)
+                            } label: {
+                                Label("已处理", systemImage: "checkmark")
+                            }
+                            .tint(.green)
+                        }
+                    }
+                    let completedCount = FindingQueue.completed(model.findings).count
+                    if completedCount > 0 {
+                        NavigationLink("查看已处理记录（\(completedCount)）") {
+                            CompletedFindingsView(model: model)
                         }
                     }
                 }
 
                 Section("来源") {
-                    if model.sources.isEmpty { Text("点击右上角 + 添加 GitHub 来源").foregroundStyle(.secondary) }
+                    if model.sources.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("从一个公开 GitHub 仓库或 Skill 路径开始。首次成功检查只建立当前基线。")
+                                .foregroundStyle(.secondary)
+                            Button("添加来源") { editorSource = WatchSource() }
+                                .buttonStyle(.borderedProminent)
+                        }
+                        .padding(.vertical, 6)
+                    }
                     ForEach(model.sources) { source in
                         NavigationLink {
                             SourceDetailView(model: model, id: source.id, edit: { editorSource = $0 })
@@ -67,6 +115,16 @@ struct ContentView: View {
                                     if source.isPaused { Text("已暂停").font(.caption).foregroundStyle(.secondary) }
                                 }
                                 Text("\(source.repository) · \(source.kind.rawValue)").font(.caption).foregroundStyle(.secondary)
+                                if let date = source.lastCheckedAt {
+                                    HStack(spacing: 4) {
+                                        Text("上次成功检查")
+                                        Text(date, style: .relative)
+                                    }
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                } else {
+                                    Text("等待首次成功检查").font(.caption).foregroundStyle(.secondary)
+                                }
                                 if let error = source.lastError { Text(error).font(.caption).foregroundStyle(.red).lineLimit(2) }
                             }
                         }
@@ -113,14 +171,60 @@ struct ContentView: View {
     }
 }
 
+private struct FindingRowView: View {
+    let finding: Finding
+    let sourceTitle: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(finding.title).font(.headline).lineLimit(2)
+                Spacer(minLength: 4)
+                if finding.status == .unread {
+                    Image(systemName: "circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.blue)
+                        .accessibilityLabel("未读")
+                }
+            }
+            Text(sourceTitle).font(.subheadline).foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+                Text(finding.relevance.rawValue)
+                    .foregroundStyle(finding.relevance == .important ? Color.orange : Color.secondary)
+                Text(finding.status.rawValue).foregroundStyle(.secondary)
+            }
+            .font(.caption.bold())
+            Text(finding.reason).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+        }
+        .padding(.vertical, 3)
+    }
+}
+
+private struct CompletedFindingsView: View {
+    @ObservedObject var model: AppModel
+
+    var body: some View {
+        List(FindingQueue.completed(model.findings)) { finding in
+            NavigationLink {
+                FindingDetailView(model: model, id: finding.id)
+            } label: {
+                FindingRowView(finding: finding, sourceTitle: model.source(for: finding.sourceID)?.title ?? "来源")
+            }
+        }
+        .navigationTitle("已处理记录")
+    }
+}
+
 struct SourceEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var source: WatchSource
     let onSave: (WatchSource) -> Void
     @State private var error: String?
+    @State private var showMoreContext: Bool
 
     init(source: WatchSource, onSave: @escaping (WatchSource) -> Void) {
         _source = State(initialValue: source)
+        _showMoreContext = State(initialValue: !source.installedVersion.isEmpty || !source.keywords.isEmpty || !source.rationale.isEmpty)
         self.onSave = onSave
     }
 
@@ -139,13 +243,17 @@ struct SourceEditorView: View {
                         TextField("分支（留空使用默认分支）", text: $source.branch)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                     }
+                    Text("首次成功检查只建立基线，不会把旧版本当成新变化。")
+                        .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("我的使用情况（仅保存在本机）") {
                     TextField("显示名称", text: $source.displayName)
-                    TextField("用途", text: $source.purpose)
-                    TextField("正在使用的版本／Tag／提交", text: $source.installedVersion)
-                    TextField("关键词，逗号分隔", text: $source.keywords)
-                    TextField("采用理由", text: $source.rationale, axis: .vertical)
+                    TextField("用途，例如 NAS 远程连接", text: $source.purpose)
+                    DisclosureGroup("更多个人信息（可选）", isExpanded: $showMoreContext) {
+                        TextField("正在使用的版本／Tag／提交", text: $source.installedVersion)
+                        TextField("关注关键词，逗号分隔", text: $source.keywords)
+                        TextField("采用理由", text: $source.rationale, axis: .vertical)
+                    }
                 }
                 Toggle("暂停监控", isOn: $source.isPaused)
                 if let error { Text(error).foregroundStyle(.red) }
@@ -222,6 +330,10 @@ struct FindingDetailView: View {
             if let finding = model.findings.first(where: { $0.id == id }) {
                 Section("判断") {
                     LabeledContent("相关性", value: finding.relevance.rawValue)
+                    LabeledContent("状态", value: finding.status.rawValue)
+                    if let source = model.source(for: finding.sourceID) {
+                        LabeledContent("来源", value: source.title)
+                    }
                     Text(finding.reason)
                     LabeledContent("上游标识", value: finding.upstreamID)
                     LabeledContent("发现时间") { Text(finding.foundAt, style: .date) }
@@ -229,8 +341,18 @@ struct FindingDetailView: View {
                 Section("变化内容") { Text(finding.body.isEmpty ? "上游未提供说明。" : finding.body).textSelection(.enabled) }
                 Section("操作") {
                     if let url = URL(string: finding.url) { Link("查看 GitHub 原文", destination: url) }
-                    Picker("状态", selection: Binding(get: { finding.status }, set: { model.setStatus($0, for: id) })) {
-                        ForEach(FindingStatus.allCases, id: \.self) { status in Text(status.rawValue).tag(status) }
+                    if finding.status == .handled {
+                        Button("重新加入待处理") { model.setStatus(.viewed, for: id) }
+                    } else {
+                        Button {
+                            model.setStatus(.handled, for: id)
+                        } label: {
+                            Label("标为已处理", systemImage: "checkmark.circle.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        if finding.status == .viewed {
+                            Button("标为未读") { model.setStatus(.unread, for: id) }
+                        }
                     }
                 }
             }

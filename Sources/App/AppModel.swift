@@ -40,11 +40,15 @@ import Combine
         if let index = data.sources.firstIndex(where: { $0.id == source.id }) {
             var updated = source
             let previous = data.sources[index]
-            if previous.repository != source.repository || previous.kind != source.kind || previous.path != source.path || previous.branch != source.branch {
+            let trackingChanged = previous.repository != source.repository || previous.kind != source.kind ||
+                previous.path != source.path || previous.branch != source.branch
+            if trackingChanged {
                 storageEpoch += 1
                 updated.baselineIdentifier = nil
                 updated.baselineContent = nil
                 updated.etag = nil
+                updated.lastCheckedAt = nil
+                updated.lastError = nil
                 data.findings.removeAll { $0.sourceID == source.id }
             } else {
                 updated.baselineIdentifier = previous.baselineIdentifier
@@ -54,6 +58,7 @@ import Combine
                 updated.lastError = previous.lastError
             }
             data.sources[index] = updated
+            if trackingChanged { data.lastSuccessfulCheck = data.sources.compactMap(\.lastCheckedAt).max() }
         } else {
             data.sources.append(source)
         }
@@ -64,6 +69,7 @@ import Combine
         storageEpoch += 1
         data.sources.removeAll { $0.id == source.id }
         data.findings.removeAll { $0.sourceID == source.id }
+        data.lastSuccessfulCheck = data.sources.compactMap(\.lastCheckedAt).max()
         persist()
     }
 
