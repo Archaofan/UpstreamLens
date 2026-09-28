@@ -105,7 +105,8 @@ final class RetentionTests: XCTestCase {
         let decoded = try JSONDecoder().decode(LocalData.self, from: Data(legacy.utf8))
         XCTAssertEqual(decoded.findings.count, 1)
         XCTAssertEqual(decoded.findings.first?.title, "Update")
-        XCTAssertEqual(decoded.findings.first?.isPrerelease ?? true, false)
+        // 缺失的 isPrerelease key 解码为 nil，语义上等价于 false。
+        XCTAssertEqual(decoded.findings.first?.showsPrereleaseBadge, false)
     }
 
     func testExportImportRoundTripKeepsNewFields() throws {
