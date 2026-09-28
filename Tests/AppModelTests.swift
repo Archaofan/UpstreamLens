@@ -75,10 +75,12 @@ final class AppModelTests: XCTestCase {
 
     @MainActor func testChangingTrackedPathClearsOldTargetCheckStatus() async {
         let oldCheck = Date(timeIntervalSince1970: 1_700_000_000)
+        let otherCheck = Date(timeIntervalSince1970: 1_600_000_000)
         let source = WatchSource(kind: .path, repository: "acme/tool", path: "skills/old/SKILL.md",
                                  baselineIdentifier: "old-sha", lastCheckedAt: oldCheck,
                                  lastError: "旧路径请求失败")
-        let model = AppModel(initialData: LocalData(sources: [source]),
+        let other = WatchSource(repository: "acme/other", lastCheckedAt: otherCheck)
+        let model = AppModel(initialData: LocalData(sources: [source, other], lastSuccessfulCheck: oldCheck),
                              fetchChanges: { _ in throw GitHubError.notFound },
                              saveData: { _ in }, publishSnapshot: { _ in })
         var edited = source
@@ -87,8 +89,10 @@ final class AppModelTests: XCTestCase {
         model.upsert(edited)
         XCTAssertNil(model.source(for: source.id)?.lastCheckedAt)
         XCTAssertNil(model.source(for: source.id)?.lastError)
+        XCTAssertEqual(model.lastSuccessfulCheck, otherCheck)
         await model.refresh(source.id)
         XCTAssertNil(model.source(for: source.id)?.lastCheckedAt)
         XCTAssertEqual(model.source(for: source.id)?.lastError, GitHubError.notFound.localizedDescription)
+        XCTAssertEqual(model.lastSuccessfulCheck, otherCheck)
     }
 }
