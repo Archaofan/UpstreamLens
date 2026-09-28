@@ -22,6 +22,22 @@ final class RelevanceEngineTests: XCTestCase {
         XCTAssertFalse(result.1.contains("api"))
     }
 
+    func testWordBoundaryScansPastEmbeddedOccurrence() {
+        // "rapid api"：首个 "api" 在 rapid 内部（边界检查失败），第二个是独立词，必须命中。
+        let source = sourceWith(keywords: "api")
+        let result = RelevanceEngine.assess(source: source, text: "A rapid api overhaul")
+        XCTAssertEqual(result.0, .important)
+        XCTAssertTrue(result.1.contains("api"))
+    }
+
+    func testBreakingTermOverridesRoutineVersionGap() {
+        // 补丁版本的 security fix 不能因为“仅小版本更新”被判 routine。
+        let source = sourceWith(installedVersion: "2.0.1")
+        let result = RelevanceEngine.assess(source: source, text: "Patch release with security fix for CVE-2026-1234",
+                                            versionHint: "v2.0.2")
+        XCTAssertEqual(result.0, .important)
+    }
+
     func testWordBoundaryStillMatchesExactWord() {
         let source = sourceWith(keywords: "api")
         let result = RelevanceEngine.assess(source: source, text: "The API now supports pagination")

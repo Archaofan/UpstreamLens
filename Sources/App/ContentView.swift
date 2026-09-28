@@ -22,6 +22,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var navigationPath = NavigationPath()
     @State private var showClipboardBanner = false
+    @State private var showMarkAllHandled = false
     @State private var dialogError: String?
     @State private var importantOnly = false
     @State private var pendingClipboardAdd: ClipboardAdd?
@@ -68,6 +69,12 @@ struct ContentView: View {
                         }
                         .disabled(!model.findings.contains { $0.status == .unread })
                         Button {
+                            showMarkAllHandled = true
+                        } label: {
+                            Label("全部标为已处理", systemImage: "checkmark.circle")
+                        }
+                        .disabled(FindingQueue.pending(model.findings).isEmpty)
+                        Button {
                             showSettings = true
                         } label: {
                             Label("设置", systemImage: "gearshape")
@@ -96,6 +103,12 @@ struct ContentView: View {
             .alert("操作失败", isPresented: Binding(get: { dialogError != nil }, set: { if !$0 { dialogError = nil } })) {
                 Button("确定", role: .cancel) { dialogError = nil }
             } message: { Text(dialogError ?? "") }
+            .confirmationDialog("把待处理变化全部标为已处理？", isPresented: $showMarkAllHandled) {
+                Button("全部标为已处理", role: .destructive) { model.markAllHandled() }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("共 \(FindingQueue.pending(model.findings).count) 条将进入已处理记录；这表示你已完成本地核查。")
+            }
             .onOpenURL { url in handleDeepLink(url) }
             .task { await model.refreshAll() }
             .onChange(of: scenePhase) { _, phase in
@@ -149,8 +162,10 @@ struct ContentView: View {
         guard changeCount != clipboardChangeCountSeen else { return }
         UIPasteboard.general.detectPatterns(for: [.probableWebURL]) { result in
             guard UIPasteboard.general.changeCount == changeCount else { return }
-            if case .success(let patterns) = result, patterns.contains(.probableWebURL) {
-                showClipboardBanner = true
+            Task { @MainActor in
+                if case .success(let patterns) = result, patterns.contains(.probableWebURL) {
+                    showClipboardBanner = true
+                }
             }
         }
     }
@@ -732,7 +747,7 @@ struct FindingDetailView: View {
                             HStack(spacing: 6) {
                                 Text(finding.relevance.rawValue)
                                     .font(.title3.weight(.semibold))
-                                if finding.isPrerelease {
+                                if finding.showsPrereleaseBadge {
                                     Text("预发布")
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.orange)

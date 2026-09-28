@@ -50,4 +50,10 @@ final class VersionCompareTests: XCTestCase {
         // release 的数字 id 或纯数字 sha 不得被当成版本号参与比较。
         XCTAssertEqual(VersionCompare.gap(installed: "v1.0.0", upstream: "123456789"), .incomparable)
     }
+
+    func testOverflowingNumericSegmentDoesNotCrash() {
+        // 超过 Int64 的数字段必须返回不可解析，而不是强解崩溃。
+        XCTAssertNil(ParsedVersion.parse("v99999999999999999999"))
+        XCTAssertEqual(VersionCompare.gap(installed: "v1.0.0", upstream: "v99999999999999999999"), .incomparable)
+    }
 }

@@ -9,17 +9,17 @@
 3. 首页“待处理变化”包括未读和已查看的项目，优先显示“值得关注”。打开详情会标为已查看，但仍留在待处理列表；请核对判断理由和 GitHub 原文，再点“标为已处理”、点列表行尾的勾选，或左滑完成。左滑另一侧可切换已读/未读。
 4. 已处理的项目在“已处理记录”中（支持搜索），可从详情重新加入待处理。小组件只统计**未读且相关**的变化，因此查看后小组件数量可能减少，而 App 中仍保留待处理项。
 5. 个人使用情况（用途、版本、关键词）可在来源详情页“编辑使用情况”中随时补充；判断引擎会引用命中的具体词句，便于回原文核查。
-6. “设置”中集中了低频功能：JSON 导入/导出、已处理记录清理策略（默认保留 90 天）、GitHub API 限额显示、**诊断信息生成**（可一键复制发给开发者）。
+6. “设置”中集中了低频功能：JSON 导入/导出、已处理记录自动清理（90 天，默认关闭、开启前不会动你的旧数据）、GitHub API 限额显示、**诊断信息生成**（可一键复制发给开发者）。
 
 “已处理”只表示你完成了本地核查，不表示已经升级上游版本。个人用途和备注只保存在本机，不会发给 GitHub。
 
 ## 小组件与签名
 
-小组件依赖 App Group 共享容器。本项目的 IPA 由 CI 用 `ldid` 内嵌 entitlements 后再由侧载工具重签；若重签工具正确注册 App Group，小组件即可工作。如果小组件显示“共享数据暂不可用”，请在 App 内“设置 → 诊断 → 生成诊断信息”复制文本：它会显示共享容器是否可获得、`embedded.mobileprovision` 与主程序二进制中是否真的包含 App Group 权限——据此可定位是哪一环把权限丢了。
+小组件依赖 App Group 共享容器。本项目的 IPA 由 CI 在打包前用 adhoc codesign 把 entitlements 内嵌进 App 与 Widget 的二进制（macOS runner 上的 brew ldid 安装不可靠，已改用系统 codesign），侧载工具重签时即可读到并注册 App Group。如果小组件显示“共享数据暂不可用”，请在 App 内“设置 → 诊断 → 生成诊断信息”复制文本：它会显示共享容器是否可获得、`embedded.mobileprovision` 与主程序二进制中是否真的包含 App Group 权限——据此可定位是哪一环把权限丢了。
 
 ## 构建
 
-本项目用 XcodeGen 生成工程。GitHub Actions 的 `iOS unsigned IPA` 工作流固定在 `macos-26`，选择 Xcode 26.6，运行单元测试、生成不签名的归档，用 `ldid` 以 adhoc 方式内嵌 App 与 Widget 的 entitlements（不做真实签名），核查标识、架构、entitlements 后上传 IPA 和 SHA-256。工作流运行成功后，从该次 Actions 的 `UpstreamLens-unsigned` artifact 下载两个文件。下载后用 SHA-256 核对 IPA。
+本项目用 XcodeGen 生成工程。GitHub Actions 的 `iOS unsigned IPA` 工作流固定在 `macos-26`，选择 Xcode 26.6，运行单元测试、生成不签名的归档，用 adhoc codesign 内嵌 App 与 Widget 的 entitlements（不做真实签名），核查标识、架构、entitlements 后上传 IPA 和 SHA-256。工作流运行成功后，从该次 Actions 的 `UpstreamLens-unsigned` artifact 下载两个文件。下载后用 SHA-256 核对 IPA。
 
 固定标识：
 

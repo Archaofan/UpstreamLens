@@ -21,9 +21,10 @@ struct ParsedVersion: Equatable, Comparable {
             if prerelease.isEmpty || prerelease.contains(where: { $0.isEmpty }) { return nil }
         }
         let numbers = core.split(separator: ".", omittingEmptySubsequences: false).map(String.init)
+        // 超长数字段超出 Int64 会令 Int 初始化失败，任一段无法转 Int 则视为不可解析。
         guard (1...3).contains(numbers.count),
-              numbers.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else { return nil }
-        let ints = numbers.map { Int($0)! }
+              numbers.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }),
+              let ints = numbers.map({ Int($0) }) as? [Int] else { return nil }
         func segment(_ index: Int) -> Int { index < ints.count ? ints[index] : 0 }
         return ParsedVersion(major: segment(0), minor: segment(1), patch: segment(2), prerelease: prerelease)
     }

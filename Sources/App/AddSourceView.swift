@@ -38,6 +38,13 @@ struct AddSourceView: View {
                 RepoConfirmView(model: model, input: target.repository) {
                     dismiss()
                     onSaved()
+                } onRequestManual: {
+                    // 探测失败的兜底：关掉确认页后弹出手动表单（预填已识别的仓库名）。
+                    manualPrefill = target.repository
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 400_000_000)
+                        manualSource = WatchSource(repository: target.repository)
+                    }
                 }
             }
             .sheet(item: $manualSource) { source in

@@ -17,3 +17,13 @@ CI loop record (delivery-round1, run 36453939764 → 36459336316):
   * Diagnostics.contains empty-needle semantics settled: false (test updated)
 - R9: String.firstIndex(of:) type error → range(of:)
 - R10: terms test still used 1-char words → test updated to 2-char (implementation rule stands)
+Final review (fresh subagent) → 1 Critical, 5 Important, 11 Minor.
+Fix pass (one pass, TDD where applicable):
+- Final: fixed Critical#1 Finding.isPrerelease Bool->Bool? (custom decode default) — regression test testLegacyBackupWithFindingsDecodes
+- Final: fixed Imp#1 assess reorder (breaking>keywords>version>context) — testBreakingTermOverridesRoutineVersionGap
+- Final: fixed Imp#2 ParsedVersion Int overflow crash — testOverflowingNumericSegmentDoesNotCrash
+- Final: fixed Imp#3 containsWord scans all occurrences — testWordBoundaryScansPastEmbeddedOccurrence
+- Final: fixed Imp#4 RepoConfirmView manual fallback wired via onRequestManual callback
+- Final: fixed Imp#5 retention nil = keep-forever (no silent deletion) — testDefaultRetentionIsOffUntilUserOptsIn + legacy test updated
+- Minors fixed opportunistically: dead PendingNavigation removed; markAllHandled UI entry added (plan T6 scope); rateLimited info captured in refresh catch; detectPatterns completion dispatched to MainActor; README ldid wording corrected
+Deferred minors: widget headline comparator inconsistency; circular accessory shows 0 when snapshot nil; AddSourceView onSubmit+debounce double-search risk; RepoConfirmView footer request-count wording; refreshAll rate budget; snapshot read duplication & hardcoded ids in widget; perform retry untested; testProfileDataIsOptionalAndSafe no assertions

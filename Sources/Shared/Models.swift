@@ -60,7 +60,10 @@ struct Finding: Codable, Identifiable, Equatable {
     var status: FindingStatus = .unread
     var oldContent: String?
     var newContent: String?
-    var isPrerelease: Bool = false
+    // 必须保持可选：合成 Codable 对非可选字段不接受缺失 key，否则旧备份解码直接失败。
+    var isPrerelease: Bool? = false
+
+    var showsPrereleaseBadge: Bool { isPrerelease == true }
 
     var isUnreadRelevant: Bool { status == .unread && relevance != .routine }
 }
@@ -74,10 +77,9 @@ struct LocalData: Codable {
     /// 已处理记录保留天数；nil 或 0 表示永久保留。
     var retentionDays: Int?
 
-    /// 已处理记录保留天数；nil 视为 90，0 表示永久保留。
+    /// 已处理记录保留天数；nil 表示用户从未选择（视为永久保留，避免升级后静默删数据），0 也是永久保留。
     var effectiveRetentionDays: Int {
-        guard let retentionDays else { return 90 }
-        return max(0, retentionDays)
+        retentionDays ?? 0
     }
 
     func pruned(now: Date) -> LocalData {

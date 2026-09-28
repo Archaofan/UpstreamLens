@@ -37,11 +37,13 @@ final class RetentionTests: XCTestCase {
                 relevance: .routine, reason: "r", status: status)
     }
 
-    func testDefaultRetentionIs90Days() {
-        XCTAssertEqual(LocalData().effectiveRetentionDays, 90)
-        XCTAssertEqual(LocalData(retentionDays: nil).effectiveRetentionDays, 90)
+    func testDefaultRetentionIsOffUntilUserOptsIn() {
+        // nil = 用户从未选择，必须视为永久保留，避免升级后静默删除旧记录。
+        XCTAssertEqual(LocalData().effectiveRetentionDays, 0)
+        XCTAssertEqual(LocalData(retentionDays: nil).effectiveRetentionDays, 0)
         XCTAssertEqual(LocalData(retentionDays: 0).effectiveRetentionDays, 0)
         XCTAssertEqual(LocalData(retentionDays: 30).effectiveRetentionDays, 30)
+        XCTAssertEqual(LocalData(retentionDays: 90).effectiveRetentionDays, 90)
     }
 
     func testPruneRemovesOnlyOldHandledRecords() {
@@ -83,7 +85,27 @@ final class RetentionTests: XCTestCase {
         XCTAssertEqual(decoded.sources.first?.purpose, "my NAS")
         XCTAssertNil(decoded.sources.first?.topics)
         XCTAssertNil(decoded.schemaVersion)
-        XCTAssertEqual(decoded.effectiveRetentionDays, 90)
+        XCTAssertEqual(decoded.effectiveRetentionDays, 0)
+    }
+
+    func testLegacyBackupWithFindingsDecodes() throws {
+        // Critical 回归：v1 备份里的 finding 没有 isPrerelease 字段，解码不能失败。
+        let legacy = """
+        {
+          "sources": [],
+          "findings": [{"id": "CCDDEEFF-1122-3344-5566-77889900AABB",
+                        "sourceID": "AABBCCDD-1122-3344-5566-77889900AABB",
+                        "upstreamID": "v2", "title": "Update", "body": "notes",
+                        "url": "https://github.com/acme/tool", "foundAt": 720000000.0,
+                        "relevance": "值得关注", "reason": "config", "status": "unread",
+                        "oldContent": null, "newContent": null}],
+          "lastSuccessfulCheck": null
+        }
+        """
+        let decoded = try JSONDecoder().decode(LocalData.self, from: Data(legacy.utf8))
+        XCTAssertEqual(decoded.findings.count, 1)
+        XCTAssertEqual(decoded.findings.first?.title, "Update")
+        XCTAssertEqual(decoded.findings.first?.isPrerelease ?? true, false)
     }
 
     func testExportImportRoundTripKeepsNewFields() throws {

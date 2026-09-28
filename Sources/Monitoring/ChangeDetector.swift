@@ -21,13 +21,22 @@ enum RelevanceEngine {
     ]
 
     /// 判定一条上游变化对用户的相关性。理由必须引用命中的具体词句，便于回原文核查。
+    /// 优先级：破坏性/安全词 > 关键词 > 版本比较 > 用途语境 > 兜底。
     static func assess(source: WatchSource, text: String, versionHint: String? = nil) -> (Relevance, String) {
-        if let upstreamID = versionHint, !source.installedVersion.isEmpty {
-            switch VersionCompare.gap(installed: source.installedVersion, upstream: upstreamID) {
+        let lower = text.lowercased()
+        if let breaking = firstTermHit(terms: breakingTerms, in: lower) {
+            return (.important, "变更包含「\(breaking)」，通常涉及兼容性或安全，请核对原文与当前用途。")
+        }
+        let keywordHits = hits(terms: terms(from: source.keywords), in: lower)
+        if !keywordHits.isEmpty {
+            return (.important, "变更提及你关注的关键词「\(keywordHits.prefix(3).joined(separator: "、"))」。请核对原文与当前用途。")
+        }
+        if let versionHint, !source.installedVersion.isEmpty {
+            switch VersionCompare.gap(installed: source.installedVersion, upstream: versionHint) {
             case .behind(let steps, let majorBump):
-                let upstreamText = VersionCompare.describe(upstreamID) ?? upstreamID
+                let upstreamText = VersionCompare.describe(versionHint) ?? versionHint
                 let installedText = VersionCompare.describe(source.installedVersion) ?? source.installedVersion
-                if ParsedVersion.parse(upstreamID)?.prerelease.isEmpty == false {
+                if ParsedVersion.parse(versionHint)?.prerelease.isEmpty == false {
                     return (.uncertain, "上游最新为预发布版本 \(upstreamText)，你记录的使用版本是 \(installedText)；预发布是否采用请自行判断。")
                 }
                 if majorBump {
@@ -41,15 +50,6 @@ enum RelevanceEngine {
             case .incomparable:
                 break
             }
-        }
-
-        let lower = text.lowercased()
-        if let breaking = firstTermHit(terms: breakingTerms, in: lower) {
-            return (.important, "变更包含「\(breaking)」，通常涉及兼容性或安全，请核对原文与当前用途。")
-        }
-        let keywordHits = hits(terms: terms(from: source.keywords), in: lower)
-        if !keywordHits.isEmpty {
-            return (.important, "变更提及你关注的关键词「\(keywordHits.prefix(3).joined(separator: "、"))」。请核对原文与当前用途。")
         }
         let contextHits = hits(terms: terms(from: source.contextText, minASCIILength: 3), in: lower)
         if !contextHits.isEmpty {
@@ -105,12 +105,17 @@ enum RelevanceEngine {
     }
 
     static func containsWord(_ lowerText: String, _ lowerTerm: String) -> Bool {
-        guard let range = lowerText.range(of: lowerTerm) else { return false }
-        let beforeOK = range.lowerBound == lowerText.startIndex
-            || !isWordCharacter(lowerText[lowerText.index(before: range.lowerBound)])
-        let afterOK = range.upperBound == lowerText.endIndex
-            || !isWordCharacter(lowerText[range.upperBound])
-        return beforeOK && afterOK
+        // 首个出现可能是别的词的子串（"rapid" 里的 "api"），必须遍历所有命中位置。
+        var searchStart = lowerText.startIndex
+        while let range = lowerText.range(of: lowerTerm, range: searchStart..<lowerText.endIndex) {
+            let beforeOK = range.lowerBound == lowerText.startIndex
+                || !isWordCharacter(lowerText[lowerText.index(before: range.lowerBound)])
+            let afterOK = range.upperBound == lowerText.endIndex
+                || !isWordCharacter(lowerText[range.upperBound])
+            if beforeOK && afterOK { return true }
+            searchStart = range.upperBound
+        }
+        return false
     }
 
     private static func isWordCharacter(_ character: Character) -> Bool {

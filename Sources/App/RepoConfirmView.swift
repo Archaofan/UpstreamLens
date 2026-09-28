@@ -5,6 +5,8 @@ struct RepoConfirmView: View {
     @ObservedObject var model: AppModel
     let input: String
     let onSaved: () -> Void
+    /// 探测失败时的手动表单兜底入口；由调用方提供（如 AddSourceView）。
+    var onRequestManual: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
 
     @State private var phase: Phase = .probing
@@ -39,7 +41,16 @@ struct RepoConfirmView: View {
                 Section {
                     Label(message, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.secondary)
-                    Button("改为手动填写") { openManualEditor() }
+                    if onRequestManual != nil {
+                        Button("改为手动填写") {
+                            let request = onRequestManual
+                            dismiss()
+                            Task { @MainActor in
+                                try? await Task.sleep(nanoseconds: 400_000_000)
+                                request?()
+                            }
+                        }
+                    }
                 }
             case .ready:
                 readySections
@@ -202,10 +213,5 @@ struct RepoConfirmView: View {
         Task { await model.refresh(source.id) }
         dismiss()
         onSaved()
-    }
-
-    private func openManualEditor() {
-        // 失败兜底：交给手动表单（由 AddSourceView 提供），本页退出。
-        dismiss()
     }
 }

@@ -13,7 +13,6 @@ import UIKit
     @Published var storageError: String?
     @Published var widgetError: String?
     @Published private(set) var rateLimit: RateLimitInfo?
-    @Published var pendingNavigation: PendingNavigation?
     private let fetchChanges: (WatchSource) async throws -> GitHubFetch
     private let saveData: (LocalData) throws -> Void
     private let publishSnapshot: (LocalData) throws -> Void
@@ -25,12 +24,6 @@ import UIKit
     private var inFlightVersions: [UUID: RequestVersion] = [:]
     private var storageReady = true
     private var lastSavedData = LocalData()
-
-    enum PendingNavigation: Equatable {
-        case pendingQueue
-        case finding(UUID)
-        case addSource(String)
-    }
 
     init(initialData: LocalData? = nil,
          loadData: @escaping () throws -> LocalData = { try LocalStore.load() },
@@ -212,6 +205,9 @@ import UIKit
             guard requestVersion == version(for: id),
                   let index = data.sources.firstIndex(where: { $0.id == id }),
                   Self.sameTracking(data.sources[index], requested) else { return }
+            if case GitHubError.rateLimited(let info) = error, let info {
+                rateLimit = info
+            }
             data.sources[index].lastError = error.localizedDescription
         }
         persist()

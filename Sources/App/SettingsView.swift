@@ -107,7 +107,7 @@ struct SettingsView: View {
                 Label("导入 JSON 备份（替换现有数据）", systemImage: "square.and.arrow.down")
             }
             Toggle(isOn: Binding(
-                get: { (model.retentionDays ?? 90) > 0 },
+                get: { (model.retentionDays ?? 0) > 0 },
                 set: { model.setRetentionDays($0 ? 90 : 0) })) {
                 Label("自动清理 90 天前的已处理记录", systemImage: "clock.arrow.circlepath")
             }

@@ -244,7 +244,7 @@ final class AppModelTests: XCTestCase {
 
     @MainActor func testRefreshAllPrunesExpiredHandledRecords() async {
         let source = WatchSource(repository: "acme/tool")
-        var data = LocalData(sources: [source])
+        var data = LocalData(sources: [source], retentionDays: 90)
         let old = Finding(sourceID: source.id, upstreamID: "old", title: "old", body: "",
                           url: "u", foundAt: Date().addingTimeInterval(-100 * 86_400),
                           relevance: .routine, reason: "r", status: .handled)
