@@ -2,16 +2,27 @@ import Foundation
 import Combine
 
 @MainActor final class AppModel: ObservableObject {
+    private struct RequestVersion: Equatable {
+        let data: Int
+        let source: Int
+    }
+
     @Published private(set) var data: LocalData
     @Published var isRefreshing = false
+    @Published private(set) var refreshingSourceIDs: Set<UUID> = []
     @Published var storageError: String?
     @Published var widgetError: String?
     private let fetchChanges: (WatchSource) async throws -> GitHubFetch
     private let saveData: (LocalData) throws -> Void
     private let publishSnapshot: (LocalData) throws -> Void
-    private var storageEpoch = 0
+    private var dataEpoch = 0
+    private var sourceEpochs: [UUID: Int] = [:]
+    private var inFlightVersions: [UUID: RequestVersion] = [:]
+    private var storageReady = true
+    private var lastSavedData = LocalData()
 
     init(initialData: LocalData? = nil,
+         loadData: @escaping () throws -> LocalData = { try LocalStore.load() },
          fetchChanges: @escaping (WatchSource) async throws -> GitHubFetch = { try await GitHubClient().fetch(source: $0) },
          saveData: @escaping (LocalData) throws -> Void = { try LocalStore.save($0) },
          publishSnapshot: @escaping (LocalData) throws -> Void = { try WidgetSnapshotWriter.write(from: $0) }) {
@@ -21,29 +32,33 @@ import Combine
         if let initialData {
             data = initialData
         } else {
-            do { data = try LocalStore.load() }
+            do { data = try loadData() }
             catch {
                 data = LocalData()
-                storageError = "无法读取本地数据：\(error.localizedDescription)"
+                storageReady = false
+                storageError = "无法读取本地数据，已暂停保存以保护原文件。请导入有效备份：\(error.localizedDescription)"
             }
         }
-        writeWidget()
+        lastSavedData = data
+        if storageReady { writeWidget() }
     }
 
     var sources: [WatchSource] { data.sources }
     var findings: [Finding] { data.findings.sorted { $0.foundAt > $1.foundAt } }
     var lastSuccessfulCheck: Date? { data.lastSuccessfulCheck }
+    var canEditData: Bool { storageReady }
 
     func source(for id: UUID) -> WatchSource? { data.sources.first { $0.id == id } }
 
     func upsert(_ source: WatchSource) {
+        guard storageReady else { return }
         if let index = data.sources.firstIndex(where: { $0.id == source.id }) {
             var updated = source
             let previous = data.sources[index]
             let trackingChanged = previous.repository != source.repository || previous.kind != source.kind ||
                 previous.path != source.path || previous.branch != source.branch
             if trackingChanged {
-                storageEpoch += 1
+                sourceEpochs[source.id, default: 0] += 1
                 updated.baselineIdentifier = nil
                 updated.baselineContent = nil
                 updated.etag = nil
@@ -66,7 +81,8 @@ import Combine
     }
 
     func delete(_ source: WatchSource) {
-        storageEpoch += 1
+        guard storageReady else { return }
+        sourceEpochs[source.id, default: 0] += 1
         data.sources.removeAll { $0.id == source.id }
         data.findings.removeAll { $0.sourceID == source.id }
         data.lastSuccessfulCheck = data.sources.compactMap(\.lastCheckedAt).max()
@@ -74,13 +90,14 @@ import Combine
     }
 
     func setStatus(_ status: FindingStatus, for id: UUID) {
+        guard storageReady else { return }
         guard let index = data.findings.firstIndex(where: { $0.id == id }) else { return }
         data.findings[index].status = status
         persist()
     }
 
     func refreshAll() async {
-        guard !isRefreshing else { return }
+        guard storageReady, !isRefreshing else { return }
         isRefreshing = true
         defer { isRefreshing = false }
         for source in data.sources where !source.isPaused {
@@ -89,11 +106,20 @@ import Combine
     }
 
     func refresh(_ id: UUID) async {
-        guard let requested = source(for: id), !requested.isPaused else { return }
-        let requestEpoch = storageEpoch
+        guard storageReady, let requested = source(for: id), !requested.isPaused else { return }
+        let requestVersion = version(for: id)
+        guard inFlightVersions[id] != requestVersion else { return }
+        inFlightVersions[id] = requestVersion
+        refreshingSourceIDs.insert(id)
+        defer {
+            if inFlightVersions[id] == requestVersion {
+                inFlightVersions[id] = nil
+                refreshingSourceIDs.remove(id)
+            }
+        }
         do {
             let fetched = try await fetchChanges(requested)
-            guard requestEpoch == storageEpoch,
+            guard requestVersion == version(for: id),
                   let index = data.sources.firstIndex(where: { $0.id == id }),
                   Self.sameTracking(data.sources[index], requested) else { return }
             var source = data.sources[index]
@@ -112,7 +138,7 @@ import Combine
             }
             data.sources[index] = source
         } catch {
-            guard requestEpoch == storageEpoch,
+            guard requestVersion == version(for: id),
                   let index = data.sources.firstIndex(where: { $0.id == id }),
                   Self.sameTracking(data.sources[index], requested) else { return }
             data.sources[index].lastError = error.localizedDescription
@@ -121,8 +147,9 @@ import Combine
     }
 
     func resetBaseline(for id: UUID) {
+        guard storageReady else { return }
         guard let index = data.sources.firstIndex(where: { $0.id == id }) else { return }
-        storageEpoch += 1
+        sourceEpochs[id, default: 0] += 1
         data.sources[index].baselineIdentifier = nil
         data.sources[index].baselineContent = nil
         data.sources[index].etag = nil
@@ -130,13 +157,21 @@ import Combine
         persist()
     }
 
-    func exportData() throws -> Data { try LocalStore.export(data) }
+    func exportData() throws -> Data {
+        guard storageReady else { throw StorageError.localDataUnavailable }
+        return try LocalStore.export(data)
+    }
 
     func importData(_ bytes: Data) throws {
         let imported = try LocalStore.importData(bytes)
-        storageEpoch += 1
+        dataEpoch += 1
         data = imported
-        persist()
+        let wasReady = storageReady
+        storageReady = true
+        if let error = persist() {
+            storageReady = wasReady
+            throw error
+        }
     }
 
     private static func sameTracking(_ left: WatchSource, _ right: WatchSource) -> Bool {
@@ -144,10 +179,23 @@ import Combine
         left.path == right.path && left.branch == right.branch
     }
 
-    private func persist() {
-        do { try saveData(data); storageError = nil }
-        catch { storageError = "保存失败：\(error.localizedDescription)" }
-        writeWidget()
+    private func version(for id: UUID) -> RequestVersion {
+        RequestVersion(data: dataEpoch, source: sourceEpochs[id, default: 0])
+    }
+
+    @discardableResult private func persist() -> Error? {
+        guard storageReady else { return StorageError.localDataUnavailable }
+        do {
+            try saveData(data)
+            lastSavedData = data
+            storageError = nil
+            writeWidget()
+            return nil
+        } catch {
+            data = lastSavedData
+            storageError = "保存失败，已恢复上次保存的数据：\(error.localizedDescription)"
+            return error
+        }
     }
 
     private func writeWidget() {
