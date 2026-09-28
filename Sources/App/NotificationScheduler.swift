@@ -59,7 +59,7 @@ struct NotificationScheduler {
             actions: [],
             intentIdentifiers: [],
             options: [.customDismissAction])
-        center().setNotificationCategories([category])
+        UNUserNotificationCenter.current().setNotificationCategories([category])
     }
 
     func authorizationStatus() async -> UNAuthorizationStatus {

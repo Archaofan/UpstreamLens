@@ -37,6 +37,22 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Obse
 
     init() {
         NotificationScheduler.registerCategory()
+        // 直接向 BGTaskScheduler 注册后台检查；SwiftUI 的 .backgroundTask 修饰符在
+        // 当前 SDK 上类型推断不稳定，系统级注册行为完全一致。
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.backgroundRefreshID, using: nil) { [weak model] task in
+            let work = Task { @MainActor [weak model] in
+                guard let model else {
+                    task.setTaskCompleted(success: false)
+                    return
+                }
+                await model.refreshAllRespectingBudget(minRemaining: 5)
+                UpstreamLensApp.scheduleBackgroundRefresh()
+                task.setTaskCompleted(success: true)
+            }
+            task.expirationHandler = {
+                work.cancel()
+            }
+        }
     }
 
     var body: some Scene {
@@ -48,21 +64,16 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Obse
             case .active:
                 Task { await model.refreshAll() }
             case .background:
-                scheduleBackgroundRefresh()
+                Self.scheduleBackgroundRefresh()
             default:
                 break
             }
         }
-        .backgroundTask(.appTask(Self.backgroundRefreshID)) { task in
-            await model.refreshAllRespectingBudget(minRemaining: 5)
-            scheduleBackgroundRefresh()
-            task.setTaskCompleted(success: true)
-        }
     }
 
     /// 后台检查：iOS 调度，间隔约 30 分钟起（系统可能合并或推迟，不作实时承诺）。
-    private func scheduleBackgroundRefresh() {
-        let request = BGAppRefreshTaskRequest(identifier: Self.backgroundRefreshID)
+    static func scheduleBackgroundRefresh() {
+        let request = BGAppRefreshTaskRequest(identifier: backgroundRefreshID)
         request.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
         try? BGTaskScheduler.shared.submit(request)
     }
