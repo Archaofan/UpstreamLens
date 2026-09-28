@@ -168,7 +168,7 @@ final class BackgroundBudgetTests: XCTestCase {
     }
 
     @MainActor func testDeliverReceivesPlannedNotifications() async {
-        let source = WatchSource(repository: "acme/tool", baselineIdentifier: "old")
+        var source = WatchSource(repository: "acme/tool", baselineIdentifier: "old")
         source.notifyEnabled = true
         var delivered: [PendingNotification] = []
         let change = UpstreamChange(identifier: "v2", title: "Breaking change", body: "security fix",
