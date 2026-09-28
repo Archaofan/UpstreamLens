@@ -12,7 +12,10 @@ final class MonitoringTests: XCTestCase {
 
     func testSecondCheckCreatesFindingOnce() {
         var source = WatchSource(repository: "owner/repo", baselineIdentifier: "v1")
-        let changes = [UpstreamChange(identifier: "v2", title: "v2", body: "security fix", url: "https://github.com/owner/repo/releases/tag/v2", publishedAt: nil, content: nil)]
+        let changes = [
+            UpstreamChange(identifier: "v2", title: "v2", body: "security fix", url: "https://github.com/owner/repo/releases/tag/v2", publishedAt: nil, content: nil),
+            UpstreamChange(identifier: "v1", title: "v1", body: "", url: "https://github.com/owner/repo/releases/tag/v1", publishedAt: nil, content: nil)
+        ]
         let first = ChangeDetector.apply(changes, to: &source, existing: [], now: .now)
         let second = ChangeDetector.apply(changes, to: &source, existing: first, now: .now)
         XCTAssertEqual(first.count, 1)
