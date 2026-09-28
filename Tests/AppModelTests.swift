@@ -108,6 +108,23 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(model.source(for: secondSource.id)?.repository, "acme/changed")
     }
 
+    @MainActor func testImportedDataReplacesInFlightRefreshResults() async {
+        let source = WatchSource(repository: "acme/tool", baselineIdentifier: "old")
+        let started = expectation(description: "request started")
+        let gate = FetchGate(started: started)
+        let model = AppModel(initialData: LocalData(sources: [source]),
+                             fetchChanges: { _ in try await gate.fetch() },
+                             saveData: { _ in }, publishSnapshot: { _ in })
+        let task = Task { await model.refresh(source.id) }
+        await fulfillment(of: [started], timeout: 5)
+        let imported = LocalData(sources: [WatchSource(repository: "acme/imported")])
+        try? model.importData(LocalStore.export(imported))
+        await gate.resume(GitHubFetch(changes: [change()], etag: nil, unchanged: false))
+        await task.value
+        XCTAssertEqual(model.sources.map(\.repository), ["acme/imported"])
+        XCTAssertTrue(model.findings.isEmpty)
+    }
+
     @MainActor func testFailedLoadBlocksSaveUntilValidImport() throws {
         var saves = 0
         let model = AppModel(loadData: { throw CocoaError(.fileReadCorruptFile) },
