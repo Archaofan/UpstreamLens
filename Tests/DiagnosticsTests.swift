@@ -7,8 +7,8 @@ final class DiagnosticsTests: XCTestCase {
         XCTAssertTrue(Diagnostics.contains(data, needle: "group.com.upstreamlens.ios"))
         XCTAssertFalse(Diagnostics.contains(data, needle: "group.com.other.app"))
         XCTAssertFalse(Diagnostics.contains(Data(), needle: "group.com.upstreamlens.ios"))
-        // 空needle视为无需查找
-        XCTAssertTrue(Diagnostics.contains(data, needle: ""))
+        // 空needle不匹配任何内容
+        XCTAssertFalse(Diagnostics.contains(data, needle: ""))
     }
 
     func testRoundTripFailsWithUnavailableGroup() {

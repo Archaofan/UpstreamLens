@@ -51,7 +51,7 @@ enum RelevanceEngine {
         if !keywordHits.isEmpty {
             return (.important, "变更提及你关注的关键词「\(keywordHits.prefix(3).joined(separator: "、"))」。请核对原文与当前用途。")
         }
-        let contextHits = hits(terms: terms(from: source.contextText, minASCIILength: 4), in: lower)
+        let contextHits = hits(terms: terms(from: source.contextText, minASCIILength: 3), in: lower)
         if !contextHits.isEmpty {
             return (.important, "变更提及你记录的用途或理由「\(contextHits.prefix(3).joined(separator: "、"))」。")
         }
@@ -81,14 +81,16 @@ enum RelevanceEngine {
         hits(terms: terms, in: lowerText).first
     }
 
-    static func terms(from raw: String, minASCIILength: Int = 1) -> [String] {
+    /// 拆词：按中英文逗号、顿号、分号、换行和空格拆分；ASCII 词要求不短于
+    /// minASCIILength（默认 2），CJK 词不设长度下限。
+    static func terms(from raw: String, minASCIILength: Int = 2) -> [String] {
         raw.lowercased()
-            .split(whereSeparator: { $0 == "," || $0 == "，" || $0 == "\n" || $0 == "、" || $0 == ";" || $0 == "；" })
+            .split(whereSeparator: { $0 == "," || $0 == "，" || $0 == "\n" || $0 == "、" || $0 == ";" || $0 == "；" || $0 == " " || $0 == "　" || $0 == "\t" })
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { term in
                 guard !term.isEmpty else { return false }
                 if isCJKTerm(term) { return true }
-                return term.count >= max(minASCIILength, 2)
+                return term.count >= minASCIILength
             }
     }
 

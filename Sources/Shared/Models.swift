@@ -74,13 +74,16 @@ struct LocalData: Codable {
     /// 已处理记录保留天数；nil 或 0 表示永久保留。
     var retentionDays: Int?
 
+    /// 已处理记录保留天数；nil 视为 90，0 表示永久保留。
     var effectiveRetentionDays: Int {
-        guard let retentionDays, retentionDays > 0 else { return 90 }
-        return retentionDays
+        guard let retentionDays else { return 90 }
+        return max(0, retentionDays)
     }
 
     func pruned(now: Date) -> LocalData {
-        let cutoff = now.addingTimeInterval(-Double(effectiveRetentionDays) * 86_400)
+        let days = effectiveRetentionDays
+        guard days > 0 else { return self }
+        let cutoff = now.addingTimeInterval(-Double(days) * 86_400)
         var copy = self
         copy.findings = findings.filter { !($0.status == .handled && $0.foundAt < cutoff) }
         return copy

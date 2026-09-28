@@ -16,10 +16,11 @@ struct ParsedVersion: Equatable, Comparable {
         var prerelease: [String] = []
         if let dash = value.firstIndex(of: "-") {
             core = String(value[..<dash])
-            prerelease = value[value.index(after: dash)...].split(separator: ".").map(String.init)
+            prerelease = value[value.index(after: dash)...]
+                .split(separator: ".", omittingEmptySubsequences: false).map(String.init)
             if prerelease.isEmpty || prerelease.contains(where: { $0.isEmpty }) { return nil }
         }
-        let numbers = core.split(separator: ".").map(String.init)
+        let numbers = core.split(separator: ".", omittingEmptySubsequences: false).map(String.init)
         guard (1...3).contains(numbers.count),
               numbers.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else { return nil }
         let ints = numbers.map { Int($0)! }

@@ -18,24 +18,24 @@ enum DiffEngine {
         guard let old, let new, old != new else { return [] }
         var oldLines = old.components(separatedBy: .newlines)
         var newLines = new.components(separatedBy: .newlines)
-        trimCommonPrefixSuffix(&oldLines, &newLines)
+        // 小文件全量 LCS 以保留上下文行；大文件先裁剪公共前后缀再截断，避免 O(n²) 爆内存。
+        if oldLines.count > maxLines || newLines.count > maxLines {
+            trimCommonPrefixSuffix(&oldLines, &newLines)
+            if oldLines.count > maxLines { oldLines = Array(oldLines.suffix(maxLines)) }
+            if newLines.count > maxLines { newLines = Array(newLines.suffix(maxLines)) }
+        }
         guard !oldLines.isEmpty || !newLines.isEmpty else { return [] }
-        if oldLines.count > maxLines { oldLines = Array(oldLines.suffix(maxLines)) }
-        if newLines.count > maxLines { newLines = Array(newLines.suffix(maxLines)) }
         return lcs(oldLines, newLines)
     }
 
-    /// 摘要计数，供判断引擎与正文使用；与逐行 diff 一致的前后缀裁剪。
+    /// 摘要计数：与逐行 diff 独立，用集合差统计（重排不去重集合时计数为 0）。
     static func counts(old: String?, new: String?) -> (added: Int, removed: Int) {
         guard let old, let new, old != new else { return (0, 0) }
-        var oldLines = old.components(separatedBy: .newlines)
-        var newLines = new.components(separatedBy: .newlines)
-        trimCommonPrefixSuffix(&oldLines, &newLines)
-        var oldSet = Set(oldLines)
-        var newSet = Set(newLines)
-        oldSet.subtract(newSet)
-        newSet.subtract(oldSet)
-        return (newSet.count, oldSet.count)
+        let oldLines = old.components(separatedBy: .newlines)
+        let newLines = new.components(separatedBy: .newlines)
+        let oldSet = Set(oldLines)
+        let newSet = Set(newLines)
+        return (newSet.subtracting(oldSet).count, oldSet.subtracting(newSet).count)
     }
 
     private static func trimCommonPrefixSuffix(_ left: inout [String], _ right: inout [String]) {

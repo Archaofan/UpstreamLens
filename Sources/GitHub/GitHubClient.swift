@@ -71,19 +71,23 @@ struct ParsedGitHubURL: Equatable {
     static func parse(_ input: String) -> ParsedGitHubURL? {
         var value = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { return nil }
-        if let schemeRange = value.range(of: "://") {
-            let afterScheme = value[schemeRange.upperBound...]
-            if let slash = afterScheme.firstIndex(of: "/") {
-                value = String(afterScheme[afterScheme.index(after: slash)...])
-            } else {
-                return nil
-            }
-        } else if value.lowercased().hasPrefix("github.com/") {
+        var cameFromGitHubLink = false
+        let lowered = value.lowercased()
+        if lowered.hasPrefix("http://") || lowered.hasPrefix("https://") {
+            guard let schemeEnd = value.firstIndex(of: "://") else { return nil }
+            let hostAndPath = value[value.index(schemeEnd, offsetBy: 3)...]
+            guard hostAndPath.lowercased().hasPrefix("github.com/") else { return nil }
+            value = String(hostAndPath.dropFirst("github.com/".count))
+            cameFromGitHubLink = true
+        } else if lowered.hasPrefix("github.com/") {
             value = String(value.dropFirst("github.com/".count))
+            cameFromGitHubLink = true
         }
         let components = value.split(separator: "/").map(String.init)
         guard components.count >= 2, !components[0].isEmpty, !components[1].isEmpty else { return nil }
         guard components.allSatisfy({ !$0.contains(where: { $0 == "?" || $0 == "#" || $0 == "@" }) }) else { return nil }
+        // 纯文本形式只接受 owner/repo 两段；GitHub 链接才允许 tree/blob 等更深路径。
+        if !cameFromGitHubLink && components.count != 2 { return nil }
         var repoName = components[1]
         if repoName.hasSuffix(".git") { repoName.removeLast(4) }
         guard Self.validSegment(components[0]), Self.validSegment(repoName) else { return nil }
@@ -130,6 +134,7 @@ struct ParsedGitHubURL: Equatable {
                 source.branch = ref
             } else {
                 source.kind = .tag
+                source.installedVersion = ref
             }
         case .blob(let ref, let path):
             source.kind = .path
