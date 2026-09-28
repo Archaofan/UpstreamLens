@@ -74,7 +74,7 @@ struct SettingsView: View {
 
     private struct DiagnosticsPayload: Identifiable {
         let text: String
-        var id: String { String(hashValue) }
+        var id: String { text }
     }
 
     private var rateLimitSection: some View {

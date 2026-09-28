@@ -17,7 +17,7 @@ struct ParsedVersion: Equatable, Comparable {
         if let dash = value.firstIndex(of: "-") {
             core = String(value[..<dash])
             prerelease = value[value.index(after: dash)...].split(separator: ".").map(String.init)
-            if prerelease.isEmpty || prerelease.contains(where: \isEmpty) { return nil }
+            if prerelease.isEmpty || prerelease.contains(where: { $0.isEmpty }) { return nil }
         }
         let numbers = core.split(separator: ".").map(String.init)
         guard (1...3).contains(numbers.count),
