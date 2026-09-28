@@ -38,8 +38,10 @@ jobs:
           xcrun simctl launch "$SIMULATOR_ID" com.upstreamlens.ios
           sleep 3
           xcrun simctl io "$SIMULATOR_ID" screenshot build/screenshots/home-light.png
+          xcrun simctl terminate "$SIMULATOR_ID" com.upstreamlens.ios
           xcrun simctl ui "$SIMULATOR_ID" appearance dark
-          sleep 2
+          xcrun simctl launch "$SIMULATOR_ID" com.upstreamlens.ios
+          sleep 3
           xcrun simctl io "$SIMULATOR_ID" screenshot build/screenshots/home-dark.png
       - uses: actions/upload-artifact@v4
         with:
