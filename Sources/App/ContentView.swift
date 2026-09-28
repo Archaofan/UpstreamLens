@@ -93,10 +93,12 @@ private struct WidgetStatusSectionView: View {
 
     var body: some View {
         if let error {
-            Section("小组件") {
+            Section {
                 Label("小组件暂不可用", systemImage: "square.on.square.dashed")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            } header: {
+                Text("小组件")
             } footer: {
                 Text(error)
             }
