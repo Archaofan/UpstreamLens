@@ -100,8 +100,21 @@ final class StabilityTests: XCTestCase {
             } else {
                 XCTAssertTrue(preset.path.isEmpty)
             }
+            XCTAssertEqual(preset.iconURL?.host, "github.com", "预设图标必须是 GitHub 头像直链")
+            let owner = preset.repository.split(separator: "/").first.map(String.init) ?? ""
+            XCTAssertEqual(preset.iconURL?.absoluteString, "https://github.com/\(owner).png?size=120")
         }
         XCTAssertEqual(Set(presets.map(\.id)).count, presets.count, "预设 id 不得重复")
+    }
+
+    func testPresetIconCacheNameIsStableAndFilesystemSafe() {
+        let url = URL(string: "https://github.com/openclaw.png?size=120")!
+        let first = PresetIconCache.cachedImageURL(for: url)
+        XCTAssertEqual(first, PresetIconCache.cachedImageURL(for: URL(string: "https://github.com/openclaw.png?size=120")!),
+                       "同名 URL 派生的缓存文件名必须一致")
+        // 非字母数字（含点号）都替换为下划线，文件名天然安全。
+        XCTAssertTrue(first.lastPathComponent.contains("github_com_openclaw_png_size_120"))
+        XCTAssertFalse(first.lastPathComponent.contains("?"), "文件名不得包含 URL 特殊字符")
     }
 }
 

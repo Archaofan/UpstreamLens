@@ -44,3 +44,4 @@ Productionize round (branch productionize-round1, 5 CI loops):
 - R2: injected notification closures not assigned in init
 - R3: test let-source mutability; R4: backup URL naming (save rotates as <file>.bak) — test now derives via appendingPathExtension
 - R5 GREEN. Features: NotificationPlanner (master+per-source, 5-cap+fold, important=active/uncertain=passive, threadIdentifier per source), NotificationScheduler (provisional auth option, category summary), NotificationRouter (tap→finding deep link), BGAppRefreshTask w/ 30min cadence + budget guard (skip when remaining<5), LocalStore rotation+loadWithRecovery, LocalData.capped() 1000, presets (swiftlang/swift, swiftlang/swift-evolution proposals, XcodesOrg/xcodes, obra/superpowers skills) verified public unauth.
+Productionize merge: main run 36480242040 SUCCESS (IPA 1.08MB id=10996703366). branch deleted. All three rounds delivered: config flow, beautify, productionize.

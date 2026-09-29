@@ -78,7 +78,9 @@ enum LocalStore {
 }
 
 enum WidgetSnapshotWriter {
-    static let groupID = "group.com.upstreamlens.ios"
+    /// 运行时解析的 App Group：免费 Apple ID 侧载重签会给组名加团队前缀，
+    /// 固定字符串在真机上拿不到容器（见 AppGroupResolver）。
+    static var groupID: String { AppGroupResolver.activeGroupID }
     static let fileName = "widget-snapshot.json"
 
     static func write(from data: LocalData) throws {

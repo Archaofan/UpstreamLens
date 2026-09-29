@@ -206,4 +206,47 @@ final class GitHubClientTests: XCTestCase {
         XCTAssertEqual(try GitHubClient.normalizedRepository("https://github.com/acme/tool.git"), "acme/tool")
         XCTAssertThrowsError(try GitHubClient.normalizedRepository("https://example.com/acme/tool"))
     }
+
+    // MARK: - 版本下拉（versionOptions）
+
+    func testVersionOptionsFromReleasesFilterDraftsAndFlagPrerelease() async throws {
+        MockAPIProtocol.handler = { request in
+            XCTAssertTrue(request.url!.path.hasSuffix("/releases"))
+            let json = """
+            [{"id":1,"tag_name":"v2.0.0","name":"Two","html_url":"u","draft":false,"prerelease":false},
+             {"id":2,"tag_name":"v2.1.0-rc1","name":null,"html_url":"u","draft":false,"prerelease":true},
+             {"id":3,"tag_name":"v1.9.0","name":null,"html_url":"u","draft":true,"prerelease":false}]
+            """
+            return (200, Data(json.utf8), [:])
+        }
+        let options = try await mockedClient().versionOptions(repository: "acme/tool", kind: .release)
+        XCTAssertEqual(options.map(\.name), ["v2.0.0", "v2.1.0-rc1"], "草稿不进入下拉")
+        XCTAssertEqual(options[1].prerelease, true)
+    }
+
+    func testVersionOptionsFromTagsReturnNames() async throws {
+        MockAPIProtocol.handler = { request in
+            XCTAssertTrue(request.url!.path.hasSuffix("/tags"))
+            let json = #"[]"#
+            return (200, Data(json.utf8), [:])
+        }
+        let options = try await mockedClient().versionOptions(repository: "acme/tool", kind: .tag)
+        XCTAssertTrue(options.isEmpty)
+    }
+
+    func testVersionOptionsPathModeSkipsNetwork() async throws {
+        MockAPIProtocol.handler = { _ in
+            XCTFail("path 模式不应发起请求")
+            return (500, Data(), [:])
+        }
+        let options = try await mockedClient().versionOptions(repository: "acme/tool", kind: .path)
+        XCTAssertTrue(options.isEmpty)
+    }
+
+    func testVersionOptionsRejectsInvalidRepository() async {
+        do {
+            _ = try await mockedClient().versionOptions(repository: "not valid", kind: .release)
+            XCTFail("无效仓库必须抛错")
+        } catch { /* 预期 */ }
+    }
 }

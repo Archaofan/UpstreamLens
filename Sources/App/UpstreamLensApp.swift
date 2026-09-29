@@ -34,6 +34,7 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Obse
     @StateObject private var model = AppModel()
     @StateObject private var notificationRouter = NotificationRouter()
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     init() {
         NotificationScheduler.registerCategory()
@@ -58,6 +59,11 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Obse
     var body: some Scene {
         WindowGroup {
             ContentView(model: model)
+                .fullScreenCover(isPresented: Binding(
+                    get: { !hasCompletedOnboarding },
+                    set: { hasCompletedOnboarding = !$0 })) {
+                    OnboardingView { hasCompletedOnboarding = true }
+                }
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {

@@ -54,7 +54,8 @@ struct AddSourceView: View {
                 }
             }
             .sheet(item: $manualSource) { source in
-                SourceEditorView(source: source, prefillRepository: manualPrefill) { saved in
+                SourceEditorView(source: source, prefillRepository: manualPrefill,
+                                 versionOptionsLoader: { try await model.versionOptions(repository: $0, kind: $1) }) { saved in
                     model.upsert(saved)
                     Task { await model.refresh(saved.id) }
                     dismiss()
@@ -155,11 +156,7 @@ struct AddSourceView: View {
                     showConfirmFor = preset.repository
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: preset.symbol)
-                            .font(.headline)
-                            .foregroundStyle(.tint)
-                            .frame(width: 30, height: 30)
-                            .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 9))
+                        PresetIconView(preset: preset)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(preset.displayName).font(.headline).foregroundStyle(.primary)
                             Text(preset.note).font(.caption).foregroundStyle(.secondary).lineLimit(1)
@@ -173,7 +170,7 @@ struct AddSourceView: View {
         } header: {
             Text("常用预设")
         } footer: {
-            Text("面向 iOS 应用开发与 Agent 技能场景的特化来源，点选即预填。")
+            Text("AI 领域高星项目与 Agent 工具链，点选即预填。")
         }
     }
 

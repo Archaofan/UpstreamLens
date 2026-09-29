@@ -37,7 +37,7 @@ struct RepoConfirmView: View {
                         Text("正在读取仓库信息…").foregroundStyle(.secondary)
                     }
                 } footer: {
-                    Text("最多使用 2 次 GitHub API 请求。")
+                    Text("探测最多 2 次、版本列表 1 次 GitHub API 请求；未变化时的后续检查不计入限额。")
                 }
             case .failed(let message):
                 Section {
@@ -114,8 +114,11 @@ struct RepoConfirmView: View {
                 }
             }
             if source.kind != .path {
-                TextField("正在使用的版本／Tag（可留空）", text: $source.installedVersion)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled()
+                VersionPickerField(repository: source.repository, kind: source.kind,
+                                   loadOptions: VersionPickerField.makeLoader(
+                                       { try await model.versionOptions(repository: $0, kind: $1) },
+                                       repository: source.repository, kind: source.kind),
+                                   selection: $source.installedVersion)
             }
         }
 

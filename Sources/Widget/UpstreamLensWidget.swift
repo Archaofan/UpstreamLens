@@ -8,7 +8,8 @@ private struct SnapshotEntry: TimelineEntry {
 
 private struct SnapshotProvider: TimelineProvider {
     private static func read() -> WidgetSnapshot? {
-        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.upstreamlens.ios"),
+        // 与主 App 相同的组解析：侧载重签后组名可能带团队前缀，固定字符串会拿不到容器。
+        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: AppGroupResolver.activeGroupID),
               let data = try? Data(contentsOf: container.appendingPathComponent("widget-snapshot.json")) else { return nil }
         return try? JSONDecoder().decode(WidgetSnapshot.self, from: data)
     }

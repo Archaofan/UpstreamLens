@@ -18,6 +18,7 @@ import UIKit
     private let publishSnapshot: (LocalData) throws -> Void
     private let probeRepository: (String) async throws -> RepoProbe
     private let probePaths: (String, String) async throws -> TreeScan
+    private let fetchVersionOptions: (String, SourceKind) async throws -> [VersionOption]
     private let updateBadge: (Int) -> Void
     private let notificationsEnabled: () -> Bool
     private let deliverNotifications: ([PendingNotification]) async -> Void
@@ -34,6 +35,7 @@ import UIKit
          publishSnapshot: @escaping (LocalData) throws -> Void = { try WidgetSnapshotWriter.write(from: $0) },
          probeRepo: @escaping (String) async throws -> RepoProbe = { try await RepoProbing.probe($0) },
          probePaths: @escaping (String, String) async throws -> TreeScan = { try await RepoProbing.probePaths($0, branch: $1) },
+         fetchVersionOptions: @escaping (String, SourceKind) async throws -> [VersionOption] = { try await GitHubClient().versionOptions(repository: $0, kind: $1) },
          updateBadge: @escaping (Int) -> Void = { count in UIApplication.shared.applicationIconBadgeNumber = count },
          notificationsEnabled: @escaping () -> Bool = { UserDefaults.standard.bool(forKey: "notificationsEnabled") },
          deliverNotifications: @escaping ([PendingNotification]) async -> Void = { await NotificationScheduler().deliver($0) }) {
@@ -42,6 +44,7 @@ import UIKit
         self.publishSnapshot = publishSnapshot
         self.probeRepository = probeRepo
         self.probePaths = probePaths
+        self.fetchVersionOptions = fetchVersionOptions
         self.updateBadge = updateBadge
         self.notificationsEnabled = notificationsEnabled
         self.deliverNotifications = deliverNotifications
@@ -258,6 +261,32 @@ import UIKit
         try await probePaths(repository, branch)
     }
 
+    /// 上游版本候选（“正在使用的版本”下拉数据源），1 次核心接口请求。
+    func versionOptions(repository: String, kind: SourceKind) async throws -> [VersionOption] {
+        try await fetchVersionOptions(repository, kind)
+    }
+
+    /// 合并 AI 来源清单：只新增现有列表中不存在的来源（按 仓库+模式+路径 判重），
+    /// 不覆盖、不删除已有条目，个人使用信息全部保留。
+    @discardableResult func mergeSourceList(_ incoming: [WatchSource]) -> (added: Int, skipped: Int) {
+        guard storageReady, !incoming.isEmpty else { return (0, incoming.count) }
+        var added = 0
+        var skipped = 0
+        for source in incoming {
+            let duplicate = data.sources.contains {
+                $0.repository == source.repository && $0.kind == source.kind && $0.path == source.path
+            }
+            if duplicate {
+                skipped += 1
+            } else {
+                data.sources.append(source)
+                added += 1
+            }
+        }
+        if added > 0 { persist() }
+        return (added, skipped)
+    }
+
     // MARK: - 导入导出
 
     func exportData() throws -> Data {
@@ -292,7 +321,10 @@ import UIKit
         lines.append("[存储] 可写：\(storageReady ? "是" : "否")；来源 \(data.sources.count) 个，记录 \(data.findings.count) 条")
         if let storageError { lines.append("存储错误：\(storageError)") }
         lines.append("")
-        lines.append("[App Group] ID：\(WidgetSnapshotWriter.groupID)")
+        let granted = AppGroupResolver.grantedGroups(in: Diagnostics.provisionProfileData())
+        lines.append("[App Group] 请求 ID：\(AppGroupResolver.requestedGroupID)")
+        lines.append("profile 授权的组：\(granted.isEmpty ? "（未读取到）" : granted.joined(separator: "、"))")
+        lines.append("实际使用组：\(WidgetSnapshotWriter.groupID)\(WidgetSnapshotWriter.groupID == AppGroupResolver.requestedGroupID ? "" : "（带团队前缀，已自动适配）")")
         let containerExists = Diagnostics.appGroupContainerExists(groupID: WidgetSnapshotWriter.groupID)
         lines.append("共享容器可获得：\(containerExists ? "是" : "否 ← entitlement 未生效")")
         let roundTrip = Diagnostics.appGroupRoundTrip(groupID: WidgetSnapshotWriter.groupID)
@@ -301,7 +333,7 @@ import UIKit
         lines.append("")
         lines.append("[签名证据]")
         if let profileData = Diagnostics.provisionProfileData() {
-            let inProfile = Diagnostics.contains(profileData, needle: WidgetSnapshotWriter.groupID)
+            let inProfile = Diagnostics.contains(profileData, needle: AppGroupResolver.requestedGroupID)
             lines.append("embedded.mobileprovision：存在；包含 App Group：\(inProfile ? "是" : "否 ← 签发 profile 时权限被丢弃")")
         } else {
             lines.append("embedded.mobileprovision：不存在（可能是未重签的开发包）")
