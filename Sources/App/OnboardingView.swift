@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// 首次启动的新手引导：四页讲清用途、添加方式、通知预期与隐私边界，
 /// 只出现一次（hasCompletedOnboarding 记忆），之后可在设置里回顾。
