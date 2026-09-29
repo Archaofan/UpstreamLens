@@ -7,7 +7,7 @@ import SwiftUI
 struct VersionPickerField: View {
     let repository: String
     let kind: SourceKind
-    let loadOptions: () async -> Result<[VersionOption], String>
+    let loadOptions: () async -> Result<[VersionOption], any Error>
     @Binding var selection: String
 
     @State private var options: [VersionOption]?
@@ -114,8 +114,8 @@ struct VersionPickerField: View {
         switch result {
         case .success(let list):
             options = list
-        case .failure(let message):
-            loadError = message
+        case .failure(let error):
+            loadError = error.localizedDescription
         }
     }
 }
@@ -123,12 +123,12 @@ struct VersionPickerField: View {
 /// 便捷构造：把 throwing 的加载闭包包成 Result 形式。
 extension VersionPickerField {
     static func makeLoader(_ load: @escaping (String, SourceKind) async throws -> [VersionOption],
-                           repository: String, kind: SourceKind) -> () async -> Result<[VersionOption], String> {
+                           repository: String, kind: SourceKind) -> () async -> Result<[VersionOption], any Error> {
         {
             do {
                 return .success(try await load(repository, kind))
             } catch {
-                return .failure(error.localizedDescription)
+                return .failure(error)
             }
         }
     }
