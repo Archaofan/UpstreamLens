@@ -19,6 +19,11 @@ struct SettingsView: View {
     @State private var importResultMessage: String?
     @AppStorage("notificationsEnabled") private var notificationsEnabled = false
     @State private var notificationAuthStatus = "未查询"
+    @State private var tokenInput = ""
+    @State private var isValidatingToken = false
+    @State private var loginError: String?
+    @State private var validatedQuota: RateLimitInfo?
+    @State private var showTokenHelp = false
 
     private struct PendingImport: Identifiable {
         let data: Data
@@ -36,6 +41,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                githubLoginSection
                 notificationSection
                 rateLimitSection
                 dataSection
@@ -62,6 +68,9 @@ struct SettingsView: View {
                     title: "AI 检索提示词",
                     text: SourceListImport.prompt,
                     footnote: "复制给能访问你电脑/服务器的 AI（如 Agent CLI、IDE 助手）；它返回的 JSON 存为 .json 文件后，用“导入 AI 来源清单”加入监控。")
+            }
+            .sheet(isPresented: $showTokenHelp) {
+                TokenHelpSheet()
             }
             .confirmationDialog("替换现有数据？", isPresented: Binding(
                 get: { pendingImport != nil },
@@ -121,6 +130,68 @@ struct SettingsView: View {
     private struct DiagnosticsPayload: Identifiable {
         let text: String
         var id: String { text }
+    }
+
+    private var githubLoginSection: some View {
+        Section {
+            if model.isAuthenticated {
+                LabeledContent("状态", value: "已登录")
+                if let validatedQuota {
+                    LabeledContent("已验证额度", value: "\(validatedQuota.remaining)/\(validatedQuota.total) 次")
+                }
+                Button("登出", role: .destructive) { logout() }
+            } else {
+                SecureField("粘贴 GitHub Personal Access Token", text: $tokenInput)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                Button {
+                    Task { await login() }
+                } label: {
+                    if isValidatingToken {
+                        HStack(spacing: 8) { ProgressView(); Text("验证中…") }
+                    } else {
+                        Text("登录并验证")
+                    }
+                }
+                .disabled(tokenInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isValidatingToken)
+                Button("如何创建令牌？") { showTokenHelp = true }
+            }
+            if let loginError {
+                Text(loginError).font(.footnote).foregroundStyle(.red)
+            }
+        } header: {
+            Text("GitHub 登录")
+        } footer: {
+            Text(model.isAuthenticated
+                 ? "已登录：使用 authenticated 限额（约 5000 次/小时），并可监控私有仓库。令牌仅存本机 Keychain。"
+                 : "未登录：使用公开限额（约 60 次/小时）。登录后解除限制并支持私有仓库；不登录也能正常用。")
+        }
+    }
+
+    @MainActor private func login() async {
+        let token = tokenInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !token.isEmpty else { return }
+        isValidatingToken = true
+        loginError = nil
+        defer { isValidatingToken = false }
+        do {
+            let info = try await GitHubClient().rateLimitStatus(token: token)
+            model.setAuthToken(token)
+            validatedQuota = info
+            tokenInput = ""
+            await model.refreshAll()
+        } catch GitHubError.notAuthorized {
+            loginError = "令牌无效或已被撤销，请检查后重试。"
+        } catch {
+            loginError = "验证失败：\(error.localizedDescription)"
+        }
+    }
+
+    @MainActor private func logout() {
+        model.setAuthToken(nil)
+        validatedQuota = nil
+        loginError = nil
+        Task { await model.refreshAll() }
     }
 
     private var notificationSection: some View {
@@ -358,6 +429,52 @@ struct CopyableTextSheet: View {
                     }
                 }
             }
+        }
+    }
+}
+
+/// 引导用户创建只读 PAT：步骤 + 直达 GitHub 令牌创建页。
+struct TokenHelpSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    private let createURL = URL(string: "https://github.com/settings/personal-access-tokens/new")!
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("UpstreamLens 只读取公开信息，给它一个只读令牌即可。按需授予权限：")
+                        .font(.subheadline)
+                    VStack(alignment: .leading, spacing: 12) {
+                        step("1", "在 GitHub 打开“Fine-grained personal access token”创建页（下方按钮直达）。")
+                        step("2", "权限只需：Metadata → Read-only，Contents → Read-only。要监控私有仓库时，把对应仓库加进令牌的仓库访问范围。")
+                        step("3", "生成后复制令牌，回到设置页粘贴并点“登录并验证”。")
+                    }
+                    Text("令牌仅保存在本机 Keychain，不会上传，也不会写进导出备份；可随时在设置里“登出”撤销。")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    Link(destination: createURL) {
+                        Label("打开 GitHub 令牌创建页", systemImage: "arrow.up.right.square")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+            }
+            .navigationTitle("如何创建令牌")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { Button("完成") { dismiss() } }
+            }
+        }
+    }
+
+    private func step(_ number: String, _ text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text(number)
+                .font(.caption.weight(.bold))
+                .frame(width: 22, height: 22)
+                .background(Color.accentColor.opacity(0.15), in: Circle())
+            Text(text).font(.subheadline)
         }
     }
 }

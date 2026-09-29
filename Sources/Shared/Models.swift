@@ -118,7 +118,9 @@ struct LocalData: Codable {
 struct WidgetSnapshot: Codable {
     var pendingCount: Int
     var headline: String?
+    /// 顶部待查看项的相关性，供小组件着色；nil 表示无头条或旧快照。
+    var headlineRelevance: Relevance?
     var lastSuccessfulCheck: Date?
     var generatedAt: Date
-    static let empty = WidgetSnapshot(pendingCount: 0, headline: nil, lastSuccessfulCheck: nil, generatedAt: .now)
+    static let empty = WidgetSnapshot(pendingCount: 0, headline: nil, headlineRelevance: nil, lastSuccessfulCheck: nil, generatedAt: .now)
 }

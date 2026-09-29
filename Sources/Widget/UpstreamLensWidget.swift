@@ -89,6 +89,8 @@ private struct SnapshotView: View {
                     checkedText(for: snapshot)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+                    .padding(.vertical, 2)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("最新待查看")
                         .font(.caption)
@@ -111,6 +113,7 @@ private struct SnapshotView: View {
                 .font(.caption2)
             Text("\(pendingCount)")
                 .font(.system(.headline, design: .rounded, weight: .bold))
+                .monospacedDigit()
                 .minimumScaleFactor(0.6)
             Text("待查看")
                 .font(.system(size: 9))
@@ -134,6 +137,7 @@ private struct SnapshotView: View {
                 if pendingCount > 0 {
                     Text("\(pendingCount)")
                         .font(.system(.headline, design: .rounded, weight: .bold))
+                        .monospacedDigit()
                         .contentTransition(.numericText())
                 }
             }
@@ -176,6 +180,7 @@ private struct SnapshotView: View {
         HStack(alignment: .firstTextBaseline, spacing: 5) {
             Text("\(pendingCount)")
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                .monospacedDigit()
                 .contentTransition(.numericText())
             Text("条待查看")
                 .font(.subheadline.weight(.medium))
@@ -183,17 +188,30 @@ private struct SnapshotView: View {
         }
     }
 
+    /// 相关性着色点：值得关注=橙，其余=品牌色；让“是否要管”一眼可辨。
+    private func relevanceDot(_ important: Bool) -> some View {
+        Circle()
+            .fill(important ? Color.orange : Color.accentColor)
+            .frame(width: 8, height: 8)
+    }
+
     private func headlineText(for snapshot: WidgetSnapshot) -> some View {
-        Group {
-            if let headline = snapshot.headline {
-                Text(headline)
-            } else {
-                Text("暂无需要关注的新变化")
+        HStack(alignment: .top, spacing: 6) {
+            if snapshot.headline != nil {
+                relevanceDot(snapshot.headlineRelevance == .important)
+                    .padding(.top, 5)
             }
+            Group {
+                if let headline = snapshot.headline {
+                    Text(headline)
+                } else {
+                    Text("暂无需要关注的新变化")
+                }
+            }
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(snapshot.headline == nil ? Color.secondary : Color.primary)
+            .lineLimit(3)
         }
-        .font(.subheadline.weight(.medium))
-        .foregroundStyle(snapshot.headline == nil ? Color.secondary : Color.primary)
-        .lineLimit(3)
     }
 
     private func checkedText(for snapshot: WidgetSnapshot) -> some View {

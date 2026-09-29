@@ -249,4 +249,49 @@ final class GitHubClientTests: XCTestCase {
             XCTFail("无效仓库必须抛错")
         } catch { /* 预期 */ }
     }
+
+    // MARK: - 登录鉴权（PAT）
+
+    func testAuthorizationHeaderSentWhenTokenPresent() async throws {
+        MockAPIProtocol.handler = { request in
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token-123")
+            return (200, Data("[]".utf8), [:])
+        }
+        var client = mockedClient()
+        client.token = "test-token-123"
+        _ = try await client.fetch(source: WatchSource(repository: "acme/tool"))
+    }
+
+    func testNoAuthorizationHeaderWhenTokenAbsent() async throws {
+        MockAPIProtocol.handler = { request in
+            XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"), "未登录不得发送 Authorization 头")
+            return (200, Data("[]".utf8), [:])
+        }
+        _ = try await mockedClient().fetch(source: WatchSource(repository: "acme/tool"))
+    }
+
+    func testRateLimitStatusReturnsAuthenticatedLimit() async throws {
+        MockAPIProtocol.handler = { request in
+            XCTAssertEqual(request.url?.path, "/rate_limit")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer tok")
+            return (200, Data("{}".utf8),
+                    ["X-RateLimit-Remaining": "4999", "X-RateLimit-Limit": "5000",
+                     "X-RateLimit-Reset": String(Int(Date().timeIntervalSince1970 + 600))])
+        }
+        let info = try await mockedClient().rateLimitStatus(token: "tok")
+        XCTAssertEqual(info.total, 5000)
+        XCTAssertEqual(info.remaining, 4999)
+    }
+
+    func testRateLimitStatusInvalidTokenThrowsNotAuthorized() async {
+        MockAPIProtocol.handler = { _ in (401, Data("{}".utf8), [:]) }
+        do {
+            _ = try await mockedClient().rateLimitStatus(token: "bad")
+            XCTFail("无效令牌必须抛 notAuthorized")
+        } catch GitHubError.notAuthorized {
+            // 预期
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
 }

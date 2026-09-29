@@ -93,6 +93,7 @@ enum WidgetSnapshotWriter {
             return $0.foundAt > $1.foundAt
         }.first
         let snapshot = WidgetSnapshot(pendingCount: pending.count, headline: top?.title,
+                                      headlineRelevance: top?.relevance,
                                       lastSuccessfulCheck: data.lastSuccessfulCheck, generatedAt: .now)
         try JSONEncoder().encode(snapshot).write(to: container.appendingPathComponent(fileName), options: .atomic)
         WidgetCenter.shared.reloadAllTimelines()

@@ -210,7 +210,9 @@ struct AddSourceView: View {
         searchError = nil
         defer { isSearching = false }
         do {
-            results = try await GitHubClient().searchRepositories(query)
+            var client = GitHubClient()
+            client.token = KeychainTokenStore.shared.read()
+            results = try await client.searchRepositories(query)
         } catch GitHubError.rateLimited(let info) {
             results = []
             searchError = GitHubError.rateLimited(info).localizedDescription + " 也可以直接粘贴仓库链接。"

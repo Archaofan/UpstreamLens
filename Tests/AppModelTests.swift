@@ -24,6 +24,22 @@ private actor FetchGate {
     }
 }
 
+/// 测试用内存令牌存储；Spy 版记录读取次数，用于验证默认网络闭包确实读取了令牌。
+private final class InMemoryTokenStore: TokenStore {
+    var token: String?
+    init(_ token: String? = nil) { self.token = token }
+    func read() -> String? { token }
+    func set(_ token: String?) throws { self.token = token }
+}
+
+private final class SpyTokenStore: TokenStore {
+    var token: String?
+    private(set) var readCount = 0
+    init(_ token: String? = nil) { self.token = token }
+    func read() -> String? { readCount += 1; return token }
+    func set(_ token: String?) throws { self.token = token }
+}
+
 final class AppModelTests: XCTestCase {
     private func change() -> UpstreamChange {
         UpstreamChange(identifier: "new", title: "New", body: "security", url: "https://github.com/acme/tool", publishedAt: nil, content: nil)
@@ -361,5 +377,33 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(result.skipped, 1)
         XCTAssertEqual(model.source(for: existing.id)?.installedVersion, "1.0.0", "重复项不得覆盖已有个人数据")
         XCTAssertEqual(model.source(for: existing.id)?.purpose, "本机自用")
+    }
+
+    // MARK: - GitHub 登录
+
+    @MainActor func testSetAuthTokenTogglesAuthenticated() {
+        let store = InMemoryTokenStore()
+        let model = AppModel(initialData: LocalData(), tokenStore: store,
+                              saveData: { _ in }, publishSnapshot: { _ in })
+        XCTAssertFalse(model.isAuthenticated)
+        model.setAuthToken("ghp_test")
+        XCTAssertTrue(model.isAuthenticated)
+        XCTAssertEqual(store.read(), "ghp_test")
+        model.setAuthToken("")
+        XCTAssertFalse(model.isAuthenticated, "空串等同登出")
+        model.setAuthToken("ghp_again")
+        XCTAssertTrue(model.isAuthenticated)
+        model.setAuthToken(nil)
+        XCTAssertFalse(model.isAuthenticated)
+        XCTAssertNil(store.read())
+    }
+
+    @MainActor func testDefaultNetworkClosureReadsTokenFromStore() async {
+        let store = SpyTokenStore("ghp_x")
+        let source = WatchSource(repository: "acme/tool", baselineIdentifier: "old")
+        let model = AppModel(initialData: LocalData(sources: [source]), tokenStore: store,
+                              saveData: { _ in }, publishSnapshot: { _ in })
+        await model.refresh(source.id)
+        XCTAssertGreaterThanOrEqual(store.readCount, 1, "默认 fetch 闭包应在请求前读取令牌")
     }
 }

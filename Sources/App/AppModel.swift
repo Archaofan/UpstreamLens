@@ -13,6 +13,8 @@ import UIKit
     @Published var storageError: String?
     @Published var widgetError: String?
     @Published private(set) var rateLimit: RateLimitInfo?
+    @Published private(set) var isAuthenticated = false
+    @Published var authError: String?
     private let fetchChanges: (WatchSource) async throws -> GitHubFetch
     private let saveData: (LocalData) throws -> Void
     private let publishSnapshot: (LocalData) throws -> Void
@@ -22,6 +24,7 @@ import UIKit
     private let updateBadge: (Int) -> Void
     private let notificationsEnabled: () -> Bool
     private let deliverNotifications: ([PendingNotification]) async -> Void
+    private let tokenStore: TokenStore
     private var dataEpoch = 0
     private var sourceEpochs: [UUID: Int] = [:]
     private var inFlightVersions: [UUID: RequestVersion] = [:]
@@ -29,25 +32,45 @@ import UIKit
     private var lastSavedData = LocalData()
 
     init(initialData: LocalData? = nil,
+         tokenStore: TokenStore = KeychainTokenStore.shared,
          loadData: @escaping () throws -> (data: LocalData, notice: String?) = { try LocalStore.loadWithRecovery() },
-         fetchChanges: @escaping (WatchSource) async throws -> GitHubFetch = { try await GitHubClient().fetch(source: $0) },
+         fetchChanges: ((WatchSource) async throws -> GitHubFetch)? = nil,
          saveData: @escaping (LocalData) throws -> Void = { try LocalStore.save($0) },
          publishSnapshot: @escaping (LocalData) throws -> Void = { try WidgetSnapshotWriter.write(from: $0) },
-         probeRepo: @escaping (String) async throws -> RepoProbe = { try await RepoProbing.probe($0) },
-         probePaths: @escaping (String, String) async throws -> TreeScan = { try await RepoProbing.probePaths($0, branch: $1) },
-         fetchVersionOptions: @escaping (String, SourceKind) async throws -> [VersionOption] = { try await GitHubClient().versionOptions(repository: $0, kind: $1) },
+         probeRepo: ((String) async throws -> RepoProbe)? = nil,
+         probePaths: ((String, String) async throws -> TreeScan)? = nil,
+         fetchVersionOptions: ((String, SourceKind) async throws -> [VersionOption])? = nil,
          updateBadge: @escaping (Int) -> Void = { count in UIApplication.shared.applicationIconBadgeNumber = count },
          notificationsEnabled: @escaping () -> Bool = { UserDefaults.standard.bool(forKey: "notificationsEnabled") },
          deliverNotifications: @escaping ([PendingNotification]) async -> Void = { await NotificationScheduler().deliver($0) }) {
-        self.fetchChanges = fetchChanges
+        self.tokenStore = tokenStore
+        // 默认网络闭包在每次调用时读取令牌并注入——登录/登出即时生效，无需重建 AppModel。
+        self.fetchChanges = fetchChanges ?? { source in
+            var client = GitHubClient()
+            client.token = tokenStore.read()
+            return try await client.fetch(source: source)
+        }
         self.saveData = saveData
         self.publishSnapshot = publishSnapshot
-        self.probeRepository = probeRepo
-        self.probePaths = probePaths
-        self.fetchVersionOptions = fetchVersionOptions
+        self.probeRepository = probeRepo ?? { input in
+            var client = GitHubClient()
+            client.token = tokenStore.read()
+            return try await RepoProbing.probe(input, client: client)
+        }
+        self.probePaths = probePaths ?? { repository, branch in
+            var client = GitHubClient()
+            client.token = tokenStore.read()
+            return try await RepoProbing.probePaths(repository, branch: branch, client: client)
+        }
+        self.fetchVersionOptions = fetchVersionOptions ?? { repository, kind in
+            var client = GitHubClient()
+            client.token = tokenStore.read()
+            return try await client.versionOptions(repository: repository, kind: kind)
+        }
         self.updateBadge = updateBadge
         self.notificationsEnabled = notificationsEnabled
         self.deliverNotifications = deliverNotifications
+        self.isAuthenticated = (tokenStore.read() != nil)
         if let initialData {
             data = initialData
         } else {
@@ -251,6 +274,20 @@ import UIKit
         persist()
     }
 
+    // MARK: - GitHub 登录
+
+    /// 写入/清除 GitHub 令牌（Keychain）。传 nil 或空串即登出。切换登录态供 UI 观察；
+    /// 默认网络闭包在下次请求时自动读到新令牌。
+    func setAuthToken(_ token: String?) {
+        do {
+            try tokenStore.set(token)
+            isAuthenticated = !(token?.isEmpty ?? true)
+            authError = nil
+        } catch {
+            authError = error.localizedDescription
+        }
+    }
+
     // MARK: - 添加来源的探测
 
     func probe(_ input: String) async throws -> RepoProbe {
@@ -317,6 +354,8 @@ import UIKit
         lines.append("UpstreamLens 诊断")
         lines.append("版本：\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"))")
         lines.append("系统：iOS \(UIDevice.current.systemVersion)")
+        let authText = isAuthenticated ? "已登录" : "未登录"
+        lines.append("GitHub 登录：\(authText)")
         lines.append("")
         lines.append("[存储] 可写：\(storageReady ? "是" : "否")；来源 \(data.sources.count) 个，记录 \(data.findings.count) 条")
         if let storageError { lines.append("存储错误：\(storageError)") }

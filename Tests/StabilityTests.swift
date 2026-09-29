@@ -116,6 +116,27 @@ final class StabilityTests: XCTestCase {
         XCTAssertTrue(first.lastPathComponent.contains("github_com_openclaw_png_size_120"))
         XCTAssertFalse(first.lastPathComponent.contains("?"), "文件名不得包含 URL 特殊字符")
     }
+
+    // MARK: - Widget 快照
+
+    func testWidgetSnapshotCarriesHeadlineRelevance() throws {
+        let snapshot = WidgetSnapshot(pendingCount: 2, headline: "v2 发布",
+                                      headlineRelevance: .important,
+                                      lastSuccessfulCheck: Date(timeIntervalSince1970: 1_700_000_000),
+                                      generatedAt: .now)
+        let decoded = try JSONDecoder().decode(WidgetSnapshot.self, from: try JSONEncoder().encode(snapshot))
+        XCTAssertEqual(decoded.pendingCount, 2)
+        XCTAssertEqual(decoded.headline, "v2 发布")
+        XCTAssertEqual(decoded.headlineRelevance, .important)
+    }
+
+    func testWidgetSnapshotLegacyWithoutRelevanceDecodes() throws {
+        // 旧快照没有 headlineRelevance 字段，必须能解码为 nil（向后兼容）。
+        let legacy = #"{"pendingCount":1,"headline":"x","lastSuccessfulCheck":null,"generatedAt":0}"#
+        let decoded = try JSONDecoder().decode(WidgetSnapshot.self, from: Data(legacy.utf8))
+        XCTAssertEqual(decoded.pendingCount, 1)
+        XCTAssertNil(decoded.headlineRelevance)
+    }
 }
 
 final class NotificationPlannerTests: XCTestCase {

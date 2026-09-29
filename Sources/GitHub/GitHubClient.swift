@@ -25,6 +25,7 @@ struct RateLimitInfo: Equatable {
 enum GitHubError: LocalizedError {
     case invalidRepository
     case notFound
+    case notAuthorized
     case rateLimited(RateLimitInfo?)
     case server(Int)
     case invalidResponse
@@ -34,6 +35,7 @@ enum GitHubError: LocalizedError {
         switch self {
         case .invalidRepository: return "仓库格式应为 owner/repo。"
         case .notFound: return "仓库、分支或路径不存在，或无法公开访问（私有仓库需要开发者令牌，当前未配置）。"
+        case .notAuthorized: return "GitHub 令牌无效或权限不足（401）。请检查令牌是否输入正确、是否已被撤销。"
         case .rateLimited(let info):
             if let info, info.minutesUntilReset > 0 {
                 return "GitHub API 已限流，约 \(info.minutesUntilReset) 分钟后恢复。"
@@ -217,6 +219,8 @@ struct VersionOption: Equatable, Identifiable {
 
 struct GitHubClient {
     private let session: URLSession
+    /// 可选的 GitHub 令牌（Personal Access Token）；nil 表示未登录，走公开额度。
+    var token: String?
     static let defaultSession: URLSession = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 20
@@ -398,6 +402,28 @@ struct GitHubClient {
         }
     }
 
+    /// 校验令牌并返回 authenticated 核心配额。`GET /rate_limit` 不消耗额度。
+    /// 令牌无效（401）抛 `.notAuthorized`；不带令牌也可调用（返回 60 的公开配额）。
+    func rateLimitStatus(token: String? = nil) async throws -> RateLimitInfo {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "api.github.com"
+        components.percentEncodedPath = "/rate_limit"
+        guard let url = components.url else { throw GitHubError.invalidResponse }
+        var request = URLRequest(url: url)
+        applyHeaders(&request, token: token ?? self.token)
+        let (_, response) = try await perform(request)
+        switch response.statusCode {
+        case 200:
+            guard let info = RateLimitInfo.from(response) else { throw GitHubError.invalidResponse }
+            return info
+        case 401:
+            throw GitHubError.notAuthorized
+        default:
+            throw GitHubError.server(response.statusCode)
+        }
+    }
+
     private func commitMessages(repository: String) async throws -> [String: String] {
         let (data, _) = try await plainRequest(repository: repository, endpoint: "commits",
                                                query: [URLQueryItem(name: "per_page", value: "100")], etag: nil)
@@ -423,6 +449,17 @@ struct GitHubClient {
     }
 
     // MARK: - 请求实现
+
+    /// 统一设置 GitHub 要求的请求头；token 非空时附带 `Authorization: Bearer`。
+    /// token 为 nil 时与未登录行为逐字节一致（不加 Authorization 头）。
+    private func applyHeaders(_ request: inout URLRequest, token: String?) {
+        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        request.setValue("UpstreamLens/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
+        if let token, !token.isEmpty {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+    }
 
     private struct SearchResponseDTO: Decodable {
         let items: [RepoSearchResult]
@@ -455,9 +492,7 @@ struct GitHubClient {
         components.queryItems = query
         guard let url = components.url else { throw GitHubError.invalidResponse }
         var request = URLRequest(url: url)
-        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.setValue("UpstreamLens/1.0", forHTTPHeaderField: "User-Agent")
-        request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
+        applyHeaders(&request, token: token)
         if let etag { request.setValue(etag, forHTTPHeaderField: "If-None-Match") }
         let (data, response) = try await perform(request)
         switch response.statusCode {
@@ -488,9 +523,7 @@ struct GitHubClient {
         components.queryItems = query
         guard let url = components.url else { throw GitHubError.invalidResponse }
         var request = URLRequest(url: url)
-        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        request.setValue("UpstreamLens/1.0", forHTTPHeaderField: "User-Agent")
-        request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
+        applyHeaders(&request, token: token)
         let (data, response) = try await perform(request)
         switch response.statusCode {
         case 200: return (data, response)
