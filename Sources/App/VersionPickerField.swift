@@ -35,8 +35,8 @@ struct VersionPickerField: View {
         TextField("正在使用的版本／Tag（可留空）", text: $selection)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
-        if let loadError {
-            Label("上游版本列表读取失败：\(loadError)", systemImage: "wifi.exclamationmark")
+        if let message = loadError {
+            Label("上游版本列表读取失败：\(message)", systemImage: "wifi.exclamationmark")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             Button("重试从上游版本列表选择") {
