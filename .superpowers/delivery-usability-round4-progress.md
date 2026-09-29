@@ -21,3 +21,11 @@ T7 收尾：MARKETING_VERSION 0.3.0；README 同步（预设/版本下拉/AI 清
 GitHubClientTests +4（draft 过滤、tag、path 不发请求、非法仓库）；AppModelTests +2（判重合并、不覆盖个人数据）；
 StabilityTests 预设断言扩展 + 图标缓存名稳定。
 红绿门：Actions（本机无 Xcode，沿用 round1 ruling）。
+
+CI loop record (usability-round4, run 36508741689 → 36509896790 → 36510840505 → 36512080961 SUCCESS):
+- R1: VersionPickerField 括号失衡（Edit 序列遗留）→ 整文件重写；新增 build/check_braces.py 静态括号平衡检查
+- R2: Result<_, String> 不合法（Failure: Error）→ any Error + localizedDescription
+- R3: if let loadError 遮蔽 @State 属性 → 显式命名 message
+- 期间 GitHub 直连多次中断（connection reset），push 用重试循环恢复
+- 设备端待验证：App Group 解析是否在真实重签链路下拿到 <团队ID> 前缀容器（诊断文本会显示授权组与实际使用组）
+Merge: main (--no-ff), final main run 见 git log。
