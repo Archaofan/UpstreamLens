@@ -11,7 +11,7 @@ struct DiffView: View {
     var body: some View {
         let lines = DiffEngine.lines(old: old, new: new)
         if lines.isEmpty {
-            Text("无法生成对照（内容相同或缺失）。").font(.footnote).foregroundStyle(.secondary)
+            Text("Cannot generate a comparison (identical or missing content).").font(.footnote).foregroundStyle(.secondary)
         } else {
             VStack(alignment: .leading, spacing: 2) {
                 let visible: [DiffLine] = showAll ? lines : Array(lines.prefix(Self.collapsedLineLimit))
@@ -29,7 +29,7 @@ struct DiffView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 if lines.count > Self.collapsedLineLimit {
-                    Button(showAll ? "收起" : "显示全部 \(lines.count) 行") {
+                    Button(showAll ? "Collapse" : "Show All \(lines.count) Lines") {
                         withAnimation(.snappy) { showAll.toggle() }
                     }
                     .font(.subheadline)

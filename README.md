@@ -1,76 +1,84 @@
+> English · [简体中文](README.zh-CN.md)
+
 # UpstreamLens
 
-个人使用的 iPhone 技术变更雷达。支持公开 GitHub 仓库的 Release、Tag，以及指定文件或目录路径的提交。首次检查只建立基线；后续变化会结合本机保存的用途、使用版本和关键词给出可核查的判断。主 App 数据保存在本机，Widget 只读取 App Group 中的精简快照。开发者：[@Archaofan](https://github.com/Archaofan) · [项目主页](https://github.com/Archaofan/UpstreamLens)
+A personal on-device tech-change radar for iPhone. It watches Release, Tag, and commits to specific file/directory paths of public GitHub repos. The first check only records a baseline; later changes are judged against your locally stored usage, in-use version, and keywords, with verifiable reasoning. The main App keeps its data on-device; the Widget only reads a trimmed snapshot from the App Group container. Developer: [@Archaofan](https://github.com/Archaofan) · [Project home](https://github.com/Archaofan/UpstreamLens)
 
-## 使用流程
+**Language**: The App defaults to English. On first launch the onboarding's first page lets you pick English / 中文 / Follow System, and you can switch anytime in Settings → General → Language; the UI updates immediately. The Widget follows the App's language.
 
-1. **添加来源**：点右上角“+”，**搜索仓库名**或**粘贴 GitHub 链接**（支持仓库、`/tree/` 分支目录、`/blob/` 文件链接）；App 会自动读取仓库描述、默认分支、topics 和最新版本并预填。“常用预设”提供 AI 领域高星项目与 Agent 工具链的特化来源（OpenClaw、Hermes Agent、DeepSeek Harness、n8n、AutoGPT、Firecrawl、Dify、Open WebUI），点选即预填，图标取各自项目的 GitHub 头像。监控 Skill 文件时选择“路径”模式，App 会列出仓库内所有 SKILL.md 供点选。手动填写仍作为兜底入口。
-2. **“正在使用的版本”可以直接下拉选择**：确认页和“编辑使用情况”会读取上游 Release/Tag 列表（1 次 API 请求），点选即填，不用背版本号；列表读取失败或想填提交 SHA 时仍可手动输入。
-3. 保存后首次成功检查只记录当前基线。以后打开 App 或下拉刷新才会检查新变化；每个来源会显示上次成功检查时间和错误。
-4. 首页“待处理变化”包括未读和已查看的项目，优先显示“值得关注”。打开详情会标为已查看，但仍留在待处理列表；请核对判断理由和 GitHub 原文，再点“标为已处理”、点列表行尾的勾选，或左滑完成。左滑另一侧可切换已读/未读。
-5. 已处理的项目在“已处理记录”中（支持搜索），可从详情重新加入待处理。小组件只统计**未读且相关**的变化，因此查看后小组件数量可能减少，而 App 中仍保留待处理项。
-6. 个人使用情况（用途、版本、关键词）可在来源详情页“编辑使用情况”中随时补充；判断引擎会引用命中的具体词句，便于回原文核查。
-7. “设置”中集中了低频功能：**通知开关**（含系统授权状态）、**GitHub 登录**（可选，粘贴只读 Personal Access Token 解除限额并支持私有仓库，见下文）、JSON 导入/导出、**AI 批量添加来源**（复制提示词给本机 AI 生成来源清单，导入后合并监控，见下文）、已处理记录自动清理（90 天，默认关闭、开启前不会动你的旧数据）、GitHub API 限额显示、**诊断信息生成**（可一键复制发给开发者）。
+## Workflow
 
-## 用 AI 批量添加来源
+1. **Add a source**: Tap “+” in the top-right, **search a repo name** or **paste a GitHub link** (repo, `/tree/` branch directory, or `/blob/` file link). The App reads the repo description, default branch, topics, and latest version to prefill. “Common presets” offer curated AI/high-star and Agent-toolchain sources (OpenClaw, Hermes Agent, DeepSeek Harness, n8n, AutoGPT, Firecrawl, Dify, Open WebUI); tapping one prefills it, with the project's GitHub avatar as the icon. For Skill files choose “Path” mode and the App lists every SKILL.md in the repo to pick from. Manual entry remains the fallback.
+2. **“In-use version” is a dropdown**: The confirm page and “Edit usage” read the upstream Release/Tag list (1 API request) so you can pick instead of memorizing; you can still type a commit SHA manually if the list fails.
+3. After saving, the first successful check only records the baseline. Whether it auto-checks afterward is configurable in Settings → Monitoring & Refresh (check-on-open is on by default); each source shows its last successful check time and any error.
+4. The home “Pending changes” list includes unread and seen items, with “Worth Attention” first. Opening a detail marks it seen but keeps it pending; verify the reasoning and the original GitHub text, then tap “Mark Handled”, the row-end checkmark, or swipe to complete. Swipe the other way to toggle read/unread.
+5. Handled items live in “Handled records” (searchable) and can be re-added to pending from the detail. The Widget only counts **unread and relevant** changes, so its number may drop after you view an item while the App still keeps it pending.
+6. Personal usage (purpose, version, keywords) can be filled in anytime from a source's “Edit usage”; the judging engine cites the exact matched wording so you can trace it back to the original.
+7. “Settings” is split into four sub-pages: **General** (language, GitHub sign-in, notifications), **Monitoring & Refresh** (check-on-open, background-refresh toggle and interval), **Data & Backup** (JSON import/export, handled-record cleanup, AI batch-add), and **About & Diagnostics** (version, project home, diagnostics you can copy to the developer).
 
-设置 → 帮助 提供一段可复制的提示词：交给能访问你电脑/服务器的 AI（Agent CLI、IDE 助手等），它会检索你本机在用的开源项目（包管理器、依赖文件、Docker、CLI 工具），带上学到的版本号，输出 `upstreamlens.source-list` 格式的 JSON 清单。把清单存为 .json 后用“导入 AI 来源清单”导入：App 只**合并新增**（同仓库同模式自动去重跳过），不修改、不删除已有来源和个人信息，导入后立即检查一轮建立基线。
+## Batch-add sources with AI
 
-## 通知与后台检查
+Settings → Data & Backup → Help offers a copyable prompt: hand it to an AI that can access your machine/server (an Agent CLI, IDE assistant, etc.). It scans the open-source projects you use (package managers, dependency files, Docker, CLI tools), learns their versions, and outputs an `upstreamlens.source-list` JSON list. Save it as .json and use “Import AI Source List”: the App only **merges new** sources (same repo + mode is de-duplicated and skipped), never modifies or deletes existing sources or personal info, and runs a check right after import to establish the baseline.
 
-通知默认关闭，在“设置 → 通知”开启后按以下规则工作（参考 GitHub Notifications 与 iOS 通知规范设计）：
+## Notifications & background checks
 
-- 只通知“值得关注”与“影响不确定”的相关变化；“一般更新”永不打扰。同一来源的多次通知在通知中心**自动成组**，一次检查最多 5 条、超出折叠为摘要。
-- “值得关注”用横幅+声音（interruption level active）；“影响不确定”静默进入通知中心（passive），是否打断完全交给系统的专注模式与定时推送摘要——App 不自建免打扰时段。
-- 每个来源可在“编辑使用情况”里单独关闭通知。
-- 点通知直达对应变化详情。
+Notifications are off by default. After enabling them in Settings → General → Notifications they follow these rules (modeled on GitHub Notifications and iOS notification conventions):
 
-后台检查通过 `BGAppRefreshTask` 注册，进入后台后约每 30 分钟起一次（iOS 按使用习惯调度，可能合并、推迟或不执行，**不是实时提醒**）；后台轮次设有 API 限额预算，额度不足时自动跳过，把额度留给前台。
+- Only “Worth Attention” and “Uncertain Impact” changes are notified; “Routine Update” never interrupts. Multiple notifications from one source are **auto-grouped** in Notification Center; at most 5 per check, with the rest folded into a summary.
+- “Worth Attention” uses banner + sound (interruption level active); “Uncertain Impact” enters Notification Center silently (passive), and whether it interrupts is entirely up to the system Focus mode and scheduled summary—the App builds no custom quiet hours.
+- Each source can disable notifications individually in “Edit usage”.
+- Tapping a notification opens the corresponding change detail.
 
-“已处理”只表示你完成了本地核查，不表示已经升级上游版本。个人用途和备注只保存在本机，不会发给 GitHub。
+**Check/refresh strategy** is configurable in Settings → Monitoring & Refresh:
 
-## 数据稳定性
+- **Check for updates on open** (default on): auto-check when returning to the foreground; when off, checks happen only on manual pull-to-refresh.
+- **Background refresh** (default on): registered via `BGAppRefreshTask`; after entering the background it runs about once per the chosen interval (15 / 30 / 60 / 180 min); when off, no background rounds are scheduled. iOS schedules by usage patterns and may coalesce, defer, or skip—**not a real-time alert**.
+- Background rounds carry an API budget guard: when the quota is low they are skipped to reserve it for the foreground.
 
-- 每次写入前会把当前 `data.json` 轮换为 `data.json.bak`；主文件损坏时启动自动从备份恢复并提示。
-- 记录总量上限 1000 条：超出时按“最旧已处理 → 最旧已查看 → 最旧未读”的顺序淘汰，防止 JSON 无限膨胀拖慢读写。
+“Handled” only means you finished the local review, not that you upgraded upstream. Personal usage and notes stay on-device and are never sent to GitHub.
 
-## 小组件与签名
+## Data durability
 
-小组件依赖 App Group 共享容器。**免费 Apple ID 侧载时，签发 profile 里的 App Group 会带上 10 位团队 ID 前缀**（如 `ABCDEF1234.group.com.upstreamlens.ios`），与 entitlements 请求的无前缀 ID 不同——这是“诊断显示权限都在、容器却拿不到”的根因。App 与 Widget 现在会在运行时从 `embedded.mobileprovision` 里解析实际授权的组名并自动适配（解析规则见 `Sources/Shared/AppGroupResolver.swift`）。本项目的 IPA 由 CI 在打包前用 adhoc codesign 把 entitlements 内嵌进 App 与 Widget 的二进制（macOS runner 上的 brew ldid 安装不可靠，已改用系统 codesign），侧载工具重签时即可读到并注册 App Group。如果小组件仍显示“共享数据暂不可用”，请在 App 内“设置 → 诊断 → 生成诊断信息”复制文本：它会显示 profile 授权的组列表、实际使用的组（是否带前缀已自动适配）、共享容器是否可获得、`embedded.mobileprovision` 与主程序二进制中是否真的包含 App Group 权限——据此可定位是哪一环把权限丢了。
+- Before every write the current `data.json` is rotated to `data.json.bak`; if the main file is corrupt, launch auto-recovers from the backup and notifies you.
+- Records are capped at 1000: beyond that, eviction follows “oldest handled → oldest seen → oldest unread” to keep the JSON from growing without bound and slowing reads/writes.
 
-## 构建
+## Widget & signing
 
-本项目用 XcodeGen 生成工程。GitHub Actions 的 `iOS unsigned IPA` 工作流固定在 `macos-26`，选择 Xcode 26.6，运行单元测试、生成不签名的归档，用 adhoc codesign 内嵌 App 与 Widget 的 entitlements（不做真实签名），核查标识、架构、entitlements 后上传 IPA 和 SHA-256。工作流运行成功后，从该次 Actions 的 `UpstreamLens-unsigned` artifact 下载两个文件。下载后用 SHA-256 核对 IPA。
+The Widget relies on the App Group shared container. **When sideloading with a free Apple ID, the App Group in the signing profile carries a 10-digit team-ID prefix** (e.g. `ABCDEF1234.group.com.upstreamlens.ios`), which differs from the unprefixed ID requested in entitlements—this is the root cause of “diagnostics shows the entitlement but the container is unavailable”. App and Widget now parse the actually-authorized group name from `embedded.mobileprovision` at runtime and adapt automatically (see `Sources/Shared/AppGroupResolver.swift`). The 2×2 size leads with the count plus at most a two-line short headline and the check time, so the headline is not truncated to an ellipsis; Widget copy follows the App language. This project's IPA has entitlements embedded into the App and Widget binaries with adhoc codesign before packaging (brew ldid on the macOS runner is unreliable, so system codesign is used), so the sideloading tool can read and register the App Group when re-signing. If the Widget still shows “Shared data unavailable”, generate diagnostics in-App via Settings → About & Diagnostics → Generate Diagnostics and copy the text: it shows the profile's authorized group list, the group actually used (auto-adapted for prefix), whether the shared container is reachable, and whether `embedded.mobileprovision` and the main binary really contain the App Group entitlement—so you can pinpoint which link dropped it.
 
-固定标识：
+## Build
 
-- App：`com.upstreamlens.ios`
-- Widget：`com.upstreamlens.ios.widget`
-- App Group：`group.com.upstreamlens.ios`
-- URL scheme：`upstreamlens://`（`findings` 打开待处理队列；`add` 打开添加页）
+This project uses XcodeGen to produce the project. The GitHub Actions `iOS unsigned IPA` workflow is pinned to `macos-26`, selects Xcode 26.6, runs unit tests, produces an unsigned archive, embeds App and Widget entitlements with adhoc codesign (no real signing), verifies identifiers, architecture, and entitlements, then uploads the IPA and SHA-256. After a successful run, download both files from that Actions run's `UpstreamLens-unsigned` artifact, and verify the IPA with SHA-256.
 
-更新时保持这些标识不变。**Actions 构建成功不代表设备安装或 App Group 共享成功。**
+Fixed identifiers:
 
-## 安装与关口 A 验证
+- App: `com.upstreamlens.ios`
+- Widget: `com.upstreamlens.ios.widget`
+- App Group: `group.com.upstreamlens.ios`
+- URL scheme: `upstreamlens://` (`findings` opens the pending queue; `add` opens the add page)
 
-使用已经验证的侧载路线：首次在 Windows 用 iloader 安装下载的未签名 IPA；后续在 iPhone 的 SideStore 中选择本地 IPA 导入和续签。SideStore 操作时连接 LocalDevVPN。插线、信任、导入和续签由设备持有人操作。不要把 IPA 提前签名。Widget 扩展会占用额外的 App ID；免费 Apple ID 的七天有效期和侧载名额需要留意。
+Keep these identifiers unchanged on updates. **A successful Actions build does not guarantee device installation or App Group sharing.**
 
-安装后先检查：
+## Installation & Gate A verification
 
-1. 主 App 可打开，首次启动显示新手引导（四页，看完一次后不再出现）；首页显示空状态。
-2. Widget 出现在添加小组件列表（含锁屏矩形/圆形款式）。
-3. 添加公开 GitHub 来源，首次检查不产生历史变化；Widget 显示快照和检查时间。
-4. 若 Widget 显示“共享数据暂不可用”，在“设置 → 诊断”生成信息并记录；这表示 App Group 共享在实际重签链路下仍待解决。
-5. 关闭网络后打开 App，旧变化仍在，时间不会伪装为实时数据。
+Use the already-verified sideloading route: first install the downloaded unsigned IPA on Windows with iloader; afterward import and re-sign a local IPA in SideStore on the iPhone. Connect LocalDevVPN during SideStore operations. Plugging in, trusting, importing, and re-signing are done by the device owner. Do not pre-sign the IPA. The Widget extension consumes an extra App ID; mind the free Apple ID's 7-day validity and sideloading slots.
 
-## GitHub 登录（可选）
+After install, check first:
 
-默认**不登录**也能用：走公开 GitHub API。在“设置 → GitHub 登录”粘贴一个只读 Personal Access Token（建议 fine-grained，权限只需 Metadata + Contents 只读）即可解除次数限制（约 5000 次/小时，未登录为 60 次/小时），并可监控**私有仓库**。登录时 App 会用 `/rate_limit` 校验令牌（不消耗额度），无效则拒绝保存；令牌只存本机 Keychain，不上传、不进导出备份，可随时“登出”撤销。个人用途与备注仍只保存在本机。
+1. The main App opens; first launch shows onboarding (four pages, language on page one, shown once); the home screen shows the empty state.
+2. The Widget appears in the add-widget list (including lock-screen rectangular/circular styles).
+3. Add a public GitHub source; the first check produces no historical changes; the Widget shows the snapshot and check time.
+4. If the Widget shows “Shared data unavailable”, generate info in Settings → About & Diagnostics and record it; this means App Group sharing still needs resolving under the real re-signing chain.
+5. With the network off, open the App; old changes remain and times are not faked as real-time data.
 
-## 当前限制
+## GitHub sign-in (optional)
 
-- 未登录时走公开 GitHub API，核心接口每 IP 每小时 60 次、搜索接口 10 次/分钟；限流时 App 会显示预计恢复时间。登录后可放宽到约 5000 次/小时并支持私有仓库（见上一节）。
-- 刷新依赖打开 App 或手动触发；Widget 时间线由 iOS 调度，不能当成实时提醒。
-- 最多读取三页、每页 100 条上游记录；长时间未检查而超过该范围时应重新核对基线。
-- JSON 导入会替换本机现有列表与变化记录，导入前先导出备份。
-- 版本比较针对语义化版本（含日历版本如 2026.9.24）；无规则的 tag 名不会参与版本比较。
+It works **without signing in** by default via the public GitHub API. Paste a read-only Personal Access Token in Settings → General → GitHub Sign-In (fine-grained recommended; only Metadata + Contents read-only needed) to lift the limit (about 5000/hour vs 60/hour unauthenticated) and to monitor **private repos**. On sign-in the App validates the token via `/rate_limit` (consumes no quota) and refuses to store an invalid one; the token is kept only in the local Keychain, never uploaded or written into exported backups, and can be revoked anytime via “Sign Out”. Personal usage and notes still stay on-device.
+
+## Current limitations
+
+- Unauthenticated uses the public GitHub API: 60/hour per IP for core endpoints and 10/min for search; when rate-limited the App shows the estimated recovery time. Signing in raises this to about 5000/hour and enables private repos (see above).
+- By default it checks on open and about every 30 minutes in the background, both adjustable in Monitoring & Refresh; the Widget timeline is scheduled by iOS and is not a real-time alert.
+- Reads at most three pages of 100 upstream records each; if unchecked for a long time and beyond that range, re-verify the baseline.
+- JSON import replaces the on-device list and change records—export a backup first.
+- Version comparison targets semantic versions (including calendar versions like 2026.9.24); irregular tag names do not participate in version comparison.

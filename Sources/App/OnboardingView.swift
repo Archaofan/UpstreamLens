@@ -1,69 +1,117 @@
 import SwiftUI
 import UIKit
 
-/// 首次启动的新手引导：四页讲清用途、添加方式、通知预期与隐私边界，
-/// 只出现一次（hasCompletedOnboarding 记忆），之后可在设置里回顾。
+/// 新手引导：六页讲清用途、添加来源、类别与筛选、通知预期、隐私边界与备份。
+///
+/// 首次启动以全屏方式出现，可随时跳过；**之后可在设置 → 使用引导里重新查看**，
+/// 不再"只出现一次就永久消失"。
 struct OnboardingView: View {
+    /// 结束回调。作为设置子页复看时传空实现即可。
     let onFinish: () -> Void
-    @State private var page = 0
+    /// 复看模式：按钮文案改为"完成"，且不显示语言选择（设置里已有）。
+    var isReview: Bool = false
 
-    private struct Page {
+    @State private var page = 0
+    @AppStorage(AppLocalization.storageKey) private var appLanguage: AppLanguage = .english
+
+    struct Page {
         let symbol: String
         let title: String
         let message: String
         let footnote: String
     }
 
-    private let pages: [Page] = [
+    /// 公开给测试断言页数与内容完整性的引导页定义。
+    static let pages: [Page] = [
         Page(symbol: "dot.radiowaves.left.and.right",
-             title: "你的技术变化雷达",
-             message: "UpstreamLens 盯住 GitHub 上你在意的仓库：Release、Tag、指定文件的提交。出现变化时给你可核查的判断，不用反复刷网页。",
-             footnote: "判断依据是你在来源里记录的用途、使用版本和关键词。"),
+             title: "Your Tech-Change Radar",
+             message: "UpstreamLens watches the GitHub repos you care about — Releases, Tags, and commits to specific files. When something changes you get a checkable signal, instead of refreshing pages.",
+             footnote: "Judgments are based on the purpose, version, and keywords you record for each source."),
         Page(symbol: "plus.square.on.square",
-             title: "添加监控来源",
-             message: "搜索仓库名或粘贴 GitHub 链接即可；“常用预设”一键添加 AI 领域的高星项目。填写“正在使用的版本”时可以直接从上游版本列表下拉选择。",
-             footnote: "首次成功检查只建立基线，之后才报告新变化。"),
+             title: "Add Sources",
+             message: "Search a repo name or paste a GitHub link. Presets add starred AI projects in one tap. When filling in the version in use, pick straight from the upstream release list.",
+             footnote: "The first successful check only sets a baseline; new changes are reported after that."),
+        Page(symbol: "tag",
+             title: "Categories, Search & Tags",
+             message: "The Sources tab groups your repos by category and lets you search by name, purpose or tag. Categories are yours to edit in Settings → Categories.",
+             footnote: "Owners who publish content-addressed snapshots can be filtered so only version-like releases are reported."),
         Page(symbol: "bell.badge",
-             title: "通知与小组件",
-             message: "开启通知后，只有“值得关注”的变化才会横幅提醒，其余静默进入通知中心。小组件显示待查看数量与上次检查时间。",
-             footnote: "后台检查由 iOS 调度，约每 30 分钟一次，不是实时推送。"),
+             title: "Notifications & Widget",
+             message: "With notifications on, only changes worth your attention raise a banner; the rest land silently in Notification Center. The widget shows the pending count and last check time.",
+             footnote: "Background checks are scheduled by iOS roughly every 30 minutes — not real-time pushes."),
         Page(symbol: "lock.shield",
-             title: "数据只留在本机",
-             message: "用途、版本、关键词等个人信息只保存在手机上，不会发给 GitHub。导出 JSON 可随时备份或迁移。",
-             footnote: "公开仓库监控无需登录 GitHub 账号。"),
+             title: "Data Stays On-Device",
+             message: "Purpose, version, keywords, and other personal info stay on your phone and are never sent to GitHub. Export JSON to back up or migrate anytime.",
+             footnote: "Monitoring public repos needs no GitHub sign-in."),
+        Page(symbol: "paintbrush.pointed",
+             title: "Make It Yours",
+             message: "Pick an accent theme, choose an alternate app icon, and set a photo as the page background with adjustable opacity, brightness and readability. All of it lives in Settings → General.",
+             footnote: "Appearance preferences stay on this device and are never included in backups."),
     ]
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Spacer()
-                Button("跳过") { onFinish() }
-                    .font(.subheadline)
-                    .padding(.trailing, 20)
-                    .padding(.top, 12)
+                if isReview {
+                    Spacer()
+                } else {
+                    Spacer()
+                    Button("Skip") { onFinish() }
+                        .font(.subheadline)
+                        .padding(.trailing, 20)
+                }
             }
+            .padding(.top, 12)
+
+            if page == 0 && !isReview {
+                Picker("Language", selection: $appLanguage) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.displayName).tag(language)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 4)
+            }
+
             TabView(selection: $page) {
-                ForEach(pages.indices, id: \.self) { index in
-                    pageView(pages[index]).tag(index)
+                ForEach(Self.pages.indices, id: \.self) { index in
+                    pageView(Self.pages[index]).tag(index)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
-            Button {
-                if page < pages.count - 1 {
-                    withAnimation(.snappy) { page += 1 }
-                } else {
-                    onFinish()
+
+            // 底部同时给出"上一步"，复看时也能来回翻。
+            HStack(spacing: 12) {
+                if page > 0 {
+                    Button {
+                        withAnimation(.snappy) { page -= 1 }
+                    } label: {
+                        Label("Back", systemImage: "chevron.left")
+                            .labelStyle(.titleAndIcon)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
                 }
-            } label: {
-                Text(page == pages.count - 1 ? "开始使用" : "下一步")
-                    .frame(maxWidth: .infinity)
+                Button {
+                    if page < Self.pages.count - 1 {
+                        withAnimation(.snappy) { page += 1 }
+                    } else {
+                        onFinish()
+                    }
+                } label: {
+                    Text(page == Self.pages.count - 1
+                         ? AppLocalization.string(isReview ? "Done" : "Get Started")
+                         : AppLocalization.string("Next"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
             .padding(.horizontal, 24)
             .padding(.bottom, 28)
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        // 底色由根视图 appBackground() 提供，这里不再重复绘制。
     }
 
     private func pageView(_ item: Page) -> some View {
@@ -75,14 +123,18 @@ struct OnboardingView: View {
                 .frame(width: 116, height: 116)
                 .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 28))
                 .accessibilityHidden(true)
-            Text(item.title)
+            // 必须显式包成 LocalizedStringKey：Page 里存的是 String，
+            // 直接 Text(String) 会走"逐字"初始化器，文案永远不会被本地化。
+            Text(LocalizedStringKey(item.title))
                 .font(.title.weight(.bold))
-            Text(item.message)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+            Text(LocalizedStringKey(item.message))
                 .font(.body)
                 .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
-            Text(item.footnote)
+            Text(LocalizedStringKey(item.footnote))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

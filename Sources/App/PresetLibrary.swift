@@ -29,9 +29,9 @@ struct SourcePreset: Identifiable, Equatable {
     /// 不走 API、不占限流额度；离线或加载失败时回退 symbol。
     var iconURL: URL? { Self.iconURL(for: repository) }
 
+    /// 单一事实来源在 `RepoAvatar`，这里转发以保持既有调用点不变。
     static func iconURL(for repository: String) -> URL? {
-        guard let owner = repository.split(separator: "/").first, !owner.isEmpty else { return nil }
-        return URL(string: "https://github.com/\(owner).png?size=120")
+        RepoAvatar.url(for: repository)
     }
 }
 

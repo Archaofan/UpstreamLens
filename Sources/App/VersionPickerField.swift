@@ -26,20 +26,20 @@ struct VersionPickerField: View {
     }
 
     private var pathRow: some View {
-        TextField("正在使用的提交 SHA（可留空）", text: $selection)
+        TextField("Commit SHA in use (optional)", text: $selection)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
     }
 
     @ViewBuilder private var manualRows: some View {
-        TextField("正在使用的版本／Tag（可留空）", text: $selection)
+        TextField("Version / Tag in use (optional)", text: $selection)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
         if let message = loadError {
-            Label("上游版本列表读取失败：\(message)", systemImage: "wifi.exclamationmark")
+            Label(AppLocalization.string("Failed to load upstream versions") + ": \(message)", systemImage: "wifi.exclamationmark")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-            Button("重试从上游版本列表选择") {
+            Button("Retry from Upstream Versions") {
                 manualMode = false
                 loadError = nil
                 Task { await load() }
@@ -53,10 +53,10 @@ struct VersionPickerField: View {
             menuContent
         } label: {
             HStack {
-                Text("正在使用的版本")
+                Text("Version in Use")
                 Spacer()
                 if selection.isEmpty {
-                    Text("从上游选择…").foregroundStyle(.secondary)
+                    Text("Choose from upstream…").foregroundStyle(.secondary)
                 } else {
                     Text(selection).foregroundStyle(.primary)
                 }
@@ -75,15 +75,15 @@ struct VersionPickerField: View {
     @ViewBuilder private var menuContent: some View {
         if let options {
             if options.isEmpty {
-                Text("上游暂无 Release／Tag")
+                Text("No upstream Release / Tag")
             } else {
-                Section("上游版本") {
+                Section("Upstream Versions") {
                     ForEach(options) { option in
                         Button {
                             selection = option.name
                         } label: {
                             if option.prerelease {
-                                Label("\(option.name)（预发布）", systemImage: "flask")
+                                Label("\(option.name) " + AppLocalization.string("(prerelease)"), systemImage: "flask")
                             } else {
                                 Text(option.name)
                             }
@@ -91,17 +91,17 @@ struct VersionPickerField: View {
                     }
                 }
             }
-            Button("手动输入…") { manualMode = true }
+            Button("Enter Manually…") { manualMode = true }
             if !selection.isEmpty {
-                Button("清除已选版本", role: .destructive) { selection = "" }
+                Button("Clear Selection", role: .destructive) { selection = "" }
             }
         } else if isLoading {
-            Text("正在读取上游版本…")
+            Text("Loading upstream versions…")
         } else {
             Button {
                 Task { await load() }
             } label: {
-                Label("读取上游版本列表", systemImage: "arrow.clockwise")
+                Label("Load Upstream Versions", systemImage: "arrow.clockwise")
             }
         }
     }

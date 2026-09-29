@@ -82,12 +82,50 @@ import UIKit
             catch {
                 data = LocalData()
                 storageReady = false
-                storageError = "无法读取本地数据，已暂停保存以保护原文件。请导入有效备份：\(error.localizedDescription)"
+                storageError = L10n.format(
+                    "Could not read local data, so saving is paused to protect the original file. Import a valid backup: {detail}",
+                    ["detail": error.localizedDescription])
             }
         }
         lastSavedData = data
-        if storageReady { writeWidget() }
+        if storageReady {
+            // 一次性清理历史噪音：老版本把 inputs-a 这类内容寻址快照也逐条记成了待处理提醒。
+            // 修好生成逻辑只防新的，存量记录必须一起收拾，否则用户看到的还是刷屏。
+            cleanUpLegacyNoiseFindings()
+            writeWidget()
+        }
         updateBadge(unreadRelevantCount)
+    }
+
+    /// 一次性把"内容寻址发布"的存量待处理记录标记为已处理（**不删除**，仍可在已处理里查到）。
+    ///
+    /// 严格限定，避免误伤：
+    /// - 只处理 release / tag 来源（path 模式的 upstreamID 是提交 SHA）；
+    /// - 只处理该来源**开启了** versionLikeOnly 的（用户关掉过滤说明他确实要看这些）；
+    /// - upstreamID 必须**是纯数字**且不像版本号：纯数字只可能是 release 的数字 id，
+    ///   不可能是版本号或 tag 名。用"不像版本号"当条件太宽，会把 UUID 等防御性标识也误判；
+    /// - 只处理未读/已查看的，已经处理过的不动；
+    /// - 只执行一次，用 LocalData 里的标记记住。
+    @discardableResult
+    func cleanUpLegacyNoiseFindings() -> Int {
+        guard storageReady, data.didCleanLegacyNoise != true else { return 0 }
+        let guardedSources = Set(data.sources
+            .filter { $0.kind != .path && $0.versionLikeOnly }
+            .map(\.id))
+        var cleaned = 0
+        for index in data.findings.indices {
+            let finding = data.findings[index]
+            guard finding.status == .unread || finding.status == .viewed else { continue }
+            guard guardedSources.contains(finding.sourceID) else { continue }
+            guard ChangeDetector.isNumericIdentifier(finding.upstreamID),
+                  !ChangeDetector.looksLikeVersion(finding.upstreamID) else { continue }
+            data.findings[index].status = .handled
+            cleaned += 1
+        }
+        data.didCleanLegacyNoise = true
+        persist()
+        if cleaned > 0 { updateBadge(unreadRelevantCount) }
+        return cleaned
     }
 
     var sources: [WatchSource] { data.sources }
@@ -95,8 +133,56 @@ import UIKit
     var lastSuccessfulCheck: Date? { data.lastSuccessfulCheck }
     var canEditData: Bool { storageReady }
     var unreadRelevantCount: Int { data.findings.filter(\.isUnreadRelevant).count }
+    /// 生效的来源类别目录（用户没配过就是内置默认）。
+    var categories: [SourceCategory] { data.effectiveCategories }
 
     func source(for id: UUID) -> WatchSource? { data.sources.first { $0.id == id } }
+
+    // MARK: 类别管理
+
+    func replaceCategories(_ categories: [SourceCategory]) {
+        guard storageReady else { return }
+        data.categories = categories
+        persist()
+    }
+
+    /// 删除类别，并把仍指向它的来源收归到"其他"，避免悬空引用。
+    func deleteCategory(_ id: String) {
+        guard storageReady else { return }
+        data.categories = data.effectiveCategories.filter { $0.id != id }
+        data.reassignCategory(id)
+        persist()
+    }
+
+    /// 把某来源归入一个类别。
+    func setCategory(_ categoryID: String?, for sourceID: UUID) {
+        guard storageReady else { return }
+        guard let index = data.sources.firstIndex(where: { $0.id == sourceID }) else { return }
+        data.sources[index].category = categoryID
+        persist()
+    }
+
+    /// 给尚未归类的来源按仓库名/topics/描述猜一个类别。
+    /// 只填空白项，绝不覆盖用户已有的选择。返回改动条数。
+    @discardableResult
+    func autoCategorizeUnassigned() -> Int {
+        guard storageReady else { return 0 }
+        var changed = 0
+        for index in data.sources.indices where data.sources[index].category == nil {
+            let source = data.sources[index]
+            let guess = CategoryClassifier.suggest(
+                repository: source.repository,
+                topics: source.topics ?? [],
+                text: [source.displayName, source.purpose, source.keywords, source.repoDescription ?? ""]
+                    .joined(separator: " "))
+            if let guess {
+                data.sources[index].category = guess
+                changed += 1
+            }
+        }
+        if changed > 0 { persist() }
+        return changed
+    }
 
     func upsert(_ source: WatchSource) {
         guard storageReady else { return }
@@ -425,7 +511,9 @@ import UIKit
         } catch {
             data = lastSavedData
             updateBadge(lastSavedData.findings.filter(\.isUnreadRelevant).count)
-            storageError = "保存失败，已恢复上次保存的数据：\(error.localizedDescription)"
+            storageError = L10n.format(
+                "Saving failed and the last saved data was restored: {detail}",
+                ["detail": error.localizedDescription])
             return error
         }
     }

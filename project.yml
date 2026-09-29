@@ -6,8 +6,8 @@ settings:
     SWIFT_VERSION: 5.10
     IPHONEOS_DEPLOYMENT_TARGET: 17.0
     TARGETED_DEVICE_FAMILY: 1
-    MARKETING_VERSION: 0.3.0
-    CURRENT_PROJECT_VERSION: 2
+    MARKETING_VERSION: 0.5.0
+    CURRENT_PROJECT_VERSION: 1
 targets:
   UpstreamLens:
     type: application
@@ -19,16 +19,37 @@ targets:
       - Sources/Monitoring
       - Sources/Storage
       - Assets/Assets.xcassets
+      # 备用 App 图标：以普通 PNG 随 App 打包，经 Info.plist 的 CFBundleAlternateIcons 声明。
+      - Assets/AppIcons
     info:
       path: Sources/App/Info.plist
       properties:
         CFBundleDisplayName: UpstreamLens
+        CFBundleDevelopmentRegion: en
+        CFBundleShortVersionString: "0.5.0"
+        CFBundleVersion: "1"
         UILaunchScreen:
           UIColorName: LaunchBackground
         BGTaskSchedulerPermittedIdentifiers: [com.upstreamlens.ios.refresh]
         UIBackgroundModes: [fetch]
+        NSPhotoLibraryUsageDescription: UpstreamLens needs photo library access so you can choose a custom page background image.
         CFBundleURLTypes:
           - CFBundleURLSchemes: [upstreamlens]
+        # 备用 App 图标声明。CFBundlePrimaryIcon 显式指向资源目录的 AppIcon 集合，
+        # 这样即使构建期生成的图标信息覆盖此字典，主图标仍能解析。
+        CFBundleIcons:
+          CFBundlePrimaryIcon:
+            CFBundleIconName: AppIcon
+          CFBundleAlternateIcons:
+            AppIconViolet:
+              CFBundleIconFiles: [AppIconViolet]
+              CFBundleIconName: AppIconViolet
+            AppIconEmerald:
+              CFBundleIconFiles: [AppIconEmerald]
+              CFBundleIconName: AppIconEmerald
+            AppIconAmber:
+              CFBundleIconFiles: [AppIconAmber]
+              CFBundleIconName: AppIconAmber
     entitlements:
       path: Sources/App/UpstreamLens.entitlements
       properties:

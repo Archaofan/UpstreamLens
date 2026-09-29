@@ -107,10 +107,10 @@ final class StabilityTests: XCTestCase {
         XCTAssertEqual(Set(presets.map(\.id)).count, presets.count, "预设 id 不得重复")
     }
 
-    func testPresetIconCacheNameIsStableAndFilesystemSafe() {
+    func testAvatarCacheNameIsStableAndFilesystemSafe() {
         let url = URL(string: "https://github.com/openclaw.png?size=120")!
-        let first = PresetIconCache.cachedImageURL(for: url)
-        XCTAssertEqual(first, PresetIconCache.cachedImageURL(for: URL(string: "https://github.com/openclaw.png?size=120")!),
+        let first = AvatarCache.cachedFileURL(for: url)
+        XCTAssertEqual(first, AvatarCache.cachedFileURL(for: URL(string: "https://github.com/openclaw.png?size=120")!),
                        "同名 URL 派生的缓存文件名必须一致")
         // 非字母数字（含点号）都替换为下划线，文件名天然安全。
         XCTAssertTrue(first.lastPathComponent.contains("github_com_openclaw_png_size_120"))
@@ -172,7 +172,9 @@ final class NotificationPlannerTests: XCTestCase {
         XCTAssertEqual(planned.count, 6, "5 条直接通知 + 1 条折叠摘要")
         XCTAssertTrue(planned.prefix(5).allSatisfy { $0.isImportant })
         XCTAssertFalse(planned.last!.isImportant)
-        XCTAssertTrue(planned.last!.body.contains("还有 3 条"))
+        XCTAssertTrue(planned.last!.body.contains("3"), "折叠摘要应说明还有 3 条：\(planned.last!.body)")
+        XCTAssertTrue(planned.last!.body.contains("more related change"),
+                      "文案已本地化，测试环境为英文：\(planned.last!.body)")
         // 同一来源的 threadIdentifier 一致，通知中心自动成组。
         XCTAssertTrue(planned.allSatisfy { $0.threadIdentifier == "工具" })
     }

@@ -34,17 +34,17 @@ struct RepoConfirmView: View {
                 Section {
                     HStack(spacing: 10) {
                         ProgressView()
-                        Text("正在读取仓库信息…").foregroundStyle(.secondary)
+                        Text("Reading repo info…").foregroundStyle(.secondary)
                     }
                 } footer: {
-                    Text("探测最多 2 次、版本列表 1 次 GitHub API 请求；未变化时的后续检查不计入限额。")
+                    Text("Probing uses up to 2 requests plus 1 for the version list; subsequent checks with no changes don't count against the limit.")
                 }
             case .failed(let message):
                 Section {
                     Label(message, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.secondary)
                     if onRequestManual != nil {
-                        Button("改为手动填写") {
+                        Button("Switch to Manual Entry") {
                             let request = onRequestManual
                             dismiss()
                             Task { @MainActor in
@@ -58,9 +58,10 @@ struct RepoConfirmView: View {
                 readySections
             }
         }
-        .navigationTitle("确认来源")
+        .transparentListBackground()
+        .navigationTitle("Confirm Source")
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+            ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
         }
         .task { await probeRepository() }
         .task(id: source.kind == .path ? "path:\(source.path.isEmpty)" : "other") {
@@ -69,27 +70,35 @@ struct RepoConfirmView: View {
     }
 
     @ViewBuilder private var readySections: some View {
-        Section("仓库") {
-            LabeledContent("仓库", value: source.repository)
-            if let metadata = probe?.metadata, let description = metadata.description, !description.isEmpty {
-                Text(description).font(.subheadline).foregroundStyle(.secondary)
+        Section("Repository") {
+            HStack(spacing: 12) {
+                RepoAvatarImage(repository: source.repository,
+                                symbol: RepoAvatar.fallbackSymbol(for: source.kind),
+                                size: 44,
+                                cornerRadius: 12)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(source.repository).font(.headline)
+                    if let metadata = probe?.metadata, let description = metadata.description, !description.isEmpty {
+                        Text(description).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                    }
+                }
             }
             if let metadata = probe?.metadata, let stars = metadata.stargazersCount {
                 Label("\(stars)", systemImage: "star").font(.caption).foregroundStyle(.secondary)
             }
             if let latest = probe?.latest {
-                LabeledContent("上游最新版本") {
-                    Text(latest.tagName + (latest.prerelease ? "（预发布）" : ""))
+                LabeledContent("Latest Upstream Version") {
+                    Text(latest.tagName + (latest.prerelease ? " " + AppLocalization.string("(prerelease)") : ""))
                 }
             }
         }
 
-        Section("监控方式") {
-            Picker("模式", selection: $source.kind) {
-                ForEach(SourceKind.allCases) { kind in Text(kind.rawValue).tag(kind) }
+        Section("Monitoring Method") {
+            Picker("Mode", selection: $source.kind) {
+                ForEach(SourceKind.allCases) { kind in Text(kind.displayName).tag(kind) }
             }
             if source.kind == .path {
-                TextField("路径，如 skills/example/SKILL.md", text: $source.path)
+                TextField("Path, e.g. skills/example/SKILL.md", text: $source.path)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
                 if !pathCandidates.isEmpty {
                     ForEach(pathCandidates, id: \.self) { candidate in
@@ -110,7 +119,7 @@ struct RepoConfirmView: View {
                     Text(pathScanNote).font(.footnote).foregroundStyle(.secondary)
                 }
                 if source.kind == .path && !source.branch.isEmpty {
-                    LabeledContent("分支", value: source.branch)
+                    LabeledContent("Branch", value: source.branch)
                 }
             }
             if source.kind != .path {
@@ -123,21 +132,21 @@ struct RepoConfirmView: View {
         }
 
         Section {
-            TextField("显示名称", text: $source.displayName)
-            TextField("用途，例如 NAS 远程连接", text: $source.purpose, axis: .vertical)
+            TextField("Display Name", text: $source.displayName)
+            TextField("Purpose, e.g. NAS remote access", text: $source.purpose, axis: .vertical)
             if useDescriptionAsPurpose == false, let description = probe?.metadata?.description, !description.isEmpty {
-                Button("使用仓库描述作为用途") {
+                Button("Use Repo Description as Purpose") {
                     source.purpose = description
                     useDescriptionAsPurpose = true
                 }
                 .font(.subheadline)
             }
-            TextField("关注关键词，逗号分隔（可选）", text: $keywordsText)
+            TextField("Keywords to watch, comma-separated (optional)", text: $keywordsText)
                 .textInputAutocapitalization(.never)
         } header: {
-            Text("我的使用情况（仅保存在本机，可稍后补充）")
+            Text("My Usage (stored on this device only, can add later)")
         } footer: {
-            Text("这些信息只用于本地判断相关性，不会发给 GitHub。")
+            Text("This info is only used locally to judge relevance; it is never sent to GitHub.")
         }
 
         if let probe, !probe.warnings.isEmpty {
@@ -157,13 +166,13 @@ struct RepoConfirmView: View {
             Button {
                 save()
             } label: {
-                Text("保存并建立基线").frame(maxWidth: .infinity)
+                Text("Save and Set Baseline").frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
         } footer: {
-            Text("首次成功检查只记录当前基线，不会把历史版本当成新变化。")
+            Text("The first successful check records the current baseline only; historical versions are not treated as new changes.")
         }
     }
 
@@ -202,12 +211,12 @@ struct RepoConfirmView: View {
             let scan = try await model.probePaths(repository: source.repository, branch: source.branch)
             pathCandidates = Array(scan.paths.prefix(30))
             if scan.truncated {
-                pathScanNote = "仓库文件过多，列表不完整；请手动输入路径。"
+                pathScanNote = AppLocalization.string("Too many files in the repo; the list is incomplete. Enter the path manually.")
             } else if scan.paths.isEmpty {
-                pathScanNote = "仓库中没有找到匹配 SKILL.md 的文件，请手动输入路径。"
+                pathScanNote = AppLocalization.string("No matching SKILL.md files found in the repo; enter the path manually.")
             }
         } catch {
-            pathScanNote = "路径枚举失败：\(error.localizedDescription)"
+            pathScanNote = AppLocalization.string("Failed to list paths") + ": \(error.localizedDescription)"
         }
     }
 
@@ -220,10 +229,18 @@ struct RepoConfirmView: View {
         }
         source.keywords = keywordsText
         if source.kind == .path && source.path.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            validationError = "请填写或选择要监控的路径。"
+            validationError = AppLocalization.string("Enter or select a path to monitor.")
             return
         }
         validationError = nil
+        // 未指定类别时按仓库名/topics/描述猜一个，省去用户手动归类。
+        if source.category == nil {
+            source.category = CategoryClassifier.suggest(
+                repository: source.repository,
+                topics: source.topics ?? [],
+                text: [source.displayName, source.purpose, source.keywords, source.repoDescription ?? ""]
+                    .joined(separator: " "))
+        }
         model.upsert(source)
         Task { await model.refresh(source.id) }
         dismiss()

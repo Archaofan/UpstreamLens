@@ -22,9 +22,10 @@ struct AddSourceView: View {
                 presetSection
                 otherSection
             }
-            .navigationTitle("添加来源")
+            .transparentListBackground()
+            .navigationTitle("Add Source")
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             }
             .task(id: input) {
                 // 输入防抖：停顿 600ms 后自动搜索；链接形状的输入不消耗搜索限额。
@@ -39,17 +40,21 @@ struct AddSourceView: View {
                     showConfirmFor = $0?.repository
                     if $0 == nil { selectedPreset = nil }
                 })) { target in
-                RepoConfirmView(model: model, input: target.repository,
-                                preset: target.preset) {
-                    dismiss()
-                    onSaved()
-                } onRequestManual: {
-                    // 探测失败的兜底：关掉确认页后弹出手动表单（预填已识别的仓库名）。
-                    manualPrefill = target.repository
-                    selectedPreset = nil
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 400_000_000)
-                        manualSource = target.preset?.watchSource ?? WatchSource(repository: target.repository)
+                // 必须包 NavigationStack：RepoConfirmView 的 Cancel 写在 .toolbar 里，
+                // 缺少导航栏时该项根本不渲染，用户会被卡在确认页、只能保存后再删除。
+                NavigationStack {
+                    RepoConfirmView(model: model, input: target.repository,
+                                    preset: target.preset) {
+                        dismiss()
+                        onSaved()
+                    } onRequestManual: {
+                        // 探测失败的兜底：关掉确认页后弹出手动表单（预填已识别的仓库名）。
+                        manualPrefill = target.repository
+                        selectedPreset = nil
+                        Task { @MainActor in
+                            try? await Task.sleep(nanoseconds: 400_000_000)
+                            manualSource = target.preset?.watchSource ?? WatchSource(repository: target.repository)
+                        }
                     }
                 }
             }
@@ -77,23 +82,23 @@ struct AddSourceView: View {
 
     private var inputSection: some View {
         Section {
-            TextField("搜索仓库名，或粘贴 GitHub 链接", text: $input)
+            TextField("Search a repo name, or paste a GitHub link", text: $input)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .submitLabel(.search)
                 .onSubmit { Task { await search() } }
         } footer: {
-            Text("支持 github.com 仓库、分支、文件链接，或直接输入 owner/repo。")
+            Text("Supports github.com repo, branch, and file links, or type owner/repo directly.")
         }
     }
 
     @ViewBuilder private var directSection: some View {
         if let direct = directRepository {
-            Section("识别到仓库") {
+            Section("Repo Detected") {
                 Button {
                     showConfirmFor = direct
                 } label: {
-                    Label("继续添加 \(direct)", systemImage: "arrow.right.circle")
+                    Label("Continue adding \(direct)", systemImage: "arrow.right.circle")
                 }
             }
         }
@@ -104,7 +109,7 @@ struct AddSourceView: View {
             Section {
                 HStack {
                     ProgressView()
-                    Text("正在搜索…").foregroundStyle(.secondary)
+                    Text("Searching…").foregroundStyle(.secondary)
                 }
             }
         } else if let searchError {
@@ -116,14 +121,14 @@ struct AddSourceView: View {
             resultsSection
         } else if showEmptyHint {
             Section {
-                Text("没有匹配结果，或输入完成后回车搜索。")
+                Text("No matches, or press Return after typing.")
                     .font(.subheadline).foregroundStyle(.secondary)
             }
         }
     }
 
     private var resultsSection: some View {
-        Section("搜索结果") {
+        Section("Search Results") {
             ForEach(results, id: \.fullName) { result in
                 Button {
                     showConfirmFor = result.fullName
@@ -135,15 +140,21 @@ struct AddSourceView: View {
     }
 
     private func resultRow(_ result: RepoSearchResult) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(result.fullName).font(.headline).foregroundStyle(.primary)
-                Spacer()
-                Label("\(result.stargazersCount)", systemImage: "star")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            if let description = result.description, !description.isEmpty {
-                Text(description).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+        HStack(spacing: 12) {
+            RepoAvatarImage(repository: result.fullName,
+                            symbol: RepoAvatar.fallbackSymbol(for: .release),
+                            size: 38,
+                            cornerRadius: 10)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(result.fullName).font(.headline).foregroundStyle(.primary)
+                    Spacer()
+                    Label("\(result.stargazersCount)", systemImage: "star")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                if let description = result.description, !description.isEmpty {
+                    Text(description).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
+                }
             }
         }
     }
@@ -168,19 +179,19 @@ struct AddSourceView: View {
                 }
             }
         } header: {
-            Text("常用预设")
+            Text("Suggested Presets")
         } footer: {
-            Text("AI 领域高星项目与 Agent 工具链，点选即预填。")
+            Text("High-star AI projects and agent toolchains; tap to prefill.")
         }
     }
 
     private var otherSection: some View {
-        Section("其他方式") {
+        Section("Other Ways") {
             Button {
                 manualPrefill = directRepository
                 manualSource = WatchSource()
             } label: {
-                Label("手动填写", systemImage: "square.and.pencil")
+                Label("Enter Manually", systemImage: "square.and.pencil")
             }
         }
     }
@@ -215,10 +226,10 @@ struct AddSourceView: View {
             results = try await client.searchRepositories(query)
         } catch GitHubError.rateLimited(let info) {
             results = []
-            searchError = GitHubError.rateLimited(info).localizedDescription + " 也可以直接粘贴仓库链接。"
+            searchError = GitHubError.rateLimited(info).localizedDescription + " " + AppLocalization.string("You can also paste a repo link directly.")
         } catch {
             results = []
-            searchError = "搜索失败：\(error.localizedDescription)"
+            searchError = AppLocalization.string("Search failed") + ": \(error.localizedDescription)"
         }
     }
 }

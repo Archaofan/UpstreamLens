@@ -170,17 +170,22 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(snapshotWrites, 1)
     }
 
-    @MainActor func testMissingBaselineKeepsLastSuccessfulTime() async {
+    /// 基线指向的上游条目消失（发布被撤回/删除）时，来源必须能自愈。
+    /// 旧行为是置错并冻结基线，来源永久报错且再也无法恢复——真机反馈的正是这个。
+    @MainActor func testMissingBaselineRebuildsAndCountsAsSuccessfulCheck() async {
         let source = WatchSource(repository: "acme/tool", baselineIdentifier: "removed")
         let upstream = change()
         let model = AppModel(initialData: LocalData(sources: [source]),
                              fetchChanges: { _ in GitHubFetch(changes: [upstream], etag: "new-etag", unchanged: false) },
                              saveData: { _ in }, publishSnapshot: { _ in })
         await model.refresh(source.id)
-        XCTAssertEqual(model.source(for: source.id)?.baselineIdentifier, "removed")
-        XCTAssertEqual(model.source(for: source.id)?.lastError, ChangeDetector.missingBaselineMessage)
-        XCTAssertNil(model.lastSuccessfulCheck)
-        XCTAssertNil(model.source(for: source.id)?.etag)
+
+        XCTAssertEqual(model.source(for: source.id)?.baselineIdentifier, "new",
+                       "必须重建基线到当前最新条目")
+        XCTAssertNil(model.source(for: source.id)?.lastError, "错误必须清掉，不能永久卡住")
+        XCTAssertNotNil(model.lastSuccessfulCheck, "重建基线算一次成功检查")
+        XCTAssertEqual(model.source(for: source.id)?.etag, "new-etag", "重建后应该恢复 ETag 缓存")
+        XCTAssertTrue(model.findings.isEmpty, "窗口内哪些是新的无法判断，不该凭空生成记录")
     }
 
     @MainActor func testChangingTrackedPathClearsOldTargetCheckStatus() async {

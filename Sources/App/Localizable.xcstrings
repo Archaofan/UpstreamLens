@@ -1,0 +1,5446 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld items will move to handled records; this means you have finished reviewing them locally.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items will move to handled records; this means you have finished reviewing them locally."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共 %lld 条将进入已处理记录；这表示你已完成本地核查。"
+          }
+        }
+      }
+    },
+    "%lld sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld 个来源"
+          }
+        }
+      }
+    },
+    "%lld unread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld unread"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其中 %lld 条未读"
+          }
+        }
+      }
+    },
+    "%lld upstream items were published at once; listed as one summary item to avoid flooding the list.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld upstream items were published at once; listed as one summary item to avoid flooding the list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游一次发布了 %lld 个条目；为避免刷屏，合并为一条摘要。"
+          }
+        }
+      }
+    },
+    "%lld upstream updates at once": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld upstream updates at once"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一次 %lld 条上游更新"
+          }
+        }
+      }
+    },
+    "(prerelease)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(prerelease)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "（预发布）"
+          }
+        }
+      }
+    },
+    "15 min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 min"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 分钟"
+          }
+        }
+      }
+    },
+    "3 hours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 hours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 小时"
+          }
+        }
+      }
+    },
+    "30 min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 min"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 分钟"
+          }
+        }
+      }
+    },
+    "60 min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60 min"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60 分钟"
+          }
+        }
+      }
+    },
+    "AI & LLM": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI & LLM"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 与大模型"
+          }
+        }
+      }
+    },
+    "AI Search Prompt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Search Prompt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 检索提示词"
+          }
+        }
+      }
+    },
+    "AI Search Prompt (one-tap copy)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Search Prompt (one-tap copy)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 检索提示词（一键复制）"
+          }
+        }
+      }
+    },
+    "About": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        }
+      }
+    },
+    "About & Diagnostics": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About & Diagnostics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于与诊断"
+          }
+        }
+      }
+    },
+    "Action Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作失败"
+          }
+        }
+      }
+    },
+    "Actions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作"
+          }
+        }
+      }
+    },
+    "Add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加"
+          }
+        }
+      }
+    },
+    "Add & Organize": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add & Organize"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加与整理"
+          }
+        }
+      }
+    },
+    "Add Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加来源"
+          }
+        }
+      }
+    },
+    "Add Sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加来源"
+          }
+        }
+      }
+    },
+    "Add Your First Watch Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Your First Watch Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加第一个监控来源"
+          }
+        }
+      }
+    },
+    "Add a repo in the Sources tab; the first successful check sets the baseline.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a repo in the Sources tab; the first successful check sets the baseline."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「来源」页添加仓库；首次成功检查只建立基线。"
+          }
+        }
+      }
+    },
+    "Add a repo to start tracking its releases.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a repo to start tracking its releases."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加一个仓库，开始跟踪它的版本发布。"
+          }
+        }
+      }
+    },
+    "Added %lld sources, skipped %lld duplicates.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added %lld sources, skipped %lld duplicates."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已新增 %lld 个来源，跳过 %lld 个重复项。"
+          }
+        }
+      }
+    },
+    "Adding purpose, keywords, and the version in use improves accuracy.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding purpose, keywords, and the version in use improves accuracy."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "补充用途、关键词和使用版本后，判断会更准。"
+          }
+        }
+      }
+    },
+    "After generating, copy the token, return to Settings, paste it, and tap “Sign In and Verify”.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After generating, copy the token, return to Settings, paste it, and tap “Sign In and Verify”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成后复制令牌，回到设置页粘贴并点“登录并验证”。"
+          }
+        }
+      }
+    },
+    "All": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部"
+          }
+        }
+      }
+    },
+    "Alternate icons are installed with the app. The system may briefly show a notification while switching. This preference stays on this device and is never included in backups.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alternate icons are installed with the app. The system may briefly show a notification while switching. This preference stays on this device and is never included in backups."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备用图标随 App 一起安装。切换时系统可能会短暂弹出提示。此偏好仅保存在本机，不会包含在备份中。"
+          }
+        }
+      }
+    },
+    "Amber": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amber"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "琥珀"
+          }
+        }
+      }
+    },
+    "App Icon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Icon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App 图标"
+          }
+        }
+      }
+    },
+    "Appearance": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观"
+          }
+        }
+      }
+    },
+    "Appearance preferences stay on this device and are never included in backups.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance preferences stay on this device and are never included in backups."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观偏好仅保存在本机，不会包含在备份中。"
+          }
+        }
+      }
+    },
+    "Assessment": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assessment"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "判断"
+          }
+        }
+      }
+    },
+    "Assigned categories to %lld sources.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assigned categories to %lld sources."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已为 %lld 个来源分配类别。"
+          }
+        }
+      }
+    },
+    "Authorized": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authorized"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已授权"
+          }
+        }
+      }
+    },
+    "Auto-Categorize Unassigned Sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-Categorize Unassigned Sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动归类未分类来源"
+          }
+        }
+      }
+    },
+    "Auto-categorization only fills sources that have no category yet; it never overwrites your own choice.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-categorization only fills sources that have no category yet; it never overwrites your own choice."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动归类只填充尚未分类的来源，不会覆盖你自己的选择。"
+          }
+        }
+      }
+    },
+    "Auto-clear handled records older than 90 days": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-clear handled records older than 90 days"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动清理 90 天前的已处理记录"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上一步"
+          }
+        }
+      }
+    },
+    "Background Brightness": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Brightness"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景亮度"
+          }
+        }
+      }
+    },
+    "Background Opacity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Opacity"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景不透明度"
+          }
+        }
+      }
+    },
+    "Background Refresh": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Refresh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台刷新"
+          }
+        }
+      }
+    },
+    "Background checks are scheduled by iOS roughly every 30 minutes and are not guaranteed to be real-time.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background checks are scheduled by iOS roughly every 30 minutes and are not guaranteed to be real-time."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台检查由 iOS 调度，约每 30 分钟起，不能保证实时。"
+          }
+        }
+      }
+    },
+    "Background checks are scheduled by iOS roughly every 30 minutes — not real-time pushes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background checks are scheduled by iOS roughly every 30 minutes — not real-time pushes."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台检查由 iOS 调度，大约每 30 分钟一次，不是实时推送。"
+          }
+        }
+      }
+    },
+    "Blue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blue"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "蓝色"
+          }
+        }
+      }
+    },
+    "Branch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Branch"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分支"
+          }
+        }
+      }
+    },
+    "Branch (empty = default branch)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Branch (empty = default branch)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分支（留空使用默认分支）"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "Cannot generate a comparison (identical or missing content).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot generate a comparison (identical or missing content)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法生成对照（内容相同或缺失）。"
+          }
+        }
+      }
+    },
+    "Categories": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Categories"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "类别管理"
+          }
+        }
+      }
+    },
+    "Categories, Search & Tags": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Categories, Search & Tags"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "类别、搜索与标签"
+          }
+        }
+      }
+    },
+    "Category": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "类别"
+          }
+        }
+      }
+    },
+    "Category name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category name"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "类别名称"
+          }
+        }
+      }
+    },
+    "Change Content": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Content"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变化内容"
+          }
+        }
+      }
+    },
+    "Change Details": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Details"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变化详情"
+          }
+        }
+      }
+    },
+    "Changes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变化"
+          }
+        }
+      }
+    },
+    "Check This Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check This Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查此来源"
+          }
+        }
+      }
+    },
+    "Check for Updates on Open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates on Open"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开时检查更新"
+          }
+        }
+      }
+    },
+    "Checking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在检查"
+          }
+        }
+      }
+    },
+    "Choose Background Image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Background Image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择背景图片"
+          }
+        }
+      }
+    },
+    "Choose from upstream…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose from upstream…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从上游选择…"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清理"
+          }
+        }
+      }
+    },
+    "Clear All (including existing sources' avatars)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear All (including existing sources' avatars)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除全部（含已有来源的头像）"
+          }
+        }
+      }
+    },
+    "Clear Icon Cache": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Icon Cache"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除图标缓存"
+          }
+        }
+      }
+    },
+    "Clear Selection": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Selection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除已选版本"
+          }
+        }
+      }
+    },
+    "Clear handled records now (%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear handled records now (%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即清空已处理记录（%lld）"
+          }
+        }
+      }
+    },
+    "Clear handled records?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear handled records?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清理已处理记录？"
+          }
+        }
+      }
+    },
+    "Clear icon cache?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear icon cache?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除图标缓存？"
+          }
+        }
+      }
+    },
+    "Clipboard content is not a recognized GitHub repository link.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clipboard content is not a recognized GitHub repository link."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "剪贴板内容无法识别为 GitHub 仓库链接。"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "Collapse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapse"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起"
+          }
+        }
+      }
+    },
+    "Commit SHA in use (optional)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commit SHA in use (optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在使用的提交 SHA（可留空）"
+          }
+        }
+      }
+    },
+    "Confirm Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认来源"
+          }
+        }
+      }
+    },
+    "Content Readability Shade": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content Readability Shade"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内容可读性压暗"
+          }
+        }
+      }
+    },
+    "Continue adding %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue adding %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续添加 %@"
+          }
+        }
+      }
+    },
+    "Copy All": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy All"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制全部"
+          }
+        }
+      }
+    },
+    "Copy the prompt to an AI that can access your machine; it searches the open-source projects you use and outputs a JSON list. Save the list as a .json file and import it here; the app merges new sources and checks immediately. Existing sources are never overwritten or modified.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the prompt to an AI that can access your machine; it searches the open-source projects you use and outputs a JSON list. Save the list as a .json file and import it here; the app merges new sources and checks immediately. Existing sources are never overwritten or modified."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把提示词复制给能访问本机的 AI，它会检索你在用的开源项目并输出 JSON 清单；清单保存为 .json 后从这里导入，App 会合并新增来源并立即检查。不会覆盖或修改已有来源。"
+          }
+        }
+      }
+    },
+    "Copy this to an AI that can access your machine (e.g. an Agent CLI or IDE assistant); save the JSON it returns as a .json file, then use “Import AI Source List” to add it to monitoring.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy this to an AI that can access your machine (e.g. an Agent CLI or IDE assistant); save the JSON it returns as a .json file, then use “Import AI Source List” to add it to monitoring."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制给能访问你电脑/服务器的 AI（如 Agent CLI、IDE 助手）；它返回的 JSON 存为 .json 文件后，用“导入 AI 来源清单”加入监控。"
+          }
+        }
+      }
+    },
+    "Could not read local data, so saving is paused to protect the original file. Import a valid backup: {detail}": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not read local data, so saving is paused to protect the original file. Import a valid backup: {detail}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取本地数据，已暂停保存以保护原文件。请导入有效备份：{detail}"
+          }
+        }
+      }
+    },
+    "Current background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前背景"
+          }
+        }
+      }
+    },
+    "Custom Background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义背景"
+          }
+        }
+      }
+    },
+    "Data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据"
+          }
+        }
+      }
+    },
+    "Data & Backup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data & Backup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据与备份"
+          }
+        }
+      }
+    },
+    "Data & Storage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data & Storage"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据与存储"
+          }
+        }
+      }
+    },
+    "Data Stays On-Device": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data Stays On-Device"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据只留在本机"
+          }
+        }
+      }
+    },
+    "Delete Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除来源"
+          }
+        }
+      }
+    },
+    "Denied (enable in System Settings)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denied (enable in System Settings)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已被拒绝（请到系统设置开启）"
+          }
+        }
+      }
+    },
+    "Dev Tools": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dev Tools"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开发工具"
+          }
+        }
+      }
+    },
+    "Developer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Developer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开发者"
+          }
+        }
+      }
+    },
+    "Diagnostics": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "诊断"
+          }
+        }
+      }
+    },
+    "Dismiss": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忽略"
+          }
+        }
+      }
+    },
+    "Display Name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display Name"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示名称"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "Edit Usage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Usage"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑使用情况"
+          }
+        }
+      }
+    },
+    "Edit Watch Target": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Watch Target"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑监控目标"
+          }
+        }
+      }
+    },
+    "Emerald": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emerald"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翠绿"
+          }
+        }
+      }
+    },
+    "Enter Manually": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter Manually"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动填写"
+          }
+        }
+      }
+    },
+    "Enter Manually…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter Manually…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动输入…"
+          }
+        }
+      }
+    },
+    "Enter or select a path to monitor.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter or select a path to monitor."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请填写或选择要监控的路径。"
+          }
+        }
+      }
+    },
+    "Enter the file or directory path to monitor.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the file or directory path to monitor."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请填写要监控的文件或目录路径。"
+          }
+        }
+      }
+    },
+    "Every source already has a category, or nothing could be inferred.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every source already has a category, or nothing could be inferred."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有来源都已有类别，或无法推断出任何类别。"
+          }
+        }
+      }
+    },
+    "Export JSON Backup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export JSON Backup"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出 JSON 备份"
+          }
+        }
+      }
+    },
+    "Exported backups include personal usage info; importing replaces all existing data.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exported backups include personal usage info; importing replaces all existing data."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出备份会包含个人使用信息；导入会替换全部现有数据。"
+          }
+        }
+      }
+    },
+    "Failed to list paths": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to list paths"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路径枚举失败"
+          }
+        }
+      }
+    },
+    "Failed to load upstream versions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to load upstream versions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游版本列表读取失败"
+          }
+        }
+      }
+    },
+    "File Comparison": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File Comparison"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件对照"
+          }
+        }
+      }
+    },
+    "File change: about %lld lines added, %lld lines removed.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File change: about %lld lines added, %lld lines removed."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件变化：新增约 %lld 行，删除约 %lld 行。"
+          }
+        }
+      }
+    },
+    "Filter Changes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter Changes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选变化"
+          }
+        }
+      }
+    },
+    "Follow System": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow System"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟随系统"
+          }
+        }
+      }
+    },
+    "Found At": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found At"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发现时间"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通用"
+          }
+        }
+      }
+    },
+    "Generate Diagnostics": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate Diagnostics"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成诊断信息"
+          }
+        }
+      }
+    },
+    "Generate detailed info in Settings → Diagnostics and send it to the developer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate detailed info in Settings → Diagnostics and send it to the developer."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可在“设置 → 诊断”生成详细信息并发给开发者。"
+          }
+        }
+      }
+    },
+    "Get Started": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Started"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始使用"
+          }
+        }
+      }
+    },
+    "Getting Started": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Getting Started"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用引导"
+          }
+        }
+      }
+    },
+    "GitHub API Rate Limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub API Rate Limit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub API 限额"
+          }
+        }
+      }
+    },
+    "GitHub API quota is shown after a check completes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub API quota is shown after a check completes."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成一次检查后显示 GitHub API 剩余额度。"
+          }
+        }
+      }
+    },
+    "GitHub Repository": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub Repository"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub 仓库"
+          }
+        }
+      }
+    },
+    "GitHub Sign-In": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub Sign-In"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub 登录"
+          }
+        }
+      }
+    },
+    "GitHub Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub 来源"
+          }
+        }
+      }
+    },
+    "Green": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Green"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "绿色"
+          }
+        }
+      }
+    },
+    "Group By": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group By"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分组方式"
+          }
+        }
+      }
+    },
+    "Handled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已处理"
+          }
+        }
+      }
+    },
+    "Handled Records": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handled Records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已处理记录"
+          }
+        }
+      }
+    },
+    "Handled records will be permanently deleted. To keep them, export a JSON backup first.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handled records will be permanently deleted. To keep them, export a JSON backup first."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已处理记录会被永久删除。如需保留，请先导出 JSON 备份。"
+          }
+        }
+      }
+    },
+    "Help · Batch-add sources with AI": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Help · Batch-add sources with AI"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帮助 · 用 AI 批量添加来源"
+          }
+        }
+      }
+    },
+    "High-star AI projects and agent toolchains; tap to prefill.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High-star AI projects and agent toolchains; tap to prefill."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 领域高星项目与 Agent 工具链，点选即预填。"
+          }
+        }
+      }
+    },
+    "How to Create a Token": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to Create a Token"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如何创建令牌"
+          }
+        }
+      }
+    },
+    "How to create a token?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to create a token?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如何创建令牌？"
+          }
+        }
+      }
+    },
+    "Icon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图标"
+          }
+        }
+      }
+    },
+    "Icon Cache": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon Cache"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图标缓存"
+          }
+        }
+      }
+    },
+    "Icon Cache Size": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon Cache Size"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图标缓存大小"
+          }
+        }
+      }
+    },
+    "Icon Switch Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon Switch Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图标切换失败"
+          }
+        }
+      }
+    },
+    "Icon cache cleared": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon cache cleared"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图标缓存已清除"
+          }
+        }
+      }
+    },
+    "Import AI Source List (merge into existing sources)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import AI Source List (merge into existing sources)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入 AI 来源清单（合并到现有来源）"
+          }
+        }
+      }
+    },
+    "Import Complete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Complete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入完成"
+          }
+        }
+      }
+    },
+    "Import JSON Backup (replace existing data)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import JSON Backup (replace existing data)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入 JSON 备份（替换现有数据）"
+          }
+        }
+      }
+    },
+    "Import a valid JSON backup in Settings → Data before adding sources.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import a valid JSON backup in Settings → Data before adding sources."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在“设置 → 数据”中导入有效的 JSON 备份，再添加来源。"
+          }
+        }
+      }
+    },
+    "Import failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入失败"
+          }
+        }
+      }
+    },
+    "Includes App Group, signing profile, storage, and rate-limit status. If the widget shows “Shared data unavailable”, send the generated text to the developer.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Includes App Group, signing profile, storage, and rate-limit status. If the widget shows “Shared data unavailable”, send the generated text to the developer."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含 App Group、签名 profile、存储与限额状态。小组件显示“共享数据暂不可用”时，请把生成的文本发给开发者。"
+          }
+        }
+      }
+    },
+    "Indigo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indigo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "靛蓝"
+          }
+        }
+      }
+    },
+    "Interval": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interval"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "间隔"
+          }
+        }
+      }
+    },
+    "Judgments are based on the purpose, version, and keywords you record for each source.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Judgments are based on the purpose, version, and keywords you record for each source."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "判断依据是你为每个来源填写的用途、使用版本与关键词。"
+          }
+        }
+      }
+    },
+    "Keep existing sources' avatars, clear the rest": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep existing sources' avatars, clear the rest"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留已有来源的头像，清除其余"
+          }
+        }
+      }
+    },
+    "Keywords": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keywords"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关键词"
+          }
+        }
+      }
+    },
+    "Keywords to watch, comma-separated": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keywords to watch, comma-separated"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注关键词，逗号分隔"
+          }
+        }
+      }
+    },
+    "Keywords to watch, comma-separated (optional)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keywords to watch, comma-separated (optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注关键词，逗号分隔（可选）"
+          }
+        }
+      }
+    },
+    "Language": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言"
+          }
+        }
+      }
+    },
+    "Last Check": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次检查"
+          }
+        }
+      }
+    },
+    "Last check: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last check: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次检查：%@"
+          }
+        }
+      }
+    },
+    "Last successful check: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last successful check: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次成功检查：%@"
+          }
+        }
+      }
+    },
+    "Latest Upstream Version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latest Upstream Version"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游最新版本"
+          }
+        }
+      }
+    },
+    "Load Upstream Versions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load Upstream Versions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "读取上游版本列表"
+          }
+        }
+      }
+    },
+    "Loading upstream versions…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading upstream versions…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在读取上游版本…"
+          }
+        }
+      }
+    },
+    "Make It Yours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make It Yours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让它变成你的"
+          }
+        }
+      }
+    },
+    "Mark All as Handled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark All as Handled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部标为已处理"
+          }
+        }
+      }
+    },
+    "Mark All as Read": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark All as Read"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部标为已读"
+          }
+        }
+      }
+    },
+    "Mark all pending changes as handled?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark all pending changes as handled?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把待处理变化全部标为已处理？"
+          }
+        }
+      }
+    },
+    "Mark as Handled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as Handled"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标为已处理"
+          }
+        }
+      }
+    },
+    "Mark as Unread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as Unread"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标为未读"
+          }
+        }
+      }
+    },
+    "Merge Import": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge Import"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合并导入"
+          }
+        }
+      }
+    },
+    "Merge import source list?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge import source list?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合并导入来源清单？"
+          }
+        }
+      }
+    },
+    "Mint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mint"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "薄荷"
+          }
+        }
+      }
+    },
+    "Mode": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模式"
+          }
+        }
+      }
+    },
+    "Monitoring & Refresh": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring & Refresh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监控与刷新"
+          }
+        }
+      }
+    },
+    "Monitoring Method": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring Method"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监控方式"
+          }
+        }
+      }
+    },
+    "Monitoring Paused": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring Paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监控已暂停"
+          }
+        }
+      }
+    },
+    "Monitoring public repos needs no GitHub sign-in.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring public repos needs no GitHub sign-in."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监控公开仓库无需登录 GitHub。"
+          }
+        }
+      }
+    },
+    "More Actions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More Actions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多操作"
+          }
+        }
+      }
+    },
+    "More Personal Info (optional)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More Personal Info (optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多个人信息（可选）"
+          }
+        }
+      }
+    },
+    "My Usage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Usage"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的使用情况"
+          }
+        }
+      }
+    },
+    "My Usage (stored on this device only)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Usage (stored on this device only)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的使用情况（仅保存在本机）"
+          }
+        }
+      }
+    },
+    "My Usage (stored on this device only, can add later)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My Usage (stored on this device only, can add later)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的使用情况（仅保存在本机，可稍后补充）"
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名称"
+          }
+        }
+      }
+    },
+    "Network & Proxy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network & Proxy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网络与代理"
+          }
+        }
+      }
+    },
+    "New category name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New category name"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新类别名称"
+          }
+        }
+      }
+    },
+    "New changes appear here after you add sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New changes appear here after you add sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加来源后，新变化会显示在这里"
+          }
+        }
+      }
+    },
+    "Next": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步"
+          }
+        }
+      }
+    },
+    "No description provided upstream.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No description provided upstream."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游未提供说明。"
+          }
+        }
+      }
+    },
+    "No handled records": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No handled records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无已处理记录"
+          }
+        }
+      }
+    },
+    "No key changes right now; switch to “All” to view": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No key changes right now; switch to “All” to view"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无重点变化；可切回“全部”查看"
+          }
+        }
+      }
+    },
+    "No matches, or press Return after typing.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matches, or press Return after typing."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有匹配结果，或输入完成后回车搜索。"
+          }
+        }
+      }
+    },
+    "No matching SKILL.md files found in the repo; enter the path manually.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching SKILL.md files found in the repo; enter the path manually."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仓库中没有找到匹配 SKILL.md 的文件，请手动输入路径。"
+          }
+        }
+      }
+    },
+    "No matching sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有匹配的来源"
+          }
+        }
+      }
+    },
+    "No new changes yet; the first check only sets a baseline.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No new changes yet; the first check only sets a baseline."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无新变化；首次检查只建立基线。"
+          }
+        }
+      }
+    },
+    "No pending changes right now": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No pending changes right now"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前没有待处理变化"
+          }
+        }
+      }
+    },
+    "No sources yet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No sources yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无来源"
+          }
+        }
+      }
+    },
+    "No unread changes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No unread changes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有未读变化"
+          }
+        }
+      }
+    },
+    "No upstream Release / Tag": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No upstream Release / Tag"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游暂无 Release／Tag"
+          }
+        }
+      }
+    },
+    "No usage recorded, so the personal impact cannot be judged. Check the upstream original.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No usage recorded, so the personal impact cannot be judged. Check the upstream original."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未填写使用情况，无法判断个人影响；请查看上游原文。"
+          }
+        }
+      }
+    },
+    "Not Checked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Checked"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未查询"
+          }
+        }
+      }
+    },
+    "Not Determined": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Determined"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待确认"
+          }
+        }
+      }
+    },
+    "Not signed in: uses the public limit (about 60/hour per IP). Sign in to lift the limit and support private repos; the app works fine without it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not signed in: uses the public limit (about 60/hour per IP). Sign in to lift the limit and support private repos; the app works fine without it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未登录：使用公开限额（约 60 次/小时）。登录后解除限制并支持私有仓库；不登录也能正常用。"
+          }
+        }
+      }
+    },
+    "Nothing matched your recorded keywords or purpose; you can still read the upstream original.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing matched your recorded keywords or purpose; you can still read the upstream original."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未匹配你记录的关键词或用途；仍可查看上游原文。"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
+    "Notifications & Widget": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications & Widget"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知与小组件"
+          }
+        }
+      }
+    },
+    "Notifications Off for This Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications Off for This Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此来源的通知已关闭"
+          }
+        }
+      }
+    },
+    "Notify on New Changes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notify on New Changes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新变化通知"
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定"
+          }
+        }
+      }
+    },
+    "Only Version-Like Releases": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only Version-Like Releases"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只关注版本号形式的发布"
+          }
+        }
+      }
+    },
+    "Only locally cached repository avatar images are deleted. Sources, settings, change records, and backups are never touched. Avatars you keep re-download the next time you view them.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only locally cached repository avatar images are deleted. Sources, settings, change records, and backups are never touched. Avatars you keep re-download the next time you view them."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只会删除本机缓存的仓库头像图片。来源、设置、变化记录和备份都不会被触碰。保留的头像会在下次查看时重新下载。"
+          }
+        }
+      }
+    },
+    "Only “Worth Attention” and “Uncertain Impact” changes are notified (each source can be turned off individually). “Worth Attention” shows a banner; the rest enter Notification Center silently; whether it interrupts is decided by the system Focus mode. Background checks are scheduled by iOS roughly every 30 minutes and are not guaranteed to be real-time.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only “Worth Attention” and “Uncertain Impact” changes are notified (each source can be turned off individually). “Worth Attention” shows a banner; the rest enter Notification Center silently; whether it interrupts is decided by the system Focus mode. Background checks are scheduled by iOS roughly every 30 minutes and are not guaranteed to be real-time."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只通知“值得关注”与“影响不确定”的相关变化（每个来源可单独关闭）。“值得关注”会横幅提醒，其余静默进入通知中心；是否打断由系统的专注模式决定。后台检查由 iOS 调度，约每 30 分钟起，不能保证实时。"
+          }
+        }
+      }
+    },
+    "Open GitHub Token Creation Page": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open GitHub Token Creation Page"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开 GitHub 令牌创建页"
+          }
+        }
+      }
+    },
+    "Open the “Fine-grained personal access token” creation page on GitHub (the button below goes straight there).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the “Fine-grained personal access token” creation page on GitHub (the button below goes straight there)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 GitHub 打开“Fine-grained personal access token”创建页（下方按钮直达）。"
+          }
+        }
+      }
+    },
+    "Orange": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orange"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "橙色"
+          }
+        }
+      }
+    },
+    "Other": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他"
+          }
+        }
+      }
+    },
+    "Other Ways": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other Ways"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他方式"
+          }
+        }
+      }
+    },
+    "Owner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Owner"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "作者"
+          }
+        }
+      }
+    },
+    "Owners who publish content-addressed snapshots can be filtered so only version-like releases are reported.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Owners who publish content-addressed snapshots can be filtered so only version-like releases are reported."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对于会把内容寻址快照也发成 release 的上游，可以开启过滤，只报告看起来像版本号的发布。"
+          }
+        }
+      }
+    },
+    "Path": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Path"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路径"
+          }
+        }
+      }
+    },
+    "Path, e.g. skills/example/SKILL.md": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Path, e.g. skills/example/SKILL.md"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路径，如 skills/example/SKILL.md"
+          }
+        }
+      }
+    },
+    "Pause Monitoring": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause Monitoring"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂停监控"
+          }
+        }
+      }
+    },
+    "Paused": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已暂停"
+          }
+        }
+      }
+    },
+    "Pending Changes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending Changes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待处理变化"
+          }
+        }
+      }
+    },
+    "Permissions needed: Metadata → Read-only, Contents → Read-only. To monitor private repos, add those repos to the token's repository access scope.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions needed: Metadata → Read-only, Contents → Read-only. To monitor private repos, add those repos to the token's repository access scope."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限只需：Metadata → Read-only，Contents → Read-only。要监控私有仓库时，把对应仓库加进令牌的仓库访问范围。"
+          }
+        }
+      }
+    },
+    "Pick an accent theme, choose an alternate app icon, and set a photo as the page background with adjustable opacity, brightness and readability. All of it lives in Settings → General.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick an accent theme, choose an alternate app icon, and set a photo as the page background with adjustable opacity, brightness and readability. All of it lives in Settings → General."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可以挑选强调色主题、更换 App 图标，还能用照片做页面背景，并调节透明度、亮度与可读性压暗。这些都在「设置 → 通用」里。"
+          }
+        }
+      }
+    },
+    "Pink": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pink"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粉色"
+          }
+        }
+      }
+    },
+    "Plus {count} more related change(s); open the app to review.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus {count} more related change(s); open the app to review."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还有 {count} 条相关变化，打开 App 查看。"
+          }
+        }
+      }
+    },
+    "Possible GitHub link in clipboard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Possible GitHub link in clipboard"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "剪贴板里可能有 GitHub 链接"
+          }
+        }
+      }
+    },
+    "Prerelease": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prerelease"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预发布"
+          }
+        }
+      }
+    },
+    "Probing uses up to 2 requests plus 1 for the version list; subsequent checks with no changes don't count against the limit.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probing uses up to 2 requests plus 1 for the version list; subsequent checks with no changes don't count against the limit."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探测最多 2 次、版本列表 1 次 GitHub API 请求；未变化时的后续检查不计入限额。"
+          }
+        }
+      }
+    },
+    "Project Home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project Home"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "项目主页"
+          }
+        }
+      }
+    },
+    "Purple": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purple"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紫色"
+          }
+        }
+      }
+    },
+    "Purpose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purpose"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用途"
+          }
+        }
+      }
+    },
+    "Purpose, e.g. NAS remote access": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purpose, e.g. NAS remote access"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用途，例如 NAS 远程连接"
+          }
+        }
+      }
+    },
+    "Purpose, version, keywords, and other personal info stay on your phone and are never sent to GitHub. Export JSON to back up or migrate anytime.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purpose, version, keywords, and other personal info stay on your phone and are never sent to GitHub. Export JSON to back up or migrate anytime."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用途、版本、关键词等个人信息只存在你的手机上，绝不会发往 GitHub。随时可以导出 JSON 做备份或迁移。"
+          }
+        }
+      }
+    },
+    "Radar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radar"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雷达"
+          }
+        }
+      }
+    },
+    "Read": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已读"
+          }
+        }
+      }
+    },
+    "Reading repo info…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading repo info…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在读取仓库信息…"
+          }
+        }
+      }
+    },
+    "Rebuild Baseline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuild Baseline"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重建当前基线"
+          }
+        }
+      }
+    },
+    "Recommend UpstreamLens to a friend": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommend UpstreamLens to a friend"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把 UpstreamLens 推荐给朋友"
+          }
+        }
+      }
+    },
+    "Records": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "记录"
+          }
+        }
+      }
+    },
+    "Refresh Now": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh Now"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "手动刷新"
+          }
+        }
+      }
+    },
+    "Remaining This Hour": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remaining This Hour"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本小时剩余额度"
+          }
+        }
+      }
+    },
+    "Remove Background Image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Background Image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除背景图片"
+          }
+        }
+      }
+    },
+    "Replace Background Image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace Background Image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更换背景图片"
+          }
+        }
+      }
+    },
+    "Replace Existing Data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace Existing Data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "替换现有数据"
+          }
+        }
+      }
+    },
+    "Replace existing data?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace existing data?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "替换现有数据？"
+          }
+        }
+      }
+    },
+    "Repo Detected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repo Detected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "识别到仓库"
+          }
+        }
+      }
+    },
+    "Repository": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repository"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仓库"
+          }
+        }
+      }
+    },
+    "Repository avatars are cached on disk so lists stay fast. Clearing only deletes these cached images: sources, settings, change records, and backups are never touched.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repository avatars are cached on disk so lists stay fast. Clearing only deletes these cached images: sources, settings, change records, and backups are never touched."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仓库头像会缓存在磁盘上以保持列表流畅。清除只会删除这些缓存图片：来源、设置、变化记录和备份都不会被触碰。"
+          }
+        }
+      }
+    },
+    "Restore Local Data First": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Local Data First"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先恢复本地数据"
+          }
+        }
+      }
+    },
+    "Retry from Upstream Versions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry from Upstream Versions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试从上游版本列表选择"
+          }
+        }
+      }
+    },
+    "Return to Pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return to Pending"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新加入待处理"
+          }
+        }
+      }
+    },
+    "Rose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rose"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玫红"
+          }
+        }
+      }
+    },
+    "Routine Update": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Routine Update"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一般更新"
+          }
+        }
+      }
+    },
+    "Save": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存"
+          }
+        }
+      }
+    },
+    "Save and Set Baseline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save and Set Baseline"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存并建立基线"
+          }
+        }
+      }
+    },
+    "Saving failed and the last saved data was restored: {detail}": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving failed and the last saved data was restored: {detail}"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存失败，已恢复上次保存的数据：{detail}"
+          }
+        }
+      }
+    },
+    "Search Results": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Results"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索结果"
+          }
+        }
+      }
+    },
+    "Search a repo name or paste a GitHub link. Presets add starred AI projects in one tap. When filling in the version in use, pick straight from the upstream release list.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search a repo name or paste a GitHub link. Presets add starred AI projects in one tap. When filling in the version in use, pick straight from the upstream release list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索仓库名或粘贴 GitHub 链接即可添加。预设可以一键加入热门 AI 项目。填写「使用版本」时可以直接从上游发布列表里选。"
+          }
+        }
+      }
+    },
+    "Search a repo name or paste a GitHub link; the first successful check sets the baseline.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search a repo name or paste a GitHub link; the first successful check sets the baseline."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索仓库名或粘贴 GitHub 链接即可；首次成功检查会建立当前基线。"
+          }
+        }
+      }
+    },
+    "Search a repo name, or paste a GitHub link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search a repo name, or paste a GitHub link"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索仓库名，或粘贴 GitHub 链接"
+          }
+        }
+      }
+    },
+    "Search failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索失败"
+          }
+        }
+      }
+    },
+    "Search sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索来源"
+          }
+        }
+      }
+    },
+    "Search title, content, or source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search title, content, or source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索标题、内容或来源"
+          }
+        }
+      }
+    },
+    "Searching…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在搜索…"
+          }
+        }
+      }
+    },
+    "Self-Hosted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Hosted"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自托管"
+          }
+        }
+      }
+    },
+    "Separate with commas or spaces. Tags are stored on this device and used to filter the Sources tab.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Separate with commas or spaces. Tags are stored on this device and used to filter the Sources tab."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用逗号或空格分隔。标签仅保存在本机，用于在「来源」页筛选。"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        }
+      }
+    },
+    "Show All %lld Lines": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show All %lld Lines"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示全部 %lld 行"
+          }
+        }
+      }
+    },
+    "Sign In and Verify": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign In and Verify"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录并验证"
+          }
+        }
+      }
+    },
+    "Sign Out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign Out"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出"
+          }
+        }
+      }
+    },
+    "Signed In": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signed In"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已登录"
+          }
+        }
+      }
+    },
+    "Signed in: uses the authenticated limit (about 5000/hour) and can monitor private repos. The token is stored only in the local Keychain.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signed in: uses the authenticated limit (about 5000/hour) and can monitor private repos. The token is stored only in the local Keychain."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已登录：使用 authenticated 限额（约 5000 次/小时），并可监控私有仓库。令牌仅存本机 Keychain。"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过"
+          }
+        }
+      }
+    },
+    "Source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来源"
+          }
+        }
+      }
+    },
+    "Source list import failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source list import failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来源清单导入失败"
+          }
+        }
+      }
+    },
+    "Sources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sources"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来源"
+          }
+        }
+      }
+    },
+    "Sources are grouped by category on the Sources tab. Deleting a category moves its sources to “Other”; it never deletes a source.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sources are grouped by category on the Sources tab. Deleting a category moves its sources to “Other”; it never deletes a source."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来源页会按类别分组。删除类别只会把其中的来源移到「其他」，绝不会删除来源本身。"
+          }
+        }
+      }
+    },
+    "Status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "状态"
+          }
+        }
+      }
+    },
+    "Suggested Presets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggested Presets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "常用预设"
+          }
+        }
+      }
+    },
+    "Supports github.com repo, branch, and file links, or type owner/repo directly.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supports github.com repo, branch, and file links, or type owner/repo directly."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持 github.com 仓库、分支、文件链接，或直接输入 owner/repo。"
+          }
+        }
+      }
+    },
+    "Switch to Manual Entry": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to Manual Entry"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "改为手动填写"
+          }
+        }
+      }
+    },
+    "System Authorization": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System Authorization"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统授权状态"
+          }
+        }
+      }
+    },
+    "Tags": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标签"
+          }
+        }
+      }
+    },
+    "Tags, e.g. self-hosted, NAS, AI": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tags, e.g. self-hosted, NAS, AI"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标签，例如 自托管、NAS、AI"
+          }
+        }
+      }
+    },
+    "Teal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "青色"
+          }
+        }
+      }
+    },
+    "The Sources tab groups your repos by category and lets you search by name, purpose or tag. Categories are yours to edit in Settings → Categories.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Sources tab groups your repos by category and lets you search by name, purpose or tag. Categories are yours to edit in Settings → Categories."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「来源」页按类别分组，并支持按名称、用途或标签搜索。类别可以在「设置 → 类别管理」里自由增删改。"
+          }
+        }
+      }
+    },
+    "The app defaults to English. You can switch to Simplified Chinese or follow the system language anytime.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app defaults to English. You can switch to Simplified Chinese or follow the system language anytime."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用默认英文。你可以随时切换到简体中文，或跟随系统语言。"
+          }
+        }
+      }
+    },
+    "The backup contains %lld sources and %lld records; importing will replace your current %lld sources.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The backup contains %lld sources and %lld records; importing will replace your current %lld sources."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份中包含 %lld 个来源、%lld 条记录，导入后将替换现有的 %lld 个来源。"
+          }
+        }
+      }
+    },
+    "The change mentions your recorded purpose or rationale “{terms}”.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The change mentions your recorded purpose or rationale “{terms}”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变更提及你记录的用途或理由「{terms}」。"
+          }
+        }
+      }
+    },
+    "The change mentions your watched keyword(s) “{terms}”. Check the original wording against how you use it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The change mentions your watched keyword(s) “{terms}”. Check the original wording against how you use it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变更提及你关注的关键词「{terms}」。请核对原文与当前用途。"
+          }
+        }
+      }
+    },
+    "The change mentions “{term}”, which usually signals a compatibility or security impact. Check the original wording against how you use it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The change mentions “{term}”, which usually signals a compatibility or security impact. Check the original wording against how you use it."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变更包含「{term}」，通常涉及兼容性或安全，请核对原文与当前用途。"
+          }
+        }
+      }
+    },
+    "The first successful check only sets a baseline; new changes are reported after that.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first successful check only sets a baseline; new changes are reported after that."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次成功检查只建立基线，之后的检查才会报告新变化。"
+          }
+        }
+      }
+    },
+    "The first successful check only sets a baseline; old versions are not treated as new changes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first successful check only sets a baseline; old versions are not treated as new changes."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次成功检查只建立基线，不会把旧版本当成新变化。"
+          }
+        }
+      }
+    },
+    "The first successful check records the current baseline only; historical versions are not treated as new changes.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The first successful check records the current baseline only; historical versions are not treated as new changes."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次成功检查只记录当前基线，不会把历史版本当成新变化。"
+          }
+        }
+      }
+    },
+    "The list contains %lld sources and will be merged into your current %lld: existing sources are not modified or deleted, and duplicate repos are skipped automatically. A check runs right after import.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The list contains %lld sources and will be merged into your current %lld: existing sources are not modified or deleted, and duplicate repos are skipped automatically. A check runs right after import."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清单包含 %lld 个来源，将合并到现有的 %lld 个：已有来源不会被修改或删除，重复仓库自动跳过。导入后立即检查一轮。"
+          }
+        }
+      }
+    },
+    "The previously known upstream item no longer exists upstream, so new changes cannot be judged safely.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The previously known upstream item no longer exists upstream, so new changes cannot be judged safely."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次已知的上游条目已不存在，无法安全判断新变化。"
+          }
+        }
+      }
+    },
+    "The theme only changes the accent color. A custom background replaces the page background; opacity, brightness and the readability shade are adjustable and can be turned off anytime. These preferences stay on this device and are never included in backups.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The theme only changes the accent color. A custom background replaces the page background; opacity, brightness and the readability shade are adjustable and can be turned off anytime. These preferences stay on this device and are never included in backups."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题只改变强调色。自定义背景会替换页面底色；透明度、亮度与可读性压暗都可调节，也可随时关闭。这些偏好仅保存在本机，不会包含在备份中。"
+          }
+        }
+      }
+    },
+    "The token is invalid or has been revoked. Check it and try again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The token is invalid or has been revoked. Check it and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "令牌无效或已被撤销，请检查后重试。"
+          }
+        }
+      }
+    },
+    "The token is stored only in the local Keychain; it is never uploaded or written into exported backups, and you can revoke it anytime via “Sign Out” in Settings.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The token is stored only in the local Keychain; it is never uploaded or written into exported backups, and you can revoke it anytime via “Sign Out” in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "令牌仅保存在本机 Keychain，不会上传，也不会写进导出备份；可随时在设置里“登出”撤销。"
+          }
+        }
+      }
+    },
+    "The upstream version matches the version you recorded.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The upstream version matches the version you recorded."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游版本与你记录的使用版本一致。"
+          }
+        }
+      }
+    },
+    "The version you recorded is ahead of the upstream identifier (a development build, or a different numbering scheme). Check the original.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The version you recorded is ahead of the upstream identifier (a development build, or a different numbering scheme). Check the original."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你记录的使用版本高于上游标识（可能是开发版或不同编号方式），请核对原文。"
+          }
+        }
+      }
+    },
+    "Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题配色"
+          }
+        }
+      }
+    },
+    "This device does not support alternate app icons.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device does not support alternate app icons."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备不支持备用 App 图标。"
+          }
+        }
+      }
+    },
+    "This info is only used locally to judge relevance; it is never sent to GitHub.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This info is only used locally to judge relevance; it is never sent to GitHub."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这些信息只用于本地判断相关性，不会发给 GitHub。"
+          }
+        }
+      }
+    },
+    "Too many files in the repo; the list is incomplete. Enter the path manually.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many files in the repo; the list is incomplete. Enter the path manually."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仓库文件过多，列表不完整；请手动输入路径。"
+          }
+        }
+      }
+    },
+    "Try another keyword, or clear the tag filter.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try another keyword, or clear the tag filter."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "换个关键词，或清除标签筛选。"
+          }
+        }
+      }
+    },
+    "Unauthenticated mode is limited to 60 requests/hour per IP; the search endpoint has a separate limit. Personal notes are never sent to GitHub.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unauthenticated mode is limited to 60 requests/hour per IP; the search endpoint has a separate limit. Personal notes are never sent to GitHub."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未登录模式每 IP 每小时 60 次；搜索接口独立限额。个人备注不会发给 GitHub。"
+          }
+        }
+      }
+    },
+    "Uncertain Impact": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uncertain Impact"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "影响不确定"
+          }
+        }
+      }
+    },
+    "Unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未知"
+          }
+        }
+      }
+    },
+    "Unread": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unread"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未读"
+          }
+        }
+      }
+    },
+    "Upstream ID": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upstream ID"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游标识"
+          }
+        }
+      }
+    },
+    "Upstream Versions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upstream Versions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游版本"
+          }
+        }
+      }
+    },
+    "Upstream latest is the pre-release {upstream}; you recorded {installed}. Whether to adopt a pre-release is your call.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upstream latest is the pre-release {upstream}; you recorded {installed}. Whether to adopt a pre-release is your call."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游最新为预发布版本 {upstream}，你记录的使用版本是 {installed}；预发布是否采用请自行判断。"
+          }
+        }
+      }
+    },
+    "Upstream latest is {upstream}; you recorded {installed}. Only minor version steps (about {steps}).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upstream latest is {upstream}; you recorded {installed}. Only minor version steps (about {steps})."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游最新为 {upstream}，你记录的使用版本是 {installed}，仅小版本更新（约 {steps} 个版本号段）。"
+          }
+        }
+      }
+    },
+    "Upstream latest is {upstream}; you recorded {installed}. This spans about {steps} major version step(s); check compatibility.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upstream latest is {upstream}; you recorded {installed}. This spans about {steps} major version step(s); check compatibility."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游最新为 {upstream}，你记录的使用版本是 {installed}，包含主版本升级（约 {steps} 个版本号段），请核对兼容性。"
+          }
+        }
+      }
+    },
+    "UpstreamLens is an on-device tech-change radar: it monitors Release, Tag, and path commits of public GitHub repos and gives verifiable judgments based on your locally stored usage.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UpstreamLens is an on-device tech-change radar: it monitors Release, Tag, and path commits of public GitHub repos and gives verifiable judgments based on your locally stored usage."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UpstreamLens 是本机使用的技术变化雷达：监控公开 GitHub 仓库的 Release、Tag 与指定路径的提交，结合本机保存的用途给出可核查的判断。"
+          }
+        }
+      }
+    },
+    "UpstreamLens only reads public info; a read-only token is enough. Grant permissions as needed:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UpstreamLens only reads public info; a read-only token is enough. Grant permissions as needed:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UpstreamLens 只读取公开信息，给它一个只读令牌即可。按需授予权限："
+          }
+        }
+      }
+    },
+    "UpstreamLens watches the GitHub repos you care about — Releases, Tags, and commits to specific files. When something changes you get a checkable signal, instead of refreshing pages.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UpstreamLens watches the GitHub repos you care about — Releases, Tags, and commits to specific files. When something changes you get a checkable signal, instead of refreshing pages."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UpstreamLens 盯着你在意的 GitHub 仓库——Release、Tag，以及指定文件的提交。有变化时给你一个可核查的信号，而不是让你反复刷页面。"
+          }
+        }
+      }
+    },
+    "Upstreams sometimes publish content-addressed snapshots as releases or tags, which carry no version meaning. Turning this on keeps only entries that look like version numbers. If nothing qualifies, everything is kept so the source never goes silent.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upstreams sometimes publish content-addressed snapshots as releases or tags, which carry no version meaning. Turning this on keeps only entries that look like version numbers. If nothing qualifies, everything is kept so the source never goes silent."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上游有时会把内容寻址快照也做成 release 或 tag，这类条目没有版本含义。开启后只保留看起来像版本号的条目。若一条都不符合则全部保留，避免来源彻底不再提醒。"
+          }
+        }
+      }
+    },
+    "Usage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用情况"
+          }
+        }
+      }
+    },
+    "Usage (stored on this device only)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage (stored on this device only)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用情况（仅保存在本机）"
+          }
+        }
+      }
+    },
+    "Use Repo Description as Purpose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Repo Description as Purpose"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用仓库描述作为用途"
+          }
+        }
+      }
+    },
+    "Used to group and filter the Sources tab. Categories can be edited in Settings → Categories.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used to group and filter the Sources tab. Categories can be edited in Settings → Categories."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用于来源页的分组与筛选。类别可在「设置 → 类别管理」中编辑。"
+          }
+        }
+      }
+    },
+    "Verification failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verification failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "验证失败"
+          }
+        }
+      }
+    },
+    "Verified Quota": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verified Quota"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已验证额度"
+          }
+        }
+      }
+    },
+    "Verifying…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifying…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "验证中…"
+          }
+        }
+      }
+    },
+    "Version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本"
+          }
+        }
+      }
+    },
+    "Version / Tag / commit in use": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version / Tag / commit in use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在使用的版本／Tag／提交"
+          }
+        }
+      }
+    },
+    "Version / Tag in use (optional)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version / Tag in use (optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在使用的版本／Tag（可留空）"
+          }
+        }
+      }
+    },
+    "Version in Use": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version in Use"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用版本"
+          }
+        }
+      }
+    },
+    "View Handled Records (%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Handled Records (%lld)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看已处理记录（%lld）"
+          }
+        }
+      }
+    },
+    "View on GitHub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View on GitHub"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看 GitHub 原文"
+          }
+        }
+      }
+    },
+    "Viewed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viewed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已查看"
+          }
+        }
+      }
+    },
+    "Violet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Violet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紫罗兰"
+          }
+        }
+      }
+    },
+    "Waiting for first successful check": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for first successful check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待首次成功检查"
+          }
+        }
+      }
+    },
+    "Why you adopted it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why you adopted it"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "采用理由"
+          }
+        }
+      }
+    },
+    "Widget": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widget"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小组件"
+          }
+        }
+      }
+    },
+    "Widget Temporarily Unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widget Temporarily Unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小组件暂不可用"
+          }
+        }
+      }
+    },
+    "With notifications on, only changes worth your attention raise a banner; the rest land silently in Notification Center. The widget shows the pending count and last check time.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With notifications on, only changes worth your attention raise a banner; the rest land silently in Notification Center. The widget shows the pending count and last check time."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启通知后，只有值得关注的变化会弹出横幅，其余静默进入通知中心。小组件显示待处理数量与上次检查时间。"
+          }
+        }
+      }
+    },
+    "Worth Attention": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worth Attention"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "值得关注"
+          }
+        }
+      }
+    },
+    "You can also paste a repo link directly.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can also paste a repo link directly."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "也可以直接粘贴仓库链接。"
+          }
+        }
+      }
+    },
+    "You recorded version {installed}. The upstream identifier alone is not enough to tell whether an upgrade is needed.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You recorded version {installed}. The upstream identifier alone is not enough to tell whether an upgrade is needed."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你记录的使用版本是 {installed}；尚不能仅凭上游标识判断是否需要升级。"
+          }
+        }
+      }
+    },
+    "Your Tech-Change Radar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Tech-Change Radar"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的技术变更雷达"
+          }
+        }
+      }
+    },
+    "in about %lld min": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in about %lld min"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "约 %lld 分钟后"
+          }
+        }
+      }
+    },
+    "owner/repo or repo link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "owner/repo or repo link"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "owner/repo 或仓库链接"
+          }
+        }
+      }
+    },
+    "requests": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "requests"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

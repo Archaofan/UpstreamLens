@@ -4,3 +4,5 @@ DerivedData/
 build/
 *.xcarchive/
 *.ipa
+/dist-*/
+

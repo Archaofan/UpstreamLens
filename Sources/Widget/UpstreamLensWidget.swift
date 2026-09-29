@@ -61,14 +61,17 @@ private struct SnapshotView: View {
     }
 
     private var snapshot: WidgetSnapshot? { entry.snapshot }
+    private var strings: [String: String] { WidgetStrings.table(snapshot?.language ?? "en") }
+    private func s(_ key: String, _ fallback: String) -> String { strings[key] ?? fallback }
 
+    /// 2×2：计数为主角，配 ≤2 行短标题与检查时间，避免标题被截成省略号。
     private var smallLayout: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             header
             if let snapshot {
                 countLine
                     .padding(.top, 2)
-                headlineText(for: snapshot)
+                headlineText(for: snapshot, lineLimit: 2)
                 Spacer(minLength: 0)
                 checkedText(for: snapshot)
             } else {
@@ -92,10 +95,10 @@ private struct SnapshotView: View {
                 Divider()
                     .padding(.vertical, 2)
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("最新待查看")
+                    Text(s("latest", "Latest to review"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    headlineText(for: snapshot)
+                    headlineText(for: snapshot, lineLimit: 3)
                         .padding(.top, 2)
                     Spacer(minLength: 0)
                 }
@@ -115,13 +118,15 @@ private struct SnapshotView: View {
                 .font(.system(.headline, design: .rounded, weight: .bold))
                 .monospacedDigit()
                 .minimumScaleFactor(0.6)
-            Text("待查看")
+            Text(s("circular", "to review"))
                 .font(.system(size: 9))
         }
     }
 
     private var inlineAccessory: some View {
-        Label(pendingCount == 0 ? "UpstreamLens：暂无待查看" : "UpstreamLens：\(pendingCount) 条待查看",
+        Label(pendingCount == 0
+              ? s("inlineNone", "UpstreamLens: none to review")
+              : String(format: s("inlinePending", "UpstreamLens: %@ to review"), "\(pendingCount)"),
               systemImage: "dot.radiowaves.left.and.right")
             .font(.caption)
     }
@@ -147,7 +152,7 @@ private struct SnapshotView: View {
                         .font(.caption2)
                         .lineLimit(2)
                 } else {
-                    Text("暂无需要关注的新变化")
+                    Text(s("noChanges", "No changes to review"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -155,7 +160,7 @@ private struct SnapshotView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             } else {
-                Text("共享数据暂不可用")
+                Text(s("unavailable", "Shared data unavailable"))
                     .font(.caption2)
             }
         }
@@ -163,11 +168,15 @@ private struct SnapshotView: View {
 
     private var pendingCount: Int { snapshot?.pendingCount ?? 0 }
 
-    private func checkedLine(for snapshot: WidgetSnapshot) -> String {
-        guard let checked = snapshot.lastSuccessfulCheck else { return "尚未完成检查" }
+    private func relative(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        return "检查于 " + formatter.localizedString(for: checked, relativeTo: entry.date)
+        return formatter.localizedString(for: date, relativeTo: entry.date)
+    }
+
+    private func checkedLine(for snapshot: WidgetSnapshot) -> String {
+        guard let checked = snapshot.lastSuccessfulCheck else { return s("notChecked", "Not checked yet") }
+        return String(format: s("checked", "Checked %@"), relative(checked))
     }
 
     private var header: some View {
@@ -182,7 +191,7 @@ private struct SnapshotView: View {
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
                 .monospacedDigit()
                 .contentTransition(.numericText())
-            Text("条待查看")
+            Text(s("pending", "to review"))
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.secondary)
         }
@@ -195,7 +204,14 @@ private struct SnapshotView: View {
             .frame(width: 8, height: 8)
     }
 
-    private func headlineText(for snapshot: WidgetSnapshot) -> some View {
+    /// 超长标题按行数预截断，避免 SwiftUI 在 2×2 上把词切成省略号。
+    private func shortHeadline(_ text: String, lineLimit: Int) -> String {
+        let max = lineLimit <= 2 ? 48 : 96
+        if text.count <= max { return text }
+        return String(text.prefix(max)) + "…"
+    }
+
+    private func headlineText(for snapshot: WidgetSnapshot, lineLimit: Int) -> some View {
         HStack(alignment: .top, spacing: 6) {
             if snapshot.headline != nil {
                 relevanceDot(snapshot.headlineRelevance == .important)
@@ -203,23 +219,24 @@ private struct SnapshotView: View {
             }
             Group {
                 if let headline = snapshot.headline {
-                    Text(headline)
+                    Text(shortHeadline(headline, lineLimit: lineLimit))
                 } else {
-                    Text("暂无需要关注的新变化")
+                    Text(s("noChanges", "No changes to review"))
                 }
             }
             .font(.subheadline.weight(.medium))
             .foregroundStyle(snapshot.headline == nil ? Color.secondary : Color.primary)
-            .lineLimit(3)
+            .lineLimit(lineLimit)
+            .truncationMode(.tail)
         }
     }
 
     private func checkedText(for snapshot: WidgetSnapshot) -> some View {
         Group {
             if let checked = snapshot.lastSuccessfulCheck {
-                Text("检查于 \(checked, style: .relative)")
+                Text(String(format: s("checked", "Checked %@"), relative(checked)))
             } else {
-                Text("尚未完成检查")
+                Text(s("notChecked", "Not checked yet"))
             }
         }
         .font(.caption2)
@@ -228,8 +245,8 @@ private struct SnapshotView: View {
 
     private var unavailableText: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("共享数据暂不可用").font(.headline)
-            Text("请打开 App 检查组件状态").font(.caption).foregroundStyle(.secondary)
+            Text(s("unavailable", "Shared data unavailable")).font(.headline)
+            Text(s("unavailableHint", "Open the app to check widget status")).font(.caption).foregroundStyle(.secondary)
         }
     }
 }
@@ -241,8 +258,8 @@ private struct SnapshotView: View {
         StaticConfiguration(kind: kind, provider: SnapshotProvider()) { entry in
             SnapshotView(entry: entry)
         }
-        .configurationDisplayName("技术变化")
-        .description("显示待查看的相关变化与上次检查时间。")
+        .configurationDisplayName(WidgetStrings.table("en")["configName"] ?? "Tech Changes")
+        .description(WidgetStrings.table("en")["configDescription"] ?? "Shows pending relevant changes and the last check time.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

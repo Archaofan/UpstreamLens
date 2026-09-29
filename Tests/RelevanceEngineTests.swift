@@ -77,7 +77,9 @@ final class RelevanceEngineTests: XCTestCase {
         let source = sourceWith(installedVersion: "1.2.0")
         let result = RelevanceEngine.assess(source: source, text: "New release", versionHint: "v2.0.0")
         XCTAssertEqual(result.0, .important)
-        XCTAssertTrue(result.1.contains("主版本"))
+        // 文案已本地化：测试环境是英文，断言英文模板里的关键措辞。
+        XCTAssertTrue(result.1.contains("major version"), result.1)
+        XCTAssertTrue(result.1.contains("2.0.0"), result.1)
     }
 
     func testVersionGapMinorIsRoutine() {
@@ -90,7 +92,7 @@ final class RelevanceEngineTests: XCTestCase {
         let source = sourceWith(installedVersion: "1.9.0")
         let result = RelevanceEngine.assess(source: source, text: "New release", versionHint: "2.0.0-rc.1")
         XCTAssertEqual(result.0, .uncertain)
-        XCTAssertTrue(result.1.contains("预发布"))
+        XCTAssertTrue(result.1.contains("pre-release"), result.1)
     }
 
     func testUpToDateIsRoutine() {
@@ -115,7 +117,7 @@ final class RelevanceEngineTests: XCTestCase {
     func testEmptyContextIsUncertainWithGuidance() {
         let result = RelevanceEngine.assess(source: sourceWith(), text: "Anything")
         XCTAssertEqual(result.0, .uncertain)
-        XCTAssertTrue(result.1.contains("未填写使用情况"))
+        XCTAssertTrue(result.1.contains("No usage recorded"), result.1)
     }
 
     func testFallbackRoutine() {

@@ -11,6 +11,11 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - name: Static checks (braces and localization keys)
+        run: |
+          set -euo pipefail
+          python3 scripts/check_braces.py
+          python3 scripts/check_l10n_keys.py
       - name: Select Xcode 26.6
         run: |
           sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
@@ -34,14 +39,58 @@ jobs:
           xcrun simctl bootstatus "$SIMULATOR_ID" -b
           xcrun simctl install "$SIMULATOR_ID" build/ui-derived/Build/Products/Debug-iphonesimulator/UpstreamLens.app
           mkdir -p build/screenshots
+          # 启动崩溃闸：单元测试跑的是逻辑，不覆盖 App 真实启动路径
+          # （AppModel.init 会读盘、跑一次性迁移并落盘）。启动即崩溃以前会被静默漏掉，
+          # 截图只会拍到桌面。
+          #
+          # 只统计**主 App** 的崩溃报告：模拟器里 Widget 扩展会因 XPC 连接报
+          # ExcUserFault_UpstreamLensWidget（is_simulated:1, bundleID ...ios.widget），
+          # 那是模拟器环境的固有现象，与主 App 启动无关，不能拿来当门禁——
+          # 否则门禁会误报（首轮实测正是被它挡下的）。它仍然打印出来以保留可见性。
+          CRASH_DIR="$HOME/Library/Logs/DiagnosticReports"
+          # 注意：函数末尾显式 return 0。`set -o pipefail` 下 grep 无匹配会让整条
+          # 管道返回非零，命令替换在 `set -e` 下会直接终止脚本——门禁自身不能崩。
+          crash_listing() { ls "$CRASH_DIR" 2>/dev/null || true; }
+          app_crashes() {
+            crash_listing | grep -i upstreamlens | grep -vi widget | wc -l | tr -d ' \n'
+            return 0
+          }
+          widget_faults() {
+            crash_listing | grep -i upstreamlenswidget | wc -l | tr -d ' \n'
+            return 0
+          }
+          BEFORE="$(app_crashes)"
+          check_launch() {
+            local label="$1"
+            xcrun simctl launch "$SIMULATOR_ID" com.upstreamlens.ios
+            sleep 4
+            local now
+            now="$(app_crashes)"
+            if [ "$now" -gt "$BEFORE" ]; then
+              echo "::error::UpstreamLens (main app) crashed on launch ($label)"
+              ls -la "$CRASH_DIR" | grep -i upstreamlens || true
+              for f in "$CRASH_DIR"/*UpstreamLens-*; do
+                if [ -f "$f" ]; then sed -n '1,80p' "$f" || true; fi
+              done
+              exit 1
+            fi
+            local faults
+            faults="$(widget_faults)"
+            if [ "$faults" -gt 0 ]; then
+              echo "note: $faults simulator-only widget extension fault report(s) present (not gating) ($label)"
+            fi
+            if xcrun simctl spawn "$SIMULATOR_ID" launchctl list 2>/dev/null | grep -qi upstreamlens; then
+              echo "process alive ($label)"
+            else
+              echo "note: process not listed by launchctl ($label)"
+            fi
+          }
           xcrun simctl ui "$SIMULATOR_ID" appearance light
-          xcrun simctl launch "$SIMULATOR_ID" com.upstreamlens.ios
-          sleep 3
+          check_launch light
           xcrun simctl io "$SIMULATOR_ID" screenshot build/screenshots/home-light.png
-          xcrun simctl terminate "$SIMULATOR_ID" com.upstreamlens.ios
+          xcrun simctl terminate "$SIMULATOR_ID" com.upstreamlens.ios || true
           xcrun simctl ui "$SIMULATOR_ID" appearance dark
-          xcrun simctl launch "$SIMULATOR_ID" com.upstreamlens.ios
-          sleep 3
+          check_launch dark
           xcrun simctl io "$SIMULATOR_ID" screenshot build/screenshots/home-dark.png
       - uses: actions/upload-artifact@v4
         with:

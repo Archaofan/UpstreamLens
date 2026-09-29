@@ -83,6 +83,12 @@ enum WidgetSnapshotWriter {
     static var groupID: String { AppGroupResolver.activeGroupID }
     static let fileName = "widget-snapshot.json"
 
+    /// 当前 App 语言码（en/zh-Hans），写进快照供小组件按 App 的选择显示。
+    static var languageCode: String {
+        let raw = UserDefaults.standard.string(forKey: "appLanguage") ?? AppLanguage.english.rawValue
+        return LanguagePreferences.resolve(AppLanguage(rawValue: raw) ?? .english).code
+    }
+
     static func write(from data: LocalData) throws {
         guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupID) else {
             throw StorageError.appGroupUnavailable
@@ -94,7 +100,8 @@ enum WidgetSnapshotWriter {
         }.first
         let snapshot = WidgetSnapshot(pendingCount: pending.count, headline: top?.title,
                                       headlineRelevance: top?.relevance,
-                                      lastSuccessfulCheck: data.lastSuccessfulCheck, generatedAt: .now)
+                                      lastSuccessfulCheck: data.lastSuccessfulCheck, generatedAt: .now,
+                                      language: Self.languageCode)
         try JSONEncoder().encode(snapshot).write(to: container.appendingPathComponent(fileName), options: .atomic)
         WidgetCenter.shared.reloadAllTimelines()
     }

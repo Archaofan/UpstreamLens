@@ -46,8 +46,10 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Obse
                     task.setTaskCompleted(success: false)
                     return
                 }
-                await model.refreshAllRespectingBudget(minRemaining: 5)
-                UpstreamLensApp.scheduleBackgroundRefresh()
+                if RefreshPolicy.backgroundEnabled() {
+                    await model.refreshAllRespectingBudget(minRemaining: 5)
+                    UpstreamLensApp.scheduleBackgroundRefresh()
+                }
                 task.setTaskCompleted(success: true)
             }
             task.expirationHandler = {
@@ -58,29 +60,55 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Obse
 
     var body: some Scene {
         WindowGroup {
-            ContentView(model: model)
-                .fullScreenCover(isPresented: Binding(
-                    get: { !hasCompletedOnboarding },
-                    set: { hasCompletedOnboarding = !$0 })) {
-                    OnboardingView { hasCompletedOnboarding = true }
+            // 底部三入口：雷达 / 来源 / 设置。各 Tab 自持 NavigationStack，
+            // 原有 ContentView 内部导航与深链逻辑保持不变。
+            TabView {
+                ContentView(model: model)
+                    .tabItem { Label("Radar", systemImage: "dot.radiowaves.left.and.right") }
+                SourcesTabView(model: model)
+                    .tabItem { Label("Sources", systemImage: "square.stack.3d.up") }
+                SettingsView(model: model)
+                    .tabItem { Label("Settings", systemImage: "gearshape") }
+            }
+            .injectLocale()
+            .injectTheme()
+            .appBackground()
+            // 冷启动兜底：万一上次切换失败，重新应用已保存的图标选择。
+            .task {
+                if let stored = AppIconPreferences.stored() as AppIconOption?, stored != .primary {
+                    _ = try? await AppIconSwitcher.apply(stored)
                 }
+            }
+            .fullScreenCover(isPresented: Binding(
+                get: { !hasCompletedOnboarding },
+                set: { hasCompletedOnboarding = !$0 })) {
+                OnboardingView { hasCompletedOnboarding = true }
+                    .injectLocale()
+                    .injectTheme()
+                    .appBackground()
+            }
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:
-                Task { await model.refreshAll() }
+                if RefreshPolicy.checkOnOpen() {
+                    Task { await model.refreshAll() }
+                }
             case .background:
-                Self.scheduleBackgroundRefresh()
+                if RefreshPolicy.backgroundEnabled() {
+                    Self.scheduleBackgroundRefresh()
+                }
             default:
                 break
             }
         }
     }
 
-    /// 后台检查：iOS 调度，间隔约 30 分钟起（系统可能合并或推迟，不作实时承诺）。
+    /// 后台检查：iOS 调度，间隔由设置里的档位决定（系统可能合并或推迟，不作实时承诺）。
     static func scheduleBackgroundRefresh() {
+        guard RefreshPolicy.backgroundEnabled() else { return }
         let request = BGAppRefreshTaskRequest(identifier: backgroundRefreshID)
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 30 * 60)
+        request.earliestBeginDate = Date(timeIntervalSinceNow: TimeInterval(RefreshPolicy.backgroundMinutes() * 60))
         try? BGTaskScheduler.shared.submit(request)
     }
 }

@@ -39,7 +39,8 @@ enum NotificationPlanner {
             result.append(PendingNotification(
                 identifier: "source-\(source.id.uuidString)-overflow",
                 title: source.title,
-                body: "还有 \(rest.count) 条相关变化，打开 App 查看。",
+                body: L10n.format("Plus {count} more related change(s); open the app to review.",
+                                  ["count": String(rest.count)]),
                 threadIdentifier: source.title,
                 isImportant: false,
                 findingID: source.id))
