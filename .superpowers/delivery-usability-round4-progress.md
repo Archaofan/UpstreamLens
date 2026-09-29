@@ -28,4 +28,4 @@ CI loop record (usability-round4, run 36508741689 → 36509896790 → 3651084050
 - R3: if let loadError 遮蔽 @State 属性 → 显式命名 message
 - 期间 GitHub 直连多次中断（connection reset），push 用重试循环恢复
 - 设备端待验证：App Group 解析是否在真实重签链路下拿到 <团队ID> 前缀容器（诊断文本会显示授权组与实际使用组）
-Merge: main (--no-ff), final main run 见 git log。
+Merge: main 49ba76f (--no-ff), final main run 36513245313 SUCCESS（IPA artifact UpstreamLens-unsigned）。
