@@ -84,7 +84,8 @@ struct ContentView: View {
                 }
             }
             .sheet(item: $editorSource) { source in
-                SourceEditorView(source: source) { saved in
+                SourceEditorView(source: source,
+                                 versionOptionsLoader: { try await model.versionOptions(repository: $0, kind: $1) }) { saved in
                     model.upsert(saved)
                     Task { await model.refresh(saved.id) }
                 }
@@ -547,16 +548,21 @@ struct SourceEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var source: WatchSource
     let onSave: (WatchSource) -> Void
+    /// 版本下拉的数据源；为 nil（测试/预览）时退回手填文本框。
+    var versionOptionsLoader: ((String, SourceKind) async throws -> [VersionOption])?
     @State private var error: String?
     @State private var showMoreContext: Bool
 
-    init(source: WatchSource, prefillRepository: String? = nil, onSave: @escaping (WatchSource) -> Void) {
+    init(source: WatchSource, prefillRepository: String? = nil,
+         versionOptionsLoader: ((String, SourceKind) async throws -> [VersionOption])? = nil,
+         onSave: @escaping (WatchSource) -> Void) {
         var initial = source
         if initial.repository.isEmpty, let prefillRepository {
             initial.repository = prefillRepository
         }
         _source = State(initialValue: initial)
         _showMoreContext = State(initialValue: !source.installedVersion.isEmpty || !source.keywords.isEmpty || !source.rationale.isEmpty)
+        self.versionOptionsLoader = versionOptionsLoader
         self.onSave = onSave
     }
 
@@ -582,7 +588,16 @@ struct SourceEditorView: View {
                     TextField("显示名称", text: $source.displayName)
                     TextField("用途，例如 NAS 远程连接", text: $source.purpose)
                     DisclosureGroup("更多个人信息（可选）", isExpanded: $showMoreContext) {
-                        TextField("正在使用的版本／Tag／提交", text: $source.installedVersion)
+                        if let versionOptionsLoader {
+                            VersionPickerField(repository: source.repository, kind: source.kind,
+                                               loadOptions: VersionPickerField.makeLoader(
+                                                   versionOptionsLoader,
+                                                   repository: source.repository, kind: source.kind),
+                                               selection: $source.installedVersion)
+                        } else {
+                            TextField("正在使用的版本／Tag／提交", text: $source.installedVersion)
+                                .textInputAutocapitalization(.never)
+                        }
                         TextField("关注关键词，逗号分隔", text: $source.keywords)
                         TextField("采用理由", text: $source.rationale, axis: .vertical)
                     }
@@ -631,8 +646,11 @@ struct PersonalContextEditorView: View {
                 Section("使用情况（仅保存在本机）") {
                     TextField("显示名称", text: $source.displayName)
                     TextField("用途，例如 NAS 远程连接", text: $source.purpose)
-                    TextField("正在使用的版本／Tag／提交", text: $source.installedVersion)
-                        .textInputAutocapitalization(.never)
+                    VersionPickerField(repository: source.repository, kind: source.kind,
+                                       loadOptions: VersionPickerField.makeLoader(
+                                           { try await model.versionOptions(repository: $0, kind: $1) },
+                                           repository: source.repository, kind: source.kind),
+                                       selection: $source.installedVersion)
                     TextField("关注关键词，逗号分隔", text: $source.keywords)
                         .textInputAutocapitalization(.never)
                     TextField("采用理由", text: $source.rationale, axis: .vertical)

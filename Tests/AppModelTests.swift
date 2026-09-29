@@ -329,4 +329,37 @@ final class AppModelTests: XCTestCase {
         let scan = try await model.probePaths(repository: "acme/probed", branch: "main")
         XCTAssertEqual(scan.paths, ["skills/a/SKILL.md"])
     }
+
+    // MARK: - AI 来源清单合并
+
+    @MainActor func testMergeSourceListAddsOnlyNewSources() {
+        let existing = WatchSource(kind: .release, repository: "openclaw/openclaw")
+        var withPath = WatchSource(kind: .release, repository: "openclaw/openclaw")
+        withPath.path = "docs"
+        let model = AppModel(initialData: LocalData(sources: [existing]),
+                             saveData: { _ in }, publishSnapshot: { _ in })
+        let result = model.mergeSourceList([
+            WatchSource(kind: .release, repository: "openclaw/openclaw"),
+            withPath,
+            WatchSource(kind: .tag, repository: "n8n-io/n8n"),
+        ])
+        XCTAssertEqual(result.added, 2, "同仓库同模式跳过，同仓库不同模式/路径仍算新来源")
+        XCTAssertEqual(result.skipped, 1)
+        XCTAssertEqual(model.sources.count, 3)
+        XCTAssertTrue(model.sources.contains { $0.kind == .tag && $0.repository == "n8n-io/n8n" })
+    }
+
+    @MainActor func testMergeSourceListKeepsExistingPersonalContext() {
+        var existing = WatchSource(kind: .release, repository: "a/b")
+        existing.installedVersion = "1.0.0"
+        existing.purpose = "本机自用"
+        let model = AppModel(initialData: LocalData(sources: [existing]),
+                             saveData: { _ in }, publishSnapshot: { _ in })
+        var incoming = WatchSource(kind: .release, repository: "a/b")
+        incoming.installedVersion = "9.9.9"
+        let result = model.mergeSourceList([incoming])
+        XCTAssertEqual(result.skipped, 1)
+        XCTAssertEqual(model.source(for: existing.id)?.installedVersion, "1.0.0", "重复项不得覆盖已有个人数据")
+        XCTAssertEqual(model.source(for: existing.id)?.purpose, "本机自用")
+    }
 }

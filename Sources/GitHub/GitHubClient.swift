@@ -208,6 +208,13 @@ struct TreeScan: Equatable {
     let truncated: Bool
 }
 
+/// 上游版本候选（下拉选项）：name 是 tag 名，prerelease 用于界面标注。
+struct VersionOption: Equatable, Identifiable {
+    let name: String
+    let prerelease: Bool
+    var id: String { name }
+}
+
 struct GitHubClient {
     private let session: URLSession
     static let defaultSession: URLSession = {
@@ -367,6 +374,28 @@ struct GitHubClient {
             .map(\.path)
             .filter { path in suffixes.contains(where: path.hasSuffix) }
         return TreeScan(paths: paths, truncated: payload.truncated)
+    }
+
+    /// 上游版本候选列表：“正在使用的版本”下拉的数据源，1 次核心接口请求。
+    /// path 模式的版本是提交 SHA，不适合下拉选择，直接返回空数组且不发请求。
+    func versionOptions(repository: String, kind: SourceKind, perPage: Int = 30) async throws -> [VersionOption] {
+        let repository = try Self.normalizedRepository(repository)
+        switch kind {
+        case .path:
+            return []
+        case .release:
+            let (data, _) = try await plainRequest(repository: repository, endpoint: "releases",
+                                                   query: [URLQueryItem(name: "per_page", value: String(perPage))],
+                                                   etag: nil)
+            let releases = try JSONDecoder().decode([ReleaseDTO].self, from: data)
+            return releases.filter { !$0.draft }.map { VersionOption(name: $0.tag_name, prerelease: $0.prerelease) }
+        case .tag:
+            let (data, _) = try await plainRequest(repository: repository, endpoint: "tags",
+                                                   query: [URLQueryItem(name: "per_page", value: String(perPage))],
+                                                   etag: nil)
+            let tags = try JSONDecoder().decode([TagDTO].self, from: data)
+            return tags.map { VersionOption(name: $0.name, prerelease: false) }
+        }
     }
 
     private func commitMessages(repository: String) async throws -> [String: String] {

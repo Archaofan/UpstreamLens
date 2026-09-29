@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// 设置页：数据管理（导入/导出/清理）、GitHub 限额、可复制的诊断信息、关于。
+/// 设置页：数据管理（导入/导出/清理）、AI 来源清单、GitHub 限额、可复制的诊断信息、关于。
 /// 低频功能集中在这里，首页保持清爽。
 struct SettingsView: View {
     @ObservedObject var model: AppModel
@@ -13,6 +13,10 @@ struct SettingsView: View {
     @State private var dialogError: String?
     @State private var diagnosticsText: String?
     @State private var confirmClearHandled = false
+    @State private var showAiPrompt = false
+    @State private var showSourceListImporter = false
+    @State private var pendingSourceList: PendingSourceListImport?
+    @State private var importResultMessage: String?
     @AppStorage("notificationsEnabled") private var notificationsEnabled = false
     @State private var notificationAuthStatus = "未查询"
 
@@ -23,12 +27,19 @@ struct SettingsView: View {
         var id: String { "\(sourceCount)-\(findingCount)" }
     }
 
+    private struct PendingSourceListImport: Identifiable {
+        let sources: [WatchSource]
+        let warnings: [String]
+        var id: Int { sources.count }
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 notificationSection
                 rateLimitSection
                 dataSection
+                helpSection
                 diagnosticsSection
                 aboutSection
             }
@@ -42,6 +53,15 @@ struct SettingsView: View {
             }
             .fileImporter(isPresented: $showImporter, allowedContentTypes: [.json]) { result in
                 handleImport(result)
+            }
+            .fileImporter(isPresented: $showSourceListImporter, allowedContentTypes: [.json]) { result in
+                handleSourceListImport(result)
+            }
+            .sheet(isPresented: $showAiPrompt) {
+                CopyableTextSheet(
+                    title: "AI 检索提示词",
+                    text: SourceListImport.prompt,
+                    footnote: "复制给能访问你电脑/服务器的 AI（如 Agent CLI、IDE 助手）；它返回的 JSON 存为 .json 文件后，用“导入 AI 来源清单”加入监控。")
             }
             .confirmationDialog("替换现有数据？", isPresented: Binding(
                 get: { pendingImport != nil },
@@ -58,6 +78,29 @@ struct SettingsView: View {
                     Text("备份中包含 \(pendingImport.sourceCount) 个来源、\(pendingImport.findingCount) 条记录，导入后将替换现有的 \(model.sources.count) 个来源。")
                 }
             }
+            .confirmationDialog("合并导入来源清单？", isPresented: Binding(
+                get: { pendingSourceList != nil },
+                set: { if !$0 { pendingSourceList = nil } })) {
+                Button("合并导入") {
+                    guard let pending = pendingSourceList else { return }
+                    let result = model.mergeSourceList(pending.sources)
+                    var lines = ["已新增 \(result.added) 个来源，跳过 \(result.skipped) 个重复项。"]
+                    lines.append(contentsOf: pending.warnings)
+                    importResultMessage = lines.joined(separator: "\n")
+                    self.pendingSourceList = nil
+                    Task { await model.refreshAll() }
+                }
+                Button("取消", role: .cancel) { pendingSourceList = nil }
+            } message: {
+                if let pending = pendingSourceList {
+                    Text("清单包含 \(pending.sources.count) 个来源，将合并到现有的 \(model.sources.count) 个：已有来源不会被修改或删除，重复仓库自动跳过。导入后立即检查一轮。")
+                }
+            }
+            .alert("导入完成", isPresented: Binding(
+                get: { importResultMessage != nil },
+                set: { if !$0 { importResultMessage = nil } })) {
+                Button("确定", role: .cancel) { importResultMessage = nil }
+            } message: { Text(importResultMessage ?? "") }
             .alert("清理已处理记录？", isPresented: $confirmClearHandled) {
                 Button("清理", role: .destructive) { model.clearHandledRecords() }
                 Button("取消", role: .cancel) {}
@@ -176,11 +219,50 @@ struct SettingsView: View {
         }
     }
 
+    private var helpSection: some View {
+        Section {
+            Button {
+                showAiPrompt = true
+            } label: {
+                Label("AI 检索提示词（一键复制）", systemImage: "doc.text.viewfinder")
+            }
+            Button {
+                showSourceListImporter = true
+            } label: {
+                Label("导入 AI 来源清单（合并到现有来源）", systemImage: "sparkles.rectangle.stack")
+            }
+        } header: {
+            Text("帮助 · 用 AI 批量添加来源")
+        } footer: {
+            Text("把提示词复制给能访问本机的 AI，它会检索你在用的开源项目并输出 JSON 清单；清单保存为 .json 后从这里导入，App 会合并新增来源并立即检查。不会覆盖或修改已有来源。")
+        }
+    }
+
+    private func handleSourceListImport(_ result: Result<URL, Error>) {
+        do {
+            let url = try result.get()
+            let access = url.startAccessingSecurityScopedResource()
+            defer { if access { url.stopAccessingSecurityScopedResource() } }
+            let bytes = try Data(contentsOf: url)
+            let parsed = try SourceListImport.parse(bytes)
+            pendingSourceList = PendingSourceListImport(sources: parsed.sources, warnings: parsed.warnings)
+        } catch {
+            dialogError = "来源清单导入失败：\(error.localizedDescription)"
+        }
+    }
+
     private var aboutSection: some View {
         Section("关于") {
             LabeledContent("版本", value: appVersion)
             LabeledContent("来源", value: "\(model.sources.count) 个")
             LabeledContent("记录", value: "\(model.findings.count) 条")
+            LabeledContent("开发者") {
+                Link("@Archaofan", destination: Promotion.developerURL)
+            }
+            LabeledContent("项目主页") {
+                Link("GitHub 仓库", destination: Promotion.projectURL)
+            }
+            ShareLink("把 UpstreamLens 推荐给朋友", item: Promotion.projectURL)
             Text("UpstreamLens 是本机使用的技术变化雷达：监控公开 GitHub 仓库的 Release、Tag 与指定路径的提交，结合本机保存的用途给出可核查的判断。")
                 .font(.footnote).foregroundStyle(.secondary)
         }
@@ -223,6 +305,49 @@ struct DiagnosticsSheet: View {
                     .padding()
             }
             .navigationTitle("诊断信息")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("关闭") { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("复制全部") {
+                        UIPasteboard.general.string = text
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// 推广信息集中一处，换账号只改这里。
+enum Promotion {
+    static let developerHandle = "@Archaofan"
+    static let developerURL = URL(string: "https://github.com/Archaofan")!
+    static let projectURL = URL(string: "https://github.com/Archaofan/UpstreamLens")!
+}
+
+/// 可全选复制的文本弹窗（AI 提示词等长文本）。
+struct CopyableTextSheet: View {
+    let title: String
+    let text: String
+    var footnote: String? = nil
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    if let footnote {
+                        Text(footnote).font(.footnote).foregroundStyle(.secondary)
+                    }
+                    Text(text)
+                        .font(.system(.footnote, design: .monospaced))
+                        .textSelection(.enabled)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+            }
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { Button("关闭") { dismiss() } }
